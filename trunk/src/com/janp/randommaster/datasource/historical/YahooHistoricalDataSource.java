@@ -110,18 +110,21 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 			taskToYqlMap.put(handle, yql);
 		}
 		
-		// get all the result
-		for (Future<Collection<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
-			try {
-				Collection<YahooHistoricalData> batchResult=handle.get();
-				result.addAll(batchResult);
-			} catch (Exception e1) {
-				throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToYqlMap.get(handle), e1);
+		try {
+			// get all the result
+			for (Future<Collection<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
+				try {
+					Collection<YahooHistoricalData> batchResult=handle.get();
+					result.addAll(batchResult);
+				} catch (Exception e1) {
+					throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToYqlMap.get(handle), e1);
+				}
 			}
-		}
+		} finally {
 		
-		// shutdown all the threads
-		pool.shutdownNow();
+			// shutdown all the threads in any case
+			pool.shutdownNow();
+		}
 		
 		return result;
 	}
