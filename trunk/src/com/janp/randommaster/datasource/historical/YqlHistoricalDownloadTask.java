@@ -19,11 +19,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 
-public class YqlDownloadTask implements Callable<Collection<YahooHistoricalData>> {
+public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHistoricalData>> {
 
 	private String yql;
 	
-	public YqlDownloadTask(String yql) {
+	public YqlHistoricalDownloadTask(String yql) {
 		this.yql=yql;
 	}
 

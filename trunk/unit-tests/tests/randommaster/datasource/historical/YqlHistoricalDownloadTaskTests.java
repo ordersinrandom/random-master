@@ -8,19 +8,19 @@ import org.junit.Test;
 
 import com.janp.randommaster.datasource.historical.YahooHistoricalData;
 import com.janp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
-import com.janp.randommaster.datasource.historical.YqlDownloadTask;
+import com.janp.randommaster.datasource.historical.YqlHistoricalDownloadTask;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class YqlDownloadTaskTests extends TestCase {
+public class YqlHistoricalDownloadTaskTests extends TestCase {
 
 	@Test
 	public void testDownload() {
 		
 		String yql="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%220005.HK%22%20and%20startDate%20%3D%20%222010-01-01%22%20and%20endDate%20%3D%20%222010-01-05%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env";
 		
-		YqlDownloadTask t=new YqlDownloadTask(yql);
+		YqlHistoricalDownloadTask t=new YqlHistoricalDownloadTask(yql);
 		
 		try {
 			Collection<YahooHistoricalData> result=t.call();
@@ -41,7 +41,7 @@ public class YqlDownloadTaskTests extends TestCase {
 		inputXml.append("<!-- engine5.yql.sg3.yahoo.com -->\n");
 		
 		try {
-			Collection<YahooHistoricalData> result=YqlDownloadTask.parseYqlResponse(inputXml.toString());
+			Collection<YahooHistoricalData> result=YqlHistoricalDownloadTask.parseYqlResponse(inputXml.toString());
 			
 			Assert.assertEquals("Not getting exactly 3 items", 3, result.size());
 			
