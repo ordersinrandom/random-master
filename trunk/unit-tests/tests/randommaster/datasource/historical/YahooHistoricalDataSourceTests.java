@@ -77,14 +77,8 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 				new LocalDate(2012, 1, 1), new LocalDate(2013, 3, 5));
 
 		Collection<HistoricalData> data=t.getData();
-		int count=0;
-		for (HistoricalData d : data) {
-			//System.out.println(d);
-			count++;
-		}
-		//System.out.println("number of items="+count);
 		
-		Assert.assertEquals("Not exactly 296 items downloaded", 296, count);
+		Assert.assertEquals("Not exactly 296 items downloaded", 296, data.size());
 	}
 	
 	

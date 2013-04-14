@@ -2,6 +2,9 @@ package com.janp.randommaster.datasource.historical;
 
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
@@ -79,6 +82,7 @@ public class YqlDownloadTask implements Callable<Collection<YahooHistoricalData>
 			
 			result.add(d);
 	    }
+	    
 	    
 	    return result;
 	}
