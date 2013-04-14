@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="random-master" default="print-usage" basedir=".">
+
+    <property name="src" location="src"/>
+    <property name="test-src" location="unit-tests"/>
+    <property name="build" location="bin"/>
+    <property name="lib" location="lib"/>
+
+
+    <target name="print-usage">
+        <echo>
+Usage:
+
+ant clean            Clean all previous build
+ant compile          Compile the project
+ant unit-test        Run unit tests
+        </echo>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac destdir="${build}"  includeantruntime="false" >
+            <src path="${src}"/>
+            <src path="${test-src}"/>
+            <classpath>
+                <fileset dir="${lib}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="unit-test" depends="compile">
+        <junit printsummary="yes" haltonfailure="no">
+            <classpath>
+                <fileset dir="${lib}"/>
+                <dirset dir="${build}"/>
+            </classpath>
+
+            <formatter type="plain" usefile="false"/>
+
+            <!--
+            <test name="testing.MatrixTest" haltonfailure="no"/>
+            -->
+            <batchtest fork="no">
+                <fileset dir="${test-src}">
+                    <include name="**/*Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+	
+
+</project>
