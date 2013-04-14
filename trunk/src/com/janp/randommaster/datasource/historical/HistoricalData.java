@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.joda.time.LocalDate;
 
-public interface HistoricalData extends Serializable {
+public interface HistoricalData extends Serializable, Comparable<HistoricalData>, Cloneable {
 
 	public LocalDate getDate();
 	public double getOpen();

@@ -1,7 +1,15 @@
 package com.janp.randommaster.datasource.historical;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -9,6 +17,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class YahooHistoricalDataSource implements HistoricalDataSource {
 
+	private static final int THREADS_COUNT=10;
+	
 	private String yqlPattern = "http://query.yahooapis.com/v1/public/yql?q={YQL}&env=http%3A%2F%2Fdatatables.org%2Falltables.env";
 
 	private String yahooSymbol;
@@ -41,8 +51,15 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 				nextEndDate = endDate;
 
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+			
+			String escapedSymbol = yahooSymbol;
+			try {
+				escapedSymbol=URLEncoder.encode(yahooSymbol, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new YahooHistoricalDataSourceException("Unable to escape input symbol: "+yahooSymbol, e);
+			}
 
-			String query = queryPattern.replace("{SYMBOL}", yahooSymbol)
+			String query = queryPattern.replace("{SYMBOL}", escapedSymbol)
 					.replace("{STARTDATE}", nextStartDate.toString(fmt))
 					.replace("{ENDDATE}", nextEndDate.toString(fmt));
 
@@ -74,5 +91,40 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 		return "YahooHistoricalDataSource { " + yahooSymbol + ", "
 				+ startDate.toString(fmt) + ", " + endDate.toString(fmt) + " }";
 	}
+	
+	
+	public Collection<HistoricalData> getData() {
+		TreeSet<HistoricalData> result=new TreeSet<HistoricalData>();
+		
+		
+		ExecutorService pool = Executors.newFixedThreadPool(THREADS_COUNT);
+		
+		
+		HashMap<Future<Collection<YahooHistoricalData>>, String> taskToYqlMap
+			=new HashMap<Future<Collection<YahooHistoricalData>>, String>();
+		
+		
+		for (String yql: getYqls()) {
+			YqlDownloadTask t=new YqlDownloadTask(yql);
+			Future<Collection<YahooHistoricalData>> handle=pool.submit(t);
+			taskToYqlMap.put(handle, yql);
+		}
+		
+		// get all the result
+		for (Future<Collection<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
+			try {
+				Collection<YahooHistoricalData> batchResult=handle.get();
+				result.addAll(batchResult);
+			} catch (Exception e1) {
+				throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToYqlMap.get(handle), e1);
+			}
+		}
+		
+		// shutdown all the threads
+		pool.shutdownNow();
+		
+		return result;
+	}
+	
 
 }

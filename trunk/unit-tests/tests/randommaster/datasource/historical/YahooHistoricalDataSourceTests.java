@@ -1,10 +1,12 @@
 package tests.randommaster.datasource.historical;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import com.janp.randommaster.datasource.historical.HistoricalData;
 import com.janp.randommaster.datasource.historical.YahooHistoricalDataSource;
 import com.janp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
 
@@ -68,6 +70,23 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 		
 	}
 	
+	@Test 
+	public void testDownloadAcrossYears() {
+		
+		YahooHistoricalDataSource t = new YahooHistoricalDataSource("^HSI",
+				new LocalDate(2012, 1, 1), new LocalDate(2013, 3, 5));
+
+		Collection<HistoricalData> data=t.getData();
+		int count=0;
+		for (HistoricalData d : data) {
+			//System.out.println(d);
+			count++;
+		}
+		//System.out.println("number of items="+count);
+		
+		Assert.assertEquals("Not exactly 296 items downloaded", 296, count);
+	}
+	
 	
 	@Test
 	public void testAcrossYears() {
@@ -80,12 +99,12 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 		Assert.assertEquals("Not exactly 6 YQL produced", 6, yqls.size());
 		
 		String[] expected = new String[] {
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222008-01-01%22%20and%20endDate%20%3D%20%222009-01-01%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222009-01-02%22%20and%20endDate%20%3D%20%222010-01-02%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222010-01-03%22%20and%20endDate%20%3D%20%222011-01-03%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222011-01-04%22%20and%20endDate%20%3D%20%222012-01-04%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222012-01-05%22%20and%20endDate%20%3D%20%222013-01-05%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
-				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22^HSI%22%20and%20startDate%20%3D%20%222013-01-06%22%20and%20endDate%20%3D%20%222013-03-05%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env" };
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222008-01-01%22%20and%20endDate%20%3D%20%222009-01-01%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222009-01-02%22%20and%20endDate%20%3D%20%222010-01-02%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222010-01-03%22%20and%20endDate%20%3D%20%222011-01-03%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222011-01-04%22%20and%20endDate%20%3D%20%222012-01-04%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222012-01-05%22%20and%20endDate%20%3D%20%222013-01-05%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22%5EHSI%22%20and%20startDate%20%3D%20%222013-01-06%22%20and%20endDate%20%3D%20%222013-03-05%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env" };
 		
 		for (int i=0;i<6;i++) {
 			Assert.assertEquals(
