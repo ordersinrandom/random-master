@@ -26,6 +26,30 @@ public class YahooHistoricalData implements HistoricalData {
 		this.adjustedClose=adjustedClose;
 	}
 	
+	public int hashCode() {
+		LocalDate d=getDate();
+		return d.getYear() << 16 
+				| d.getMonthOfYear() << 8
+				| d.getDayOfMonth();
+	}
+	
+	public boolean equals(Object obj) {
+		if (obj==null)
+			return false;
+		else if (obj instanceof YahooHistoricalData) {
+			YahooHistoricalData d=(YahooHistoricalData) obj;
+			return d.getDate().equals(this.getDate());
+		}
+		else return false;
+	}
+	
+	
+	@Override
+	public int compareTo(HistoricalData d) {
+		return getDate().compareTo(d.getDate());
+	}
+		
+	
 	public LocalDate getDate() {
 		return date;
 	}
@@ -59,7 +83,7 @@ public class YahooHistoricalData implements HistoricalData {
 		
 		StringBuilder buf=new StringBuilder();
 		buf.append("YahooHistoricalData { date=");
-		buf.append(date.toString(fmt));
+		buf.append(getDate().toString(fmt));
 		buf.append(", open=");
 		buf.append(open);
 		buf.append(", high=");
@@ -76,5 +100,6 @@ public class YahooHistoricalData implements HistoricalData {
 		return buf.toString();
 		
 	}
-	
+
+
 }
