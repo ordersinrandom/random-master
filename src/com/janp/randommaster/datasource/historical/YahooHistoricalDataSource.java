@@ -105,7 +105,7 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 		
 		
 		for (String yql: getYqls()) {
-			YqlDownloadTask t=new YqlDownloadTask(yql);
+			YqlHistoricalDownloadTask t=new YqlHistoricalDownloadTask(yql);
 			Future<Collection<YahooHistoricalData>> handle=pool.submit(t);
 			taskToYqlMap.put(handle, yql);
 		}
