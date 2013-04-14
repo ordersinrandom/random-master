@@ -38,7 +38,13 @@ public class YahooHistoricalData implements HistoricalData {
 			return false;
 		else if (obj instanceof YahooHistoricalData) {
 			YahooHistoricalData d=(YahooHistoricalData) obj;
-			return d.getDate().equals(this.getDate());
+			return d.getDate().equals(this.getDate())
+					&& d.getOpen()==this.getOpen()
+					&& d.getHigh()==this.getHigh()
+					&& d.getLow()==this.getLow()
+					&& d.getClose()==this.getClose()
+					&& d.getVolume()==this.getVolume()
+					&& d.getAdjustedClose()==this.getAdjustedClose();
 		}
 		else return false;
 	}
@@ -46,7 +52,23 @@ public class YahooHistoricalData implements HistoricalData {
 	
 	@Override
 	public int compareTo(HistoricalData d) {
-		return getDate().compareTo(d.getDate());
+		int c=getDate().compareTo(d.getDate());
+		if (c!=0)
+			return c;
+		else {
+			// if the volume is 0, we put it at the back, those are corp action items.
+			if (getVolume()>d.getVolume())
+				return -1;
+			else if (getVolume()<d.getVolume())
+				return 1;
+			else {
+				if (getAdjustedClose()<d.getAdjustedClose())
+					return -1;
+				else if (getAdjustedClose()>d.getAdjustedClose())
+					return 1;
+				else return 0;
+			}
+		}
 	}
 		
 	
