@@ -4,7 +4,6 @@
     <property name="src" location="src"/>
     <property name="test-src" location="unit-tests"/>
     <property name="build" location="bin"/>
-    <property name="config" location="config"/>
     <property name="lib" location="lib"/>
 
 
