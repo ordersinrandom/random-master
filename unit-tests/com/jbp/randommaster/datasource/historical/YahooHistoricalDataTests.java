@@ -1,9 +1,9 @@
-package tests.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import com.janp.randommaster.datasource.historical.YahooHistoricalData;
+import com.jbp.randommaster.datasource.historical.YahooHistoricalData;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

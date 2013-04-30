@@ -1,4 +1,4 @@
-package com.janp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 import java.io.StringReader;
 import java.util.Collection;

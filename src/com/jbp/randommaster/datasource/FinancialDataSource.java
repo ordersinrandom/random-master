@@ -1,4 +1,4 @@
-package com.janp.randommaster.datasource;
+package com.jbp.randommaster.datasource;
 
 public interface FinancialDataSource {
 

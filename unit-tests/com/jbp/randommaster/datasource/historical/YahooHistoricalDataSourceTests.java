@@ -1,4 +1,4 @@
-package tests.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import com.janp.randommaster.datasource.historical.HistoricalData;
-import com.janp.randommaster.datasource.historical.YahooHistoricalDataSource;
-import com.janp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
+import com.jbp.randommaster.datasource.historical.HistoricalData;
+import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSource;
+import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
