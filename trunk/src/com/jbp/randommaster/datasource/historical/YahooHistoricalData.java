@@ -1,4 +1,4 @@
-package com.janp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;

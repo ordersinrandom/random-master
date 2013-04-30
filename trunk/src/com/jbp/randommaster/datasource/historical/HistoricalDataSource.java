@@ -1,8 +1,8 @@
-package com.janp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 import java.util.Collection;
 
-import com.janp.randommaster.datasource.FinancialDataSource;
+import com.jbp.randommaster.datasource.FinancialDataSource;
 
 public interface HistoricalDataSource extends FinancialDataSource {
 

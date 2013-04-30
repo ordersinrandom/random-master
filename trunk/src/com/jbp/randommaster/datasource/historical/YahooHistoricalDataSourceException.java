@@ -1,4 +1,4 @@
-package com.janp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical;
 
 public class YahooHistoricalDataSourceException extends RuntimeException {
 
