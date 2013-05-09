@@ -3,28 +3,28 @@ package com.jbp.randommaster.quant.sde.univariate;
 /**
  * A generic definition of univariate Drift Diffusion Process
  */
-public abstract class DriftDiffusionProcess {
+public class DriftDiffusionProcess<T1 extends DriftTerm, T2 extends DiffusionTerm> {
 
-	protected DriftTerm drift;
-	protected DiffusionTerm diffusion;
+	protected T1 drift;
+	protected T2 diffusion;
 	
 	public DriftDiffusionProcess() {
 		
 	}
 
-	public DriftTerm getDrift() {
+	public T1 getDrift() {
 		return drift;
 	}
 
-	public void setDrift(DriftTerm drift) {
+	protected void setDrift(T1 drift) {
 		this.drift = drift;
 	}
 
-	public DiffusionTerm getDiffusion() {
+	public T2 getDiffusion() {
 		return diffusion;
 	}
 
-	public void setDiffusion(DiffusionTerm diffusion) {
+	protected void setDiffusion(T2 diffusion) {
 		this.diffusion = diffusion;
 	}
 	

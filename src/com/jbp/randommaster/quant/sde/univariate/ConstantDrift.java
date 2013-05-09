@@ -20,6 +20,12 @@ public class ConstantDrift implements DriftTerm, Serializable, Cloneable {
 	}
 	
 	
+	
+	public double getMu() {
+		return mu;
+	}
+
+
 	@Override
 	public double evaluate(Filtration<Double> f) {
 		// depends on nothing at the current time 
@@ -37,7 +43,7 @@ public class ConstantDrift implements DriftTerm, Serializable, Cloneable {
 	}
 	
 	public String toString() {
-		return "Drift { mu="+mu+" }";
+		return "ConstantDrift { mu="+mu+" }";
 	}
 
 }
