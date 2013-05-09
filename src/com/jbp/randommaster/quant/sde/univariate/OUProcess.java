@@ -2,6 +2,15 @@ package com.jbp.randommaster.quant.sde.univariate;
 
 import com.jbp.randommaster.quant.sde.Filtration;
 
+/**
+ * 
+ * Define the SDE
+ * 
+ * <br/>
+ * 
+ * dXt = theta * (mu - Xt) dt + sigma dWt
+ *
+ */
 public class OUProcess extends DriftDiffusionProcess<OUProcess.MeanRevertingTerm, ConstantDiffusion> {
 
 	public OUProcess(double theta, double mu, double sigma) {
