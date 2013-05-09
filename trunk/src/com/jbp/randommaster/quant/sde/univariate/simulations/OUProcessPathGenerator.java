@@ -9,18 +9,13 @@ import com.jbp.randommaster.quant.sde.univariate.OUProcess;
  * Implement the exact simulation algorithm on OUProcess.
  *
  */
-public class OUProcessPathGenerator implements PathGenerator<OUProcess> {
+public class OUProcessPathGenerator extends AbstractPathGenerator<OUProcess> {
 
-	private OUProcess process;
-	private Filtration<Double> ft;
-	
 	private NormalDistribution normDist;
 	
-	public OUProcessPathGenerator(OUProcess process, double initValue, long seed) {
-		this.process=process;
-		ft=new Filtration<Double>();
-		ft.setProcessValue(initValue);
-		ft.setTime(0.0);
+	public OUProcessPathGenerator(OUProcess ouProcess, double initValue, long seed) {
+		
+		super(ouProcess, initValue);
 		
 		normDist=new NormalDistribution(0.0, 1.0);
 		normDist.reseedRandomGenerator(seed);		
@@ -29,9 +24,12 @@ public class OUProcessPathGenerator implements PathGenerator<OUProcess> {
 	@Override
 	public double getNext(double dt) {
 		
-		double theta = process.getDrift().getTheta();
-		double mu = process.getDrift().getMu();
-		double sigma = process.getDiffusion().getSigma();
+		OUProcess ouProcess=super.getProcess();
+		Filtration<Double> ft=super.getFiltration();
+		
+		double theta = ouProcess.getDrift().getTheta();
+		double mu = ouProcess.getDrift().getMu();
+		double sigma = ouProcess.getDiffusion().getSigma();
 
 		double lastX = ft.getProcessValue();
 		
@@ -44,11 +42,6 @@ public class OUProcessPathGenerator implements PathGenerator<OUProcess> {
 		ft.incrementTime(dt);
 		
 		return newX;
-	}
-
-	@Override
-	public OUProcess getProcess() {
-		return process;
 	}
 
 }

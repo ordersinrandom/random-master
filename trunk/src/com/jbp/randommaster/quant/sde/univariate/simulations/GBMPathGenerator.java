@@ -9,24 +9,13 @@ import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
  * Implements the exact simulation algorithm on GeometricBrownianMotion
  *
  */
-public class GBMPathGenerator implements PathGenerator<GeometricBrownianMotion> {
+public class GBMPathGenerator extends AbstractPathGenerator<GeometricBrownianMotion> {
 	
-	private GeometricBrownianMotion gbm;
-	
-	// these are used when it is exact simulation
-	// representing the current state of the generator
-	private Filtration<Double> ft;
 	private NormalDistribution normDist;
 
 	public GBMPathGenerator(GeometricBrownianMotion gbm, double initValue, long seed) {
-		if (gbm==null)
-			throw new IllegalArgumentException("Input motion cannot be null");
 		
-		this.gbm=gbm;
-		
-		ft=new Filtration<Double>();
-		ft.setTime(0.0);
-		ft.setProcessValue(initValue);
+		super(gbm, initValue);
 		
 		normDist=new NormalDistribution(0.0, 1.0);
 		normDist.reseedRandomGenerator(seed);
@@ -34,6 +23,9 @@ public class GBMPathGenerator implements PathGenerator<GeometricBrownianMotion> 
 
 	@Override
 	public double getNext(double dt) {
+		
+		GeometricBrownianMotion gbm=super.getProcess();
+		Filtration<Double> ft=super.getFiltration();
 
 		double mu = gbm.getDrift().getMu();
 		double sigma = gbm.getDiffusion().getSigma();
@@ -48,11 +40,5 @@ public class GBMPathGenerator implements PathGenerator<GeometricBrownianMotion> 
 		return result;
 	}
 
-	@Override
-	public GeometricBrownianMotion getProcess() {
-		return gbm;
-	}
 
-	
-	
 }

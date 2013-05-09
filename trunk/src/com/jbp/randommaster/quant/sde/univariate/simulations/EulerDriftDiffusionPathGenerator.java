@@ -13,15 +13,14 @@ import com.jbp.randommaster.quant.sde.univariate.DriftTerm;
  *
  * @param <T> Any DriftDiffusionProcess we want to simulate the paths.
  */
-public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm>> implements PathGenerator<T>{
+public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm>> extends AbstractPathGenerator<T> {
 
-	private T driftDiffusionProcess;
-	private Filtration<Double> currentFt;
 	private NormalDistribution normDist;
 	
 	public EulerDriftDiffusionPathGenerator(T driftDiffusionProcess, Filtration<Double> initFt, long seed) {
-		this.driftDiffusionProcess=driftDiffusionProcess;
-		this.currentFt=initFt;
+		
+		super(driftDiffusionProcess, initFt);
+		
 		
 		normDist=new NormalDistribution(0.0, 1.0);
 		normDist.reseedRandomGenerator(seed);		
@@ -30,23 +29,21 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 	@Override
 	public double getNext(double dt) {
 		
+		Filtration<Double> ft=super.getFiltration();
+		
+		DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm> process=super.getProcess();
+		
 		double dWt = normDist.sample() * Math.sqrt(dt);
 		
-		double dXt = driftDiffusionProcess.getDrift().evaluate(currentFt) * dt 
-				+ driftDiffusionProcess.getDiffusion().evaluate(currentFt) * dWt;
+		double dXt = process.getDrift().evaluate(ft) * dt 
+				+ process.getDiffusion().evaluate(ft) * dWt;
 		
-		double result = currentFt.getProcessValue()+dXt;
+		double result = ft.getProcessValue()+dXt;
 		
-		currentFt.setProcessValue(result);
-		currentFt.incrementTime(dt);
+		ft.setProcessValue(result);
+		ft.incrementTime(dt);
 		
 		return result;
 	}
-
-	@Override
-	public T getProcess() {
-		return driftDiffusionProcess;
-	}
-
-
+	
 }
