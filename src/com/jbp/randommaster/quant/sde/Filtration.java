@@ -1,18 +1,28 @@
 package com.jbp.randommaster.quant.sde;
 
+
 /**
  * 
  * This class represents filtration. All the information up to the current time t.
  *
  */
 public class Filtration<T> {
-
+	
 	protected double time;
 	// this could be vector or a single Xt
 	protected T processValue; 
 	
 	public Filtration() {
 		
+	}
+	
+	public Filtration(T initValue, double initTime) {
+		processValue=initValue;
+		time=initTime;
+	}
+	
+	public Filtration(T initValue) {
+		this(initValue, 0.0);
 	}
 
 	public double getTime() {
