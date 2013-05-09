@@ -12,7 +12,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.jbp.randommaster.quant.sde.univariate.BrownianBridge;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
 import com.jbp.randommaster.quant.sde.univariate.OUProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.EulerDriftDiffusionPathGenerator;
