@@ -16,6 +16,9 @@ public class BrownianBridge extends DriftDiffusionProcess<BrownianBridge.Drift, 
 
 		setDrift(new Drift(endTime, endValue));
 		setDiffusion(new ConstantDiffusion(1.0));
+		
+		// brownian bridge cannot have any value after endTime
+		getTimeDomain().setEnd(endTime);
 	}
 	
 
