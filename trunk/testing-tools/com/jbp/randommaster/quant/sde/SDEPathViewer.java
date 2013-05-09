@@ -12,6 +12,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import com.jbp.randommaster.quant.sde.univariate.BrownianBridge;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
 import com.jbp.randommaster.quant.sde.univariate.OUProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.EulerDriftDiffusionPathGenerator;
@@ -43,12 +44,14 @@ public class SDEPathViewer {
 		initOuFt.setTime(0);
 		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<OUProcess>(ou, initOuFt, seed);
 		
+
+			
 		XYSeries series1=new XYSeries("GBM Exact");
 		XYSeries series2=new XYSeries("GBM Euler");
 		XYSeries series3=new XYSeries("OU Exact");
 		XYSeries series4=new XYSeries("OU Euler");
 
-		int simCount=120;
+		int simCount=252;
 		double dt = 1.0/252.0;
 		
 		int step=0;
