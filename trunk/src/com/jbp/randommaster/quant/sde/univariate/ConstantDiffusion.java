@@ -9,7 +9,7 @@ import com.jbp.randommaster.quant.sde.Filtration;
  * A simple implementation of a constant diffusion.
  *
  */
-public class ConstantDiffusion implements DriftTerm, Serializable, Cloneable {
+public class ConstantDiffusion implements DiffusionTerm, Serializable, Cloneable {
 
 	
 	private static final long serialVersionUID = -6186046043165867589L;
@@ -22,6 +22,13 @@ public class ConstantDiffusion implements DriftTerm, Serializable, Cloneable {
 	}
 	
 	
+	
+	public double getSigma() {
+		return sigma;
+	}
+
+
+
 	@Override
 	public double evaluate(Filtration<Double> f) {
 		// depends on nothing at the current time 
@@ -39,7 +46,7 @@ public class ConstantDiffusion implements DriftTerm, Serializable, Cloneable {
 	}
 	
 	public String toString() {
-		return "Diffusion { sigma="+sigma+" }";
+		return "ConstantDiffusion { sigma="+sigma+" }";
 	}
 
 }
