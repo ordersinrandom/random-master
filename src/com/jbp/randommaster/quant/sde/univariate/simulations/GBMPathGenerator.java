@@ -5,6 +5,10 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
 
+/**
+ * Implements the exact simulation algorithm on GeometricBrownianMotion
+ *
+ */
 public class GBMPathGenerator implements PathGenerator<GeometricBrownianMotion> {
 	
 	private GeometricBrownianMotion gbm;
