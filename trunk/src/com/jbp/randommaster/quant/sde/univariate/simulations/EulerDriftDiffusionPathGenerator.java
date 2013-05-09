@@ -15,12 +15,12 @@ import com.jbp.randommaster.quant.sde.univariate.DriftTerm;
  */
 public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm>> implements PathGenerator<T>{
 
-	private T process;
+	private T driftDiffusionProcess;
 	private Filtration<Double> currentFt;
 	private NormalDistribution normDist;
 	
-	public EulerDriftDiffusionPathGenerator(T process, Filtration<Double> initFt, long seed) {
-		this.process=process;
+	public EulerDriftDiffusionPathGenerator(T driftDiffusionProcess, Filtration<Double> initFt, long seed) {
+		this.driftDiffusionProcess=driftDiffusionProcess;
 		this.currentFt=initFt;
 		
 		normDist=new NormalDistribution(0.0, 1.0);
@@ -32,7 +32,8 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 		
 		double dWt = normDist.sample() * Math.sqrt(dt);
 		
-		double dXt = process.getDrift().evaluate(currentFt) * dt + process.getDiffusion().evaluate(currentFt) * dWt;
+		double dXt = driftDiffusionProcess.getDrift().evaluate(currentFt) * dt 
+				+ driftDiffusionProcess.getDiffusion().evaluate(currentFt) * dWt;
 		
 		double result = currentFt.getProcessValue()+dXt;
 		
@@ -44,7 +45,7 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 
 	@Override
 	public T getProcess() {
-		return process;
+		return driftDiffusionProcess;
 	}
 
 
