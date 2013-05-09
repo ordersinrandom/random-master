@@ -3,7 +3,7 @@ package com.jbp.randommaster.quant.sde.univariate;
 /**
  * A generic definition of univariate Drift Diffusion Process
  */
-public class DriftDiffusionProcess<T1 extends DriftTerm, T2 extends DiffusionTerm> {
+public class DriftDiffusionProcess<T1 extends DriftTerm, T2 extends DiffusionTerm> implements UnivariateStochasticProcess {
 
 	protected T1 drift;
 	protected T2 diffusion;

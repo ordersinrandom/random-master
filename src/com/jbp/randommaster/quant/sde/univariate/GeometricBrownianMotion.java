@@ -2,6 +2,14 @@ package com.jbp.randommaster.quant.sde.univariate;
 
 import com.jbp.randommaster.quant.sde.Filtration;
 
+/**
+ * 
+ * Define the process
+ * <br/>
+ * 
+ * dXt = mu * Xt * dt + sigma * Xt * dWt
+ *
+ */
 public class GeometricBrownianMotion extends DriftDiffusionProcess<GeometricBrownianMotion.Drift, GeometricBrownianMotion.Diffusion> {
 
 	public GeometricBrownianMotion(double mu, double sigma) {

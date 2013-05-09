@@ -22,6 +22,10 @@ public class Filtration<T> {
 	public void setTime(double time) {
 		this.time = time;
 	}
+	
+	public void incrementTime(double dt) {
+		this.time+=dt;
+	}
 
 	public T getProcessValue() {
 		return processValue;
