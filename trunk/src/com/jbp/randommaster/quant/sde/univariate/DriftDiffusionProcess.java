@@ -1,5 +1,7 @@
 package com.jbp.randommaster.quant.sde.univariate;
 
+import com.jbp.randommaster.quant.sde.TimeDomain;
+
 /**
  * A generic definition of univariate Drift Diffusion Process
  */
@@ -8,8 +10,10 @@ public class DriftDiffusionProcess<T1 extends DriftTerm, T2 extends DiffusionTer
 	protected T1 drift;
 	protected T2 diffusion;
 	
+	protected TimeDomain timeDomain;
+	
 	public DriftDiffusionProcess() {
-		
+		timeDomain=new TimeDomain();
 	}
 
 	public T1 getDrift() {
@@ -26,6 +30,10 @@ public class DriftDiffusionProcess<T1 extends DriftTerm, T2 extends DiffusionTer
 
 	protected void setDiffusion(T2 diffusion) {
 		this.diffusion = diffusion;
+	}
+	
+	public TimeDomain getTimeDomain() {
+		return timeDomain;
 	}
 	
 	@Override
