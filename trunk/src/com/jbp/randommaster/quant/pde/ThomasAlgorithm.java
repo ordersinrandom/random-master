@@ -46,7 +46,9 @@ public class ThomasAlgorithm {
 		return x;
 	}
 	
-	
+	/**
+	 * Implementation of Thomas Algorithm using matrix objects.
+	 */
 	public static RealMatrix solve(RealMatrix tridiagonalMatrix, RealMatrix rValues) {
 	
 		if (!tridiagonalMatrix.isSquare())
