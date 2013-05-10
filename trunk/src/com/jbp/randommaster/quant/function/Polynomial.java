@@ -61,6 +61,13 @@ public class Polynomial implements RealScalarFunction {
 		return coefficients.size();
 	}
 
+	/**
+	 * Evaluate this polynomial.
+	 * 
+	 * @param x The vector of x0, x1, x2, x3 and so on.
+	 * @return The function output value y.
+	 * 
+	 */
 	@Override
 	public Double evaluate(RealVector x) {
 		if (x.getDimension()!=coefficients.size())
