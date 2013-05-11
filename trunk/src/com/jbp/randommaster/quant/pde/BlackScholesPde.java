@@ -6,7 +6,7 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
  * 
  * General form of Black Scholes PDE <br/>
  * 
- * du/dt + mu(x,t) du/dx + sigma(x,t) d2u/dx2 + r(x,t) u = 0 
+ * dV/dt + mu(x,t) dV/dx + sigma(x,t) d2V/dx2 + r(x,t) V = 0 
  *
  */
 public class BlackScholesPde {
