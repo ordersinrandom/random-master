@@ -11,7 +11,7 @@ import com.jbp.randommaster.quant.pde.BlackScholesPdeFiniteDifferenceSolver.Solu
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class BlackScholesPdeFiniteDifferenceSolverTest extends TestCase {
+public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 
 
 	@Test
