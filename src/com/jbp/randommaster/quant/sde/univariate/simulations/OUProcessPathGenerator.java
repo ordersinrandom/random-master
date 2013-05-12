@@ -12,13 +12,20 @@ import com.jbp.randommaster.quant.sde.univariate.OUProcess;
 public class OUProcessPathGenerator extends AbstractPathGenerator<OUProcess> {
 
 	private NormalDistribution normDist;
-	
-	public OUProcessPathGenerator(OUProcess ouProcess, double initValue, long seed) {
+
+	/**
+	 * Create a new OUProcessPathGenerator.
+	 * 
+	 * @param ouProcess The process definition.
+	 * @param initValue The initial Value of the process.
+	 * @param normDist The standard normal distribution N(0,1) for random number generation.
+	 */
+	public OUProcessPathGenerator(OUProcess ouProcess, double initValue, NormalDistribution normDist) {
 		
 		super(ouProcess, initValue);
 		
-		normDist=new NormalDistribution(0.0, 1.0);
-		normDist.reseedRandomGenerator(seed);		
+		this.normDist=normDist;
+				
 	}
 	
 	@Override
