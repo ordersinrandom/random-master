@@ -5,6 +5,7 @@ import java.awt.GradientPaint;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -22,26 +23,27 @@ public class SDEPathViewer {
 
 	public static void main(String[] args) throws Exception {
 		
-		
+		NormalDistribution standardNormal = new NormalDistribution(0,1);
+		standardNormal.reseedRandomGenerator(19230123213L);
 		
 		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.55);
 		
-		long seed=19230123213L;
-		GBMPathGenerator gen1=new GBMPathGenerator(gbm, 100, seed);
+		GBMPathGenerator gen1=new GBMPathGenerator(gbm, 100, standardNormal);
+		
 		
 		Filtration<Double> initGbmFt=new Filtration<Double>();
 		initGbmFt.setProcessValue(100.0);
 		initGbmFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<GeometricBrownianMotion>(gbm, initGbmFt, seed);
+		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<GeometricBrownianMotion>(gbm, initGbmFt, standardNormal);
 
 		
 		OUProcess ou=new OUProcess(30, 100.0, 20.0);
-		OUProcessPathGenerator gen3 = new OUProcessPathGenerator(ou, 110.0, seed);
+		OUProcessPathGenerator gen3 = new OUProcessPathGenerator(ou, 110.0, standardNormal);
 		
 		Filtration<Double> initOuFt=new Filtration<Double>();
 		initOuFt.setProcessValue(110.0);
 		initOuFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<OUProcess>(ou, initOuFt, seed);
+		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<OUProcess>(ou, initOuFt, standardNormal);
 		
 
 			

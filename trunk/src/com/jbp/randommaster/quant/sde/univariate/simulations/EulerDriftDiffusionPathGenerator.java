@@ -17,13 +17,12 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 
 	private NormalDistribution normDist;
 	
-	public EulerDriftDiffusionPathGenerator(T driftDiffusionProcess, Filtration<Double> initFt, long seed) {
+	
+	public EulerDriftDiffusionPathGenerator(T driftDiffusionProcess, Filtration<Double> initFt, NormalDistribution normDist) {
 		
 		super(driftDiffusionProcess, initFt);
 		
-		
-		normDist=new NormalDistribution(0.0, 1.0);
-		normDist.reseedRandomGenerator(seed);		
+		this.normDist=normDist;
 	}
 	
 	@Override

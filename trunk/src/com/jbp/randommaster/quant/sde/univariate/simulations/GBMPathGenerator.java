@@ -13,14 +13,14 @@ public class GBMPathGenerator extends AbstractPathGenerator<GeometricBrownianMot
 	
 	private NormalDistribution normDist;
 
-	public GBMPathGenerator(GeometricBrownianMotion gbm, double initValue, long seed) {
+	public GBMPathGenerator(GeometricBrownianMotion gbm, double initValue, NormalDistribution normDist) {
 		
 		super(gbm, initValue);
 		
-		normDist=new NormalDistribution(0.0, 1.0);
-		normDist.reseedRandomGenerator(seed);
+		this.normDist=normDist;
+		
 	}
-
+	
 	@Override
 	public double getNext(double dt) {
 		
