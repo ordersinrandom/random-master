@@ -11,6 +11,8 @@ import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 /**
  * 
  * Implement a Crank Nicolson scheme PDE solver for the PDE defined in <code>BlackScholesPde</code>.
+ * 
+ * Note; All input boundary conditions are having the parameter input[0] as t and input[1] as X
  *
  */
 public class BlackScholesPdeFiniteDifferenceSolver {
@@ -80,14 +82,14 @@ public class BlackScholesPdeFiniteDifferenceSolver {
 				
 				// if it is at maturity
 				if (n==0) {
-					valuationLayer[j] = boundaryConditionAtT.value(new double[] { currentX, currentT });
+					valuationLayer[j] = boundaryConditionAtT.value(new double[] { currentT, currentX });
 				}
 				else {
 
-					double[] xAndT=new double[] { currentX, currentT };
-					double mu = pde.getMu().value(xAndT);
-					double sigma = pde.getSigma().value(xAndT);
-					double r = pde.getR().value(xAndT);
+					double[] tAndX=new double[] { currentT, currentX };
+					double mu = pde.getMu().value(tAndX);
+					double sigma = pde.getSigma().value(tAndX);
+					double r = pde.getR().value(tAndX);
 					
 					// fill in a, b, c arrays
 					a[j] = -mu / (4.0 * dx) + sigma / (2.0 * dx * dx);
@@ -106,26 +108,26 @@ public class BlackScholesPdeFiniteDifferenceSolver {
 					}
 					else if (j==0) {
 						
-						double prevVJMinus1 = boundaryConditionAtMinX.value(new double[] { xMin, prevT });
+						double prevVJMinus1 = boundaryConditionAtMinX.value(new double[] { prevT, xMin });
 						
 						double originalD = -prevLayer[j] * (1.0 / dt - sigma / (dx*dx) + r/2.0)
 								-prevLayer[j+1] * (mu/(4.0*dx) + sigma / (2.0 * dx*dx))
 								-prevVJMinus1 * (-mu/(4.0*dx) + sigma / (2.0 * dx * dx));
 						
-						double currentVJMinus1 = boundaryConditionAtMinX.value(new double[] { xMin, currentT });
+						double currentVJMinus1 = boundaryConditionAtMinX.value(new double[] { currentT, xMin });
 						
 						d[j] = originalD - a[j] * currentVJMinus1;
 						
 					}
 					else if (j==maxJ) {
 
-						double prevVJPlus1 = boundaryConditionAtMaxX.value(new double[] { xMax, prevT });
+						double prevVJPlus1 = boundaryConditionAtMaxX.value(new double[] { prevT, xMax });
 						
 						double originalD = -prevLayer[j] * (1.0 / dt - sigma / (dx*dx) + r/2.0)
 								-prevVJPlus1 * (mu/(4.0*dx) + sigma / (2.0 * dx*dx))
 								-prevLayer[j-1] * (-mu/(4.0*dx) + sigma / (2.0 * dx * dx));
 						
-						double currentVJPlus1 = boundaryConditionAtMaxX.value(new double[] { xMax, currentT });
+						double currentVJPlus1 = boundaryConditionAtMaxX.value(new double[] { currentT, xMax });
 						
 						d[j] = originalD - c[j] * currentVJPlus1;
 					}
@@ -200,13 +202,13 @@ public class BlackScholesPdeFiniteDifferenceSolver {
 			
 			
 			if (x0<=xMin)
-				return boundaryConditionAtMinX.value(new double[] { x0, 0.0 });
+				return boundaryConditionAtMinX.value(new double[] { 0.0, x0 });
 			else if (x0>=xMax) 
-				return boundaryConditionAtMaxX.value(new double[] { x0, 0.0 });
+				return boundaryConditionAtMaxX.value(new double[] { 0.0, x0 });
 
 			
-			double vMin = boundaryConditionAtMinX.value(new double[] { xMin, 0.0 });
-			double vMax = boundaryConditionAtMaxX.value(new double[] { xMax, 0.0 });
+			double vMin = boundaryConditionAtMinX.value(new double[] { 0.0, xMin });
+			double vMax = boundaryConditionAtMaxX.value(new double[] { 0.0, xMax });
 			double[] gridAtTime0 = pdeGrid.get(pdeGrid.size()-1);
 			
 			double[] v = new double [ gridAtTime0.length +2];
