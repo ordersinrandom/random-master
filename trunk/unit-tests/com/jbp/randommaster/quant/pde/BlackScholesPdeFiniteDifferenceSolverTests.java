@@ -130,7 +130,7 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 		
 		OUProcess ou=new OUProcess(theta, mu, sigma);
 		
-		FeynmanKacPde pde=new FeynmanKacPde(ou);
+		FeynmanKacFormula pde=new FeynmanKacFormula(ou);
 		
 		
 		
