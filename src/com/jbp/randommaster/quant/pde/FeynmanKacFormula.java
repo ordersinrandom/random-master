@@ -12,12 +12,12 @@ import com.jbp.randommaster.quant.sde.univariate.DriftTerm;
  * An implementation of the Feynman Kac theorem converting a drift diffusion process to a Black Scholes PDE.
  *
  */
-public class FeynmanKacPde extends BlackScholesPde {
+public class FeynmanKacFormula extends BlackScholesPde {
 	
 	private DriftTerm muTerm;
 	private DiffusionTerm sigmaTerm;
 
-	public FeynmanKacPde(DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm> sde) {
+	public FeynmanKacFormula(DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm> sde) {
 		super();
 		
 		this.muTerm=sde.getDrift();
