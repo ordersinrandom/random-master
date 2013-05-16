@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 
 import com.jbp.randommaster.quant.pde.BlackScholesPdeFiniteDifferenceSolver.Solution;
@@ -153,6 +154,8 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 			}
 		};
 		
+		
+		
 		MultivariateFunction boundaryConditionAtMaxX = new MultivariateFunction() {
 			public double value(double[] input) {
 				return 0.0;
@@ -168,22 +171,51 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 		// solve the PDE to get the put price.
 		double pdePutPrice=sol.getSolutionAtTime0(x0);
 		
-		//System.out.println("PDE OU put: "+pdePutPrice);
+		
+		// solve the square of the put price in order to get the Standard Deviation of the OU Process payoffs 
+		MultivariateFunction squareBoundaryConditionAtT = new MultivariateFunction() {
+			@Override
+			public double value(double[] input) {
+				double x = input[1];
+				if (x<strike)
+					return Math.pow(strike-x, 2.0); // square of the put payoff
+				else return 0.0;
+			}
+		};
+		
+		
+		MultivariateFunction squareBoundaryConditionAtMinX = new MultivariateFunction() {
+			@Override
+			public double value(double[] input) {
+				double x = input[1];
+				return Math.pow(strike -x, 2.0);
+			}
+		};		
+
+		BlackScholesPdeFiniteDifferenceSolver squareSolver= new BlackScholesPdeFiniteDifferenceSolver(
+				pde, squareBoundaryConditionAtT, boundaryConditionAtMaxX, squareBoundaryConditionAtMinX, 800, 600);
+		
+		Solution squareSol=squareSolver.computePde(mu + 5 * sigma, mu - 5 * sigma, tmat);
+		double pdeSquarePutPrice=squareSol.getSolutionAtTime0(x0);
+		double pdePutPriceSD = Math.sqrt(pdeSquarePutPrice - pdePutPrice*pdePutPrice);
 		
 
-		// run simulation to get the put price
-		double simPutPrice = getSimulatedOUPutPrice(ou, x0, strike, tmat);
-		//System.out.println("Simulated OU Put: "+simPutPrice);
+		// run simulation to get the put price and SD
+		Pair<Double, Double> simResult=getSimulatedOUPut(ou, x0, strike, tmat);
+		double simPutPrice = simResult.getKey();
+		double simPutPriceSD = simResult.getValue();
 		
 		
 		Assert.assertEquals("PDE solution ("+pdePutPrice+") significantly different from simulated result ("+simPutPrice+")", 
 				simPutPrice, pdePutPrice, 0.01);
 		
+		Assert.assertEquals("PDE estimated SD ("+pdePutPriceSD+") significantly different from simulated result ("+simPutPriceSD+")", 
+				simPutPriceSD, pdePutPriceSD, 0.01);
 		
 	}
 	
 	
-	private double getSimulatedOUPutPrice(OUProcess ou, double x0, double strike, double tmat) {
+	private Pair<Double, Double> getSimulatedOUPut(OUProcess ou, double x0, double strike, double tmat) {
 		// run simulation to get the put price
 		int pathCount=500000;
 		double[] finalPutPrice = new double [pathCount];
@@ -198,8 +230,11 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 		}
 		
 		double simPutPrice = StatUtils.mean(finalPutPrice);
+	
+		double sd = Math.sqrt(StatUtils.variance(finalPutPrice)); // also save down the standard deviation of the sim.
 		
-		return simPutPrice;
+		
+		return new Pair<Double, Double>(simPutPrice, sd);
 	}
 	
 }
