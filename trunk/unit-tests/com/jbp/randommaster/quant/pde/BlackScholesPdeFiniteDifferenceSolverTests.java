@@ -205,6 +205,7 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 		double simPutPrice = simResult.getKey();
 		double simPutPriceSD = simResult.getValue();
 		
+//System.out.println("PDE Solution: "+pdePutPrice);		
 		
 		Assert.assertEquals("PDE solution ("+pdePutPrice+") significantly different from simulated result ("+simPutPrice+")", 
 				simPutPrice, pdePutPrice, 0.01);
