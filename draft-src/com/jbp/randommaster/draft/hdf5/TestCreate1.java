@@ -36,7 +36,7 @@ public class TestCreate1 {
 		
 		H5Group g=(H5Group) h5File.get("/TestGroup");
 
-		for (int x=0;x<10;x++) {
+		for (int x=0;x<500;x++) {
 			Date now=new Date();
 			SimpleDateFormat df=new SimpleDateFormat("yyyyMMddHHmmssSSS");
 			String dsName="DS_"+df.format(now);
