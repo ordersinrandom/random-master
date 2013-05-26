@@ -6,7 +6,7 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.HistoricalData;
+import com.jbp.randommaster.datasource.historical.HistoricalDailyData;
 import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
 

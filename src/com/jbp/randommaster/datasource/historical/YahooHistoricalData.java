@@ -4,7 +4,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class YahooHistoricalData implements HistoricalData {
+public class YahooHistoricalData implements HistoricalDailyData {
 
 	private static final long serialVersionUID = 1643322330608553665L;
 	
@@ -51,7 +51,7 @@ public class YahooHistoricalData implements HistoricalData {
 	
 	
 	@Override
-	public int compareTo(HistoricalData d) {
+	public int compareTo(HistoricalDailyData d) {
 		int c=getDate().compareTo(d.getDate());
 		if (c!=0)
 			return c;
