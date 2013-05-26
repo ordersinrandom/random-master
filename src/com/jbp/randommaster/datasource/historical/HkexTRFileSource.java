@@ -8,6 +8,11 @@ import java.util.LinkedList;
 
 import org.joda.time.LocalDateTime;
 
+/**
+ * 
+ * Encapsulate the trade record data loading from a single HKEX TR file.
+ *
+ */
 public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 
 	private String inputFile;
@@ -16,6 +21,15 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	private String classCode;
 	private String futuresOrOptions;
 	
+	/**
+	 * Create an instance of HkexTRFileSource.
+	 *  
+	 * @param inputFile The source file
+	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
+	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
+	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
+	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
+	 */
 	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
 		
 		this.inputFile=inputFile;
@@ -25,10 +39,22 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		this.classCode=classCode;
 	}
 	
+	/**
+	 * Create an instance of HkexTRFileSource with no filtering.
+	 * 
+	 * @param inputFile The input source file.
+	 */
 	public HkexTRFileSource(String inputFile) {
 		this(inputFile, null, null, null, null);
 	}
 	
+	/**
+	 * Create an instance of HkexTRFileSource with only filtering on class code and futures/options flag.
+	 * 
+	 * @param inputFile The input file source.
+	 * @param classCode The class code such as HSI/MHI etc.
+	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
+	 */
 	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) {
 		this(inputFile, null, null, classCode, futuresOrOptions);
 	}
@@ -51,8 +77,11 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 				line=line.trim();
 				// ignore blank lines.
 				if (line.length()>0) {
+					
+					// parse the input line.
 					HkexTRFileData d=new HkexTRFileData(line);
 					
+					// check time filter
 					boolean timeFilterPass = false;
 					if (startRange==null && endRange==null)
 						timeFilterPass=true;
@@ -67,14 +96,19 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 						timeFilterPass=(startPass && endPass);
 					}
 					
+					// check class code filter
 					boolean classCodePass = false;
 					classCodePass= (classCode==null || classCode.equals(d.getData().getClassCode()));
 					
+					// check futures or options filter
 					boolean futuresOrOptionsPass = false;
 					futuresOrOptionsPass = (futuresOrOptions==null || futuresOrOptions.equals(d.getData().getFuturesOrOptions()));
 
+					
+					// aggregate all the filtering result
 					boolean allPass = (timeFilterPass && classCodePass && futuresOrOptionsPass);
 					
+					// add only if all filtering passed.
 					if (allPass)
 						result.add(d);
 				}
