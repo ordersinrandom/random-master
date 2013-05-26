@@ -4,6 +4,7 @@ package com.jbp.randommaster.datasource.historical;
 import java.util.Collection;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.YahooHistoricalData;
@@ -47,21 +48,24 @@ public class YqlHistoricalDownloadTaskTests extends TestCase {
 			
 			
 			YahooHistoricalData[] expected = new YahooHistoricalData[] {
-				new YahooHistoricalData(new LocalDate(2010,1,1), 89.4, 89.4, 89.4, 89.4, 0.0, 87.73),
-				new YahooHistoricalData(new LocalDate(2010,1,4), 89.4, 89.9, 88.8, 89.25, 1.03817E7, 87.58),
-				new YahooHistoricalData(new LocalDate(2010,1,5), 90.2, 90.65, 90.1, 90.45, 1.69141E7, 88.76)
+				new YahooHistoricalData(new LocalDate(2010,1,1).toLocalDateTime(LocalTime.MIDNIGHT), 89.4, 89.4, 89.4, 89.4, 0.0, 87.73),
+				new YahooHistoricalData(new LocalDate(2010,1,4).toLocalDateTime(LocalTime.MIDNIGHT), 89.4, 89.9, 88.8, 89.25, 1.03817E7, 87.58),
+				new YahooHistoricalData(new LocalDate(2010,1,5).toLocalDateTime(LocalTime.MIDNIGHT), 90.2, 90.65, 90.1, 90.45, 1.69141E7, 88.76)
 			};
 			
 			int i=0;
 			for (YahooHistoricalData d : result) {
 				
-				Assert.assertEquals("Date not matched: "+expected[i].getDate(), expected[i].getDate(), d.getDate());
-				Assert.assertEquals("Open not matched: "+expected[i].getOpen(), expected[i].getOpen(), d.getOpen(), 0.00001);
-				Assert.assertEquals("High not matched: "+expected[i].getHigh(), expected[i].getHigh(), d.getHigh(), 0.00001);
-				Assert.assertEquals("Low not matched: "+expected[i].getLow(), expected[i].getLow(), d.getLow(), 0.00001);
-				Assert.assertEquals("Close not matched: "+expected[i].getClose(), expected[i].getClose(), d.getClose(), 0.00001);
-				Assert.assertEquals("Volume not matched: "+expected[i].getVolume(), expected[i].getVolume(), d.getVolume(), 0.00001);
-				Assert.assertEquals("AdjClose not matched: "+expected[i].getAdjustedClose(), expected[i].getAdjustedClose(), d.getAdjustedClose(), 0.00001);
+				YahooHistoricalDataTuple dtu = d.getData();
+				YahooHistoricalDataTuple tu = expected[i].getData();
+				
+				Assert.assertEquals("Date not matched: "+expected[i].getTimestamp(), expected[i].getTimestamp(), d.getTimestamp());
+				Assert.assertEquals("Open not matched: "+tu.getOpen(), tu.getOpen(), dtu.getOpen(), 0.00001);
+				Assert.assertEquals("High not matched: "+tu.getHigh(), tu.getHigh(), dtu.getHigh(), 0.00001);
+				Assert.assertEquals("Low not matched: "+tu.getLow(), tu.getLow(), dtu.getLow(), 0.00001);
+				Assert.assertEquals("Close not matched: "+tu.getClose(), tu.getClose(), dtu.getClose(), 0.00001);
+				Assert.assertEquals("Volume not matched: "+tu.getVolume(), tu.getVolume(), dtu.getVolume(), 0.00001);
+				Assert.assertEquals("AdjClose not matched: "+tu.getAdjustedClose(),tu.getAdjustedClose(), dtu.getAdjustedClose(), 0.00001);
 				
 				i++;
 			}

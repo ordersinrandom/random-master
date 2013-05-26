@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.jbp.randommaster.datasource.FinancialDataSource;
 
-public interface HistoricalDataSource extends FinancialDataSource {
+public interface HistoricalDataSource<T extends HistoricalData<? extends HistoricalDataTuple>> extends FinancialDataSource {
 
-	public Collection<HistoricalData> getData();
+	public Collection<T> getData();
 }
