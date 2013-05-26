@@ -84,6 +84,12 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 		try {
 			String yearStr = expiryMonthString.substring(0, 2);
 			String monthStr = expiryMonthString.substring(2, 4);
+			
+			// lol fixing Y2K problem!!!!
+			if (Integer.valueOf(yearStr.substring(0,1)).intValue()>=7) 
+				yearStr="19"+yearStr;
+			else yearStr="20"+yearStr;
+			
 			expiryMonth=new YearMonth(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
 		} catch (Exception e1) {
 			throw new IllegalArgumentException("unable to interpret expiry month: "+expiryMonthString);
