@@ -1,8 +1,10 @@
 package com.jbp.randommaster.datasource.historical;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -15,7 +17,7 @@ import org.joda.time.LocalDateTime;
  */
 public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 
-	private String inputFile;
+	private Reader inputReader;
 	
 	private LocalDateTime startRange, endRange;
 	private String classCode;
@@ -24,53 +26,64 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	/**
 	 * Create an instance of HkexTRFileSource.
 	 *  
-	 * @param inputFile The source file
+	 * @param inputReader The source file reader, or other reader.
 	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
 	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
 	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
 	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
 	 */
-	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
+	public HkexTRFileSource(Reader inputReader, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
 		
-		this.inputFile=inputFile;
+		this.inputReader=inputReader;
 		
 		this.startRange=startRange;
 		this.endRange=endRange;
 		this.classCode=classCode;
 	}
 	
+	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) throws FileNotFoundException {
+		this(new FileReader(inputFile), startRange, endRange, classCode, futuresOrOptions);
+	}	
+	
 	/**
 	 * Create an instance of HkexTRFileSource with no filtering.
 	 * 
-	 * @param inputFile The input source file.
+	 * @param inputReader The input source file.
 	 */
-	public HkexTRFileSource(String inputFile) {
-		this(inputFile, null, null, null, null);
+	public HkexTRFileSource(Reader inputReader) {
+		this(inputReader, null, null, null, null);
 	}
+
+	public HkexTRFileSource(String inputFile) throws FileNotFoundException {
+		this(new FileReader(inputFile), null, null, null, null);
+	}
+	
 	
 	/**
 	 * Create an instance of HkexTRFileSource with only filtering on class code and futures/options flag.
 	 * 
-	 * @param inputFile The input file source.
+	 * @param inputReader The input file source.
 	 * @param classCode The class code such as HSI/MHI etc.
 	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
 	 */
-	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) {
-		this(inputFile, null, null, classCode, futuresOrOptions);
+	public HkexTRFileSource(Reader inputReader, String classCode, String futuresOrOptions) {
+		this(inputReader, null, null, classCode, futuresOrOptions);
 	}
 	
+	
+	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) throws FileNotFoundException {
+		this(new FileReader(inputFile), null, null, classCode, futuresOrOptions);
+	}	
 	
 	@Override
 	public Collection<HkexTRFileData> getData() throws HistoricalDataSourceException {
 
 		LinkedList<HkexTRFileData> result=new LinkedList<HkexTRFileData>();
 		
-		FileReader fin=null;
 		BufferedReader br=null;
 		try {
 			
-			fin=new FileReader(inputFile);
-			br=new BufferedReader(fin);
+			br=new BufferedReader(inputReader);
 			
 			String line=null;
 			while ((line=br.readLine())!=null) {
@@ -116,13 +129,13 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			
 		} catch (IOException e1) {
 			// wrap up and re-throw.
-			throw new HistoricalDataSourceException("unable to load input file "+inputFile, e1);
+			throw new HistoricalDataSourceException("unable to from input reader: "+inputReader, e1);
 			
 		} finally {
 			
-			if (fin!=null) {
+			if (inputReader!=null) {
 				try {
-					fin.close();
+					inputReader.close();
 				} catch (IOException e2) {
 					// ignore.
 				}
@@ -131,10 +144,6 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		}
 		
 		return result;
-	}
-
-	public String getInputFile() {
-		return inputFile;
 	}
 
 	public LocalDateTime getStartRange() {
