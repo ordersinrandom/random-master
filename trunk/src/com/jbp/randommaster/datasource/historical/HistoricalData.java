@@ -2,16 +2,5 @@ package com.jbp.randommaster.datasource.historical;
 
 import java.io.Serializable;
 
-import org.joda.time.LocalDate;
-
-public interface HistoricalData extends Serializable, Comparable<HistoricalData>, Cloneable {
-
-	public LocalDate getDate();
-	public double getOpen();
-	public double getHigh();
-	public double getLow();
-	public double getClose();
-	public double getVolume();
-	public double getAdjustedClose();	
-	
+public interface HistoricalData extends Serializable, Cloneable {
 }
