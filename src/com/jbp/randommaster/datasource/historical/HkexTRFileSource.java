@@ -26,7 +26,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	/**
 	 * Create an instance of HkexTRFileSource.
 	 *  
-	 * @param inputReader The source file reader, or other reader.
+	 * @param inputReader The source reader.
 	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
 	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
 	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
@@ -41,6 +41,15 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		this.classCode=classCode;
 	}
 	
+	/**
+	 * Create an instance of HkexTRFileSource.
+	 *  
+	 * @param inputFile The source file path.
+	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
+	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
+	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
+	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
+	 */
 	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) throws FileNotFoundException {
 		this(new FileReader(inputFile), startRange, endRange, classCode, futuresOrOptions);
 	}	
@@ -48,12 +57,17 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	/**
 	 * Create an instance of HkexTRFileSource with no filtering.
 	 * 
-	 * @param inputReader The input source file.
+	 * @param inputReader The input source reader.
 	 */
 	public HkexTRFileSource(Reader inputReader) {
 		this(inputReader, null, null, null, null);
 	}
 
+	/**
+	 * Create an instance of HkexTRFileSource with no filtering.
+	 * 
+	 * @param inputFile The input source file.
+	 */
 	public HkexTRFileSource(String inputFile) throws FileNotFoundException {
 		this(new FileReader(inputFile), null, null, null, null);
 	}
@@ -62,7 +76,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	/**
 	 * Create an instance of HkexTRFileSource with only filtering on class code and futures/options flag.
 	 * 
-	 * @param inputReader The input file source.
+	 * @param inputReader The input source reader.
 	 * @param classCode The class code such as HSI/MHI etc.
 	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
 	 */
@@ -71,6 +85,13 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	}
 	
 	
+	/**
+	 * Create an instance of HkexTRFileSource with only filtering on class code and futures/options flag.
+	 * 
+	 * @param inputFile The input source file
+	 * @param classCode The class code such as HSI/MHI etc.
+	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
+	 */	
 	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) throws FileNotFoundException {
 		this(new FileReader(inputFile), null, null, classCode, futuresOrOptions);
 	}	
