@@ -12,6 +12,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Node;
@@ -56,6 +57,7 @@ public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHisto
 	    
 	    
 	    DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+
 	    
 	    for (int i=0;i<quoteNodes.getLength();i++) {
 	    	Node quoteNode=quoteNodes.item(i);
@@ -69,7 +71,7 @@ public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHisto
 	    	
 	    	
 			YahooHistoricalData d = new YahooHistoricalData(
-					fmt.parseLocalDate(dateStr), 
+					fmt.parseLocalDate(dateStr).toLocalDateTime(LocalTime.MIDNIGHT), 
 					Double.valueOf(openStr).doubleValue(), 
 					Double.valueOf(highStr).doubleValue(), 
 					Double.valueOf(lowStr).doubleValue(), 

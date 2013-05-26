@@ -11,22 +11,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class YahooHistoricalDataSource implements HistoricalDataSource {
+public class YahooHistoricalDataSource implements HistoricalDataSource<YahooHistoricalData> {
 
 	private static final int THREADS_COUNT=10;
 	
 	private String yqlPattern = "http://query.yahooapis.com/v1/public/yql?q={YQL}&env=http%3A%2F%2Fdatatables.org%2Falltables.env";
 
 	private String yahooSymbol;
-	private LocalDate startDate, endDate;
+	private LocalDateTime startDate, endDate;
 	private List<String> yqls;
 
-	public YahooHistoricalDataSource(String yahooSymbol, LocalDate startDate,
-			LocalDate endDate) {
+	public YahooHistoricalDataSource(String yahooSymbol, LocalDateTime startDate,
+			LocalDateTime endDate) {
 
 		// throw exception for error case
 		if (endDate.compareTo(startDate) < 0)
@@ -41,12 +41,12 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 
 		String queryPattern = "select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22{SYMBOL}%22%20and%20startDate%20%3D%20%22{STARTDATE}%22%20and%20endDate%20%3D%20%22{ENDDATE}%22";
 
-		LocalDate nextStartDate = new LocalDate(startDate.getYear(),
-				startDate.getMonthOfYear(), startDate.getDayOfMonth());
+		LocalDateTime nextStartDate = new LocalDateTime(startDate.getYear(),
+				startDate.getMonthOfYear(), startDate.getDayOfMonth(), 0, 0, 0);
 		while (nextStartDate.compareTo(endDate) <= 0) {
 
 			// hard coded one year per query.
-			LocalDate nextEndDate = nextStartDate.plusYears(1);
+			LocalDateTime nextEndDate = nextStartDate.plusYears(1);
 			if (nextEndDate.compareTo(endDate) > 0)
 				nextEndDate = endDate;
 
@@ -74,11 +74,11 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 		return yahooSymbol;
 	}
 
-	public LocalDate getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public LocalDate getEndDate() {
+	public LocalDateTime getEndDate() {
 		return endDate;
 	}
 
@@ -93,8 +93,8 @@ public class YahooHistoricalDataSource implements HistoricalDataSource {
 	}
 	
 	
-	public Collection<HistoricalData> getData() {
-		TreeSet<HistoricalData> result=new TreeSet<HistoricalData>();
+	public Collection<YahooHistoricalData> getData() {
+		TreeSet<YahooHistoricalData> result=new TreeSet<YahooHistoricalData>();
 		
 		
 		ExecutorService pool = Executors.newFixedThreadPool(THREADS_COUNT);

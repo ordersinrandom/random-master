@@ -1,6 +1,5 @@
 package com.jbp.randommaster.draft.hdf5;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +8,6 @@ import java.util.Vector;
 
 import ncsa.hdf.object.Datatype;
 import ncsa.hdf.object.FileFormat;
-import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5CompoundDS;
 import ncsa.hdf.object.h5.H5Datatype;
 import ncsa.hdf.object.h5.H5File;
@@ -24,7 +22,7 @@ public class TestCreate1 {
 		
 		String filename = tempFolder+"test-hdf5.h5";
 		
-		File f=new File(filename);
+		//File f=new File(filename);
 		H5File 	h5File=(H5File) FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5).createInstance(filename, FileFormat.WRITE);
 		System.out.println(filename+" opened");
 		
