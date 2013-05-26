@@ -4,11 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSource;
-import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSourceException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -21,13 +19,13 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 		boolean gotException=false;
 		try {
 			new YahooHistoricalDataSource("0005.HK",
-					new LocalDate(2011, 1, 1).toLocalDateTime(LocalTime.MIDNIGHT), new LocalDate(2010, 2, 1).toLocalDateTime(LocalTime.MIDNIGHT));
+					new LocalDate(2011, 1, 1), new LocalDate(2010, 2, 1));
 		} catch (Exception e1) {
 			gotException=true;
 
-			Assert.assertEquals("Exception type is not YahooHistoricalDataSourceException", true, e1 instanceof YahooHistoricalDataSourceException);
+			Assert.assertEquals("Exception type is not IllegalArgumentException", true, e1 instanceof IllegalArgumentException);
 			
-			String expected="endDate 2010-02-01T00:00:00.000 is before the startDate 2011-01-01T00:00:00.000 for symbol 0005.HK";
+			String expected="endDate 2010-02-01 is before the startDate 2011-01-01 for symbol 0005.HK";
 			String msg=e1.getMessage();
 			
 			Assert.assertEquals("Exception message not matched ("+expected+")", expected, msg);
@@ -41,7 +39,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 	@Test
 	public void testWithinOneYear() {
 		YahooHistoricalDataSource t = new YahooHistoricalDataSource("0005.HK",
-				new LocalDate(2010, 1, 1).toLocalDateTime(LocalTime.MIDNIGHT), new LocalDate(2010, 2, 1).toLocalDateTime(LocalTime.MIDNIGHT));
+				new LocalDate(2010, 1, 1), new LocalDate(2010, 2, 1));
 
 		List<String> yqls = t.getYqls();
 
@@ -52,12 +50,14 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%220005.HK%22%20and%20startDate%20%3D%20%222010-01-01%22%20and%20endDate%20%3D%20%222010-02-01%22&env=http%3A%2F%2Fdatatables.org%2Falltables.env",
 				yqls.get(0));
 
+
 	}
 	
 	@Test
 	public void testStartEqualsEnd() {
+		
 		YahooHistoricalDataSource t = new YahooHistoricalDataSource("0005.HK",
-				new LocalDate(2010, 1, 11).toLocalDateTime(LocalTime.MIDNIGHT), new LocalDate(2010, 1, 11).toLocalDateTime(LocalTime.MIDNIGHT));
+				new LocalDate(2010, 1, 11), new LocalDate(2010, 1, 11));
 
 		List<String> yqls = t.getYqls();
 
@@ -73,20 +73,25 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 	@Test 
 	public void testDownloadAcrossYears() {
 		
-		YahooHistoricalDataSource t = new YahooHistoricalDataSource("^HSI",
-				new LocalDate(2012, 1, 1).toLocalDateTime(LocalTime.MIDNIGHT), new LocalDate(2013, 3, 5).toLocalDateTime(LocalTime.MIDNIGHT));
-
-		Collection<YahooHistoricalData> data=t.getData();
-		
-		Assert.assertEquals("Not exactly 296 items downloaded", 296, data.size());
+		try {
+			YahooHistoricalDataSource t = new YahooHistoricalDataSource("^HSI",
+					new LocalDate(2012, 1, 1), new LocalDate(2013, 3, 5));
+	
+			Collection<YahooHistoricalData> data=t.getData();
+			
+			Assert.assertEquals("Not exactly 296 items downloaded", 296, data.size());
+		} catch (HistoricalDataSourceException e1) {
+			
+			Assert.fail(e1.getMessage());
+		}
 	}
 	
 	
 	@Test
 	public void testAcrossYears() {
 		YahooHistoricalDataSource t = new YahooHistoricalDataSource("^HSI",
-				new LocalDate(2008, 1, 1).toLocalDateTime(LocalTime.MIDNIGHT), 
-				new LocalDate(2013, 3, 5).toLocalDateTime(LocalTime.MIDNIGHT));
+				new LocalDate(2008, 1, 1), 
+				new LocalDate(2013, 3, 5));
 
 		List<String> yqls = t.getYqls();
 		
