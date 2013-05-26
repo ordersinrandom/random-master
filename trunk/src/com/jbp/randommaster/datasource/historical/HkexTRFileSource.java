@@ -133,4 +133,24 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		return result;
 	}
 
+	public String getInputFile() {
+		return inputFile;
+	}
+
+	public LocalDateTime getStartRange() {
+		return startRange;
+	}
+
+	public LocalDateTime getEndRange() {
+		return endRange;
+	}
+
+	public String getClassCode() {
+		return classCode;
+	}
+
+	public String getFuturesOrOptions() {
+		return futuresOrOptions;
+	}
+
 }
