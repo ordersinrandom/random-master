@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jfree.chart.ChartFactory;
@@ -22,6 +23,8 @@ import com.jbp.randommaster.quant.sde.univariate.simulations.OUProcessPathGenera
 public class SDEPathViewer {
 
 	public static void main(String[] args) throws Exception {
+		
+		UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		
 		NormalDistribution standardNormal = new NormalDistribution(0,1);
 		standardNormal.reseedRandomGenerator(19230123213L);

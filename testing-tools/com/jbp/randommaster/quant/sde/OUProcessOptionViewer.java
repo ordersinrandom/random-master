@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.jfree.chart.ChartFactory;
@@ -164,8 +166,11 @@ public class OUProcessOptionViewer extends JFrame implements ActionListener {
 
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnsupportedLookAndFeelException, 
+											IllegalAccessException, InstantiationException,
+											ClassNotFoundException {
 		
+		UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		
 		OUProcessOptionViewer viewer=new OUProcessOptionViewer();
 		viewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
