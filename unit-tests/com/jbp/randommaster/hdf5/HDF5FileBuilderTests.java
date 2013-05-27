@@ -22,7 +22,8 @@ public class HDF5FileBuilderTests extends TestCase {
 		HDF5FileBuilder b=new HDF5FileBuilder(filename);
 
 		try {
-			H5File result=b.createOrOpen();
+			b.createOrOpen();
+			H5File result=b.getHDF5File();
 			Assert.assertNotNull("Result H5 file is null: "+filename, result);
 		
 			result.close();
@@ -33,8 +34,8 @@ public class HDF5FileBuilderTests extends TestCase {
 		
 		try {
 			
-			H5File result = b.createOrOpen(); // this time is open instead of create.
-			
+			b.createOrOpen(); // this time is open instead of create.
+			H5File result=b.getHDF5File();
 			Assert.assertNotNull("Result H5 file is null on second round: "+filename, result);
 			
 			result.close();
