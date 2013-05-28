@@ -36,10 +36,26 @@ public class HDF5FileBuilder {
 	/**
 	 * Get the H5File object. Only available after calling createOrOpen()
 	 */
-	public H5File getHDF5File() {
+	protected H5File getHDF5File() {
 		return h5File;
 	}
 	
+	/**
+	 * Close the working file object.
+	 */
+	protected void closeFile() {
+		if (h5File!=null) {
+			try {
+				h5File.close();
+				log.info(targetFilename+" closed");
+			} catch (Exception e1) {
+				log.warn("unable to close "+targetFilename, e1);
+				throw new HDF5FileBuilderException("unable to close "+targetFilename, e1);
+			} finally {
+				h5File=null;
+			}
+		}
+	}
 	
 	
 	/**
@@ -47,7 +63,7 @@ public class HDF5FileBuilder {
 	 * 
 	 * @throws HDF5FileBuilderException in case it cannot create or open the file.
 	 */
-	public void createOrOpen() {
+	protected void createOrOpen() {
 		
 		FileFormat format=FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
 
@@ -102,7 +118,7 @@ public class HDF5FileBuilder {
 	 * @return The H5Group object
 	 * 
 	 */
-	public H5Group createInstrumentAndDateGroups(String instrumentCode, LocalDate date) {
+	protected H5Group createInstrumentAndDateGroups(String instrumentCode, LocalDate date) {
 		
 		if (h5File==null || !h5File.canWrite())
 			throw new IllegalStateException("Unable to createInstrumentAndDateGroups(). The file is null or read-only");
@@ -141,8 +157,13 @@ public class HDF5FileBuilder {
 		
 	}
 	
-	
-	public H5Group getOrCreateSubGroup(H5Group parentGroup, String name) {
+	/**
+	 * Helper function for subclasses
+	 * @param parentGroup The group to attach a subgroup
+	 * @param name The name of the subgroup.
+	 * @return The existing group under parent group, or create a new one.
+	 */
+	protected H5Group getOrCreateSubGroup(H5Group parentGroup, String name) {
 		
 
 		if (h5File==null || !h5File.canWrite())
@@ -167,5 +188,7 @@ public class HDF5FileBuilder {
 		}
 		
 	}
+	
+	
 	
 }
