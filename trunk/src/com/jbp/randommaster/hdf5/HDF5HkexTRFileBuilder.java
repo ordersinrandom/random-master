@@ -32,62 +32,74 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		super(targetFilename);
 	}
 	
-	public void createCompoundDSForTRData(LocalDate tradeDate, Collection<HkexTRFileData> rawData) {
+	public void createCompoundDSForTRData(Collection<HkexTRFileData> rawData) {
 		
-		// create or open the file
-		super.createOrOpen();
-		
-		// group by instrument code and then the list of raw data.
-		TreeMap<String, List<HkexTRFileData>> instrumentClassCodes=new TreeMap<String, List<HkexTRFileData>>();
+		// group by instrument code and then trade date and then the list of raw data.
+		TreeMap<String, Map<LocalDate,List<HkexTRFileData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<HkexTRFileData>>>();
 		for (HkexTRFileData d : rawData) {
 			
 			String classCode = d.getData().getClassCode();
-			List<HkexTRFileData> groupedData=instrumentClassCodes.get(classCode);
+			Map<LocalDate,List<HkexTRFileData>> groupedData=instrumentClassCodes.get(classCode);
 			if (groupedData==null) {
-				groupedData=new LinkedList<HkexTRFileData>();
+				groupedData=new TreeMap<LocalDate, List<HkexTRFileData>>();
 				instrumentClassCodes.put(classCode, groupedData);
 			}
-			groupedData.add(d);
+			
+			LocalDate tradeDate=d.getTimestamp().toLocalDate();
+			List<HkexTRFileData> dataList=groupedData.get(tradeDate);
+			if (dataList==null) {
+				dataList=new LinkedList<HkexTRFileData>();
+				groupedData.put(tradeDate, dataList);
+			}
+			dataList.add(d);
 		}
 		
 		// create all the relevant groups
-		for (Map.Entry<String, List<HkexTRFileData>> en : instrumentClassCodes.entrySet()) {
+		for (Map.Entry<String, Map<LocalDate,List<HkexTRFileData>>> en : instrumentClassCodes.entrySet()) {
 			
 			String instrumentCode = en.getKey();
 			
 			log.info("Creating compound DS for "+instrumentCode);
 			
-			List<HkexTRFileData> relevantData = en.getValue();
-			H5Group h5Group=super.createInstrumentAndDateGroups(instrumentCode, tradeDate);
+			Map<LocalDate,List<HkexTRFileData>> relevantData = en.getValue();
 			
-			String dsName = "TRData";
-			
-			// create the compound DS and then attach the data.
-			createCoupoundDSForInstrument(instrumentCode, h5Group, dsName, relevantData);
-			
-			log.info("Compound DS for "+instrumentCode+" created");
+			for (Map.Entry<LocalDate,List<HkexTRFileData>> en2 : relevantData.entrySet()) {
+				LocalDate tradeDate=en2.getKey();
+				List<HkexTRFileData> dataList = en2.getValue();
+				
+				log.info("Creating group "+instrumentCode+", "+tradeDate);
+				H5Group h5Group=super.createInstrumentAndDateGroups(instrumentCode, tradeDate);
+				log.info("Group "+instrumentCode+", "+tradeDate+" created");
+				
+				String dsName = "TRData";
+				
+				// create the compound DS and then attach the data.
+				createCoupoundDSForInstrument(instrumentCode, h5Group, dsName, dataList);
+				
+				log.info("Compound DS for "+instrumentCode+" created");
+			}
 		}
 		
-		super.closeFile();
+
 	}
 	
 	/**
 	 * Helper class to create CompoundDS for instrument data.
-	 * @param instrumentCode
-	 * @param parentGroup
-	 * @param dsName
-	 * @param rawData
-	 * @return
+	 * @param instrumentCode The instrument code of the data
+	 * @param parentGroup The group that the dataset going to be attached to
+	 * @param dsName The Dataset name to be used.
+	 * @param dataForOneDay The data to be added. Supposed to be in a single trade date.
+	 * @return The created compound DS.
 	 */
 	@SuppressWarnings("unchecked")
-	protected H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkexTRFileData> rawData) {
+	protected H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkexTRFileData> dataForOneDay) {
 		
-		if (rawData==null || rawData.isEmpty())
+		if (dataForOneDay==null || dataForOneDay.isEmpty())
 			throw new IllegalArgumentException("Input raw data is empty for instrument: "+instrumentCode);
 		
 		H5File h5f=super.getHDF5File();
 		
-		int rowCount = rawData.size();
+		int rowCount = dataForOneDay.size();
 		
 		H5CompoundDS resultDS =null;
 		
@@ -151,7 +163,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		double[] price = new double [rowCount];
 		double[] quantity = new double [rowCount];
 		int i=0;
-		for (HkexTRFileData d : rawData) {
+		for (HkexTRFileData d : dataForOneDay) {
 			classCode[i]=d.getData().getClassCode();
 			futuresOrOptions[i]=d.getData().getFuturesOrOptions();
 			expiryMonth[i]=d.getData().getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
