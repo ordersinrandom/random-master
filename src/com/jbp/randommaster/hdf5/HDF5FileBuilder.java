@@ -41,9 +41,9 @@ public class HDF5FileBuilder {
 	}
 	
 	/**
-	 * Close the working file object.
+	 * Close the working file object. It is supposed to be called by the user of the builder
 	 */
-	protected void closeFile() {
+	public void closeFile() {
 		if (h5File!=null) {
 			try {
 				h5File.close();
@@ -63,7 +63,7 @@ public class HDF5FileBuilder {
 	 * 
 	 * @throws HDF5FileBuilderException in case it cannot create or open the file.
 	 */
-	protected void createOrOpen() {
+	public void createOrOpen() {
 		
 		FileFormat format=FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
 
