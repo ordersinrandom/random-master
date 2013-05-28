@@ -14,6 +14,7 @@ import ncsa.hdf.object.h5.H5Datatype;
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 
+import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import com.jbp.randommaster.datasource.historical.HkexTRFileData;
@@ -25,6 +26,8 @@ import com.jbp.randommaster.datasource.historical.HkexTRFileData;
  */
 public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 
+	static Logger log=Logger.getLogger(HDF5HkexTRFileBuilder.class);	
+	
 	public HDF5HkexTRFileBuilder(String targetFilename) {
 		super(targetFilename);
 	}
