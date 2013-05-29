@@ -105,67 +105,76 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		
 		int rowCount = dataForOneDay.size();
 		
-		H5CompoundDS resultDS =null;
 		
-		for (HObject obj : parentGroup.getMemberList()) {
-			if (dsName.equals(obj.getName())) {
-				resultDS=(H5CompoundDS) obj;
-				break;
+		try {
+			HObject obj = super.getHDF5File().get(parentGroup.getFullName()+"/"+dsName);
+			if (obj!=null && obj instanceof H5CompoundDS) {
+				// delete it. we are going to re-create
+				super.getHDF5File().delete(obj);
 			}
+		} catch (Exception e1) {
 		}
 
-		// if no previous setup for the DS.
-		if (resultDS==null) {
-			String[] colHeader = new String[] {
-					"ClassCode",
-					"FuturesOrOptions",
-					"ExpiryMonth",
-					"StrikePrice",
-					"CallPut",
-					"Timestamp",
-					"Price",
-					"Quantity"
-			};
-			
-			int[] memberDataSize=new int[] {
-				1, 1, 1, 1, 1, 1, 1, 1	
-			};
-			
-			Datatype[] memberDatatypes=new Datatype[] {
-					new H5Datatype(H5Datatype.CLASS_STRING, 10, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_STRING, 1, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_INTEGER, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_STRING, 1, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_INTEGER, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
-					new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE)
-			};
-			
+		H5CompoundDS resultDS =null;
 
-			try {
-				resultDS=(H5CompoundDS) h5f.createCompoundDS(dsName,  
-						parentGroup, new long[] { rowCount }, null, new long[] {rowCount}, 0, 
-						colHeader, memberDatatypes, 
-						memberDataSize, null);
-			} catch (Exception e1) {
-				log.fatal("Unable to create compound DS "+dsName, e1);
-				throw new HDF5FileBuilderException("Unable to create compound DS "+dsName, e1);
-			}
+		String[] colHeader = new String[] {
+				"ClassCode",
+				"FuturesOrOptions",
+				"ExpiryMonth",
+				"StrikePrice",
+				"CallPut",
+				"Timestamp",
+				"Price",
+				"Quantity",
+				"TradeType"
+		};
+		
+		int[] memberDataSize=new int[] {
+			1, 1, 1, 1, 1, 1, 1, 1,1	
+		};
+		
+		Datatype[] memberDatatypes=new Datatype[] {
+				new H5Datatype(H5Datatype.CLASS_STRING, 10, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_STRING, 1, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_INTEGER, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_STRING, 1, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_INTEGER, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, H5Datatype.NATIVE),
+				new H5Datatype(H5Datatype.CLASS_STRING, 4, H5Datatype.NATIVE, H5Datatype.NATIVE),
+		};
+		
+
+		try {
+			int compressionLevel = 9;
+			
+			resultDS=(H5CompoundDS) h5f.createCompoundDS(dsName,  
+					parentGroup, new long[] { rowCount }, null, new long[] {rowCount}, compressionLevel, 
+					colHeader, memberDatatypes, 
+					memberDataSize, null);
+			
+		} catch (Exception e1) {
+			log.fatal("Unable to create compound DS "+dsName, e1);
+			throw new HDF5FileBuilderException("Unable to create compound DS "+dsName, e1);
 		}
+
+
+		resultDS.init();
 		
 		// now we have a DS ready
 		@SuppressWarnings("rawtypes")
 		Vector dataVect=new Vector();
 		// copy all the raw data to the arrays
-		String[] classCode=new String [rowCount];
-		String[] futuresOrOptions = new String [rowCount];
-		long[] expiryMonth = new long [rowCount];
-		double[] strike = new double [rowCount];
-		String[] callPut = new String [rowCount];
-		long[] timestamp = new long [rowCount];
-		double[] price = new double [rowCount];
-		double[] quantity = new double [rowCount];
+		String[] classCode = new String[rowCount];
+		String[] futuresOrOptions = new String[rowCount];
+		long[] expiryMonth = new long[rowCount];
+		double[] strike = new double[rowCount];
+		String[] callPut = new String[rowCount];
+		long[] timestamp = new long[rowCount];
+		double[] price = new double[rowCount];
+		double[] quantity = new double[rowCount];
+		String[] tradeType = new String[rowCount];
 		int i=0;
 		for (HkexTRFileData d : dataForOneDay) {
 			classCode[i]=d.getData().getClassCode();
@@ -176,6 +185,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 			timestamp[i]=d.getTimestamp().toDateTime().getMillis();
 			price[i]=d.getData().getPrice();
 			quantity[i]=d.getData().getQuantity();
+			tradeType[i]=d.getData().getTradeType();
 			i++;
 		}
 		dataVect.add(classCode);
@@ -186,6 +196,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		dataVect.add(timestamp);
 		dataVect.add(price);
 		dataVect.add(quantity);
+		dataVect.add(tradeType);
 		
 		try {
 			resultDS.write(dataVect);
