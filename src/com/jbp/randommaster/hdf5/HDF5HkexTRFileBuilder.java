@@ -39,6 +39,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		for (HkexTRFileData d : rawData) {
 			
 			String classCode = d.getData().getClassCode();
+			// data grouped by trade date.
 			Map<LocalDate,List<HkexTRFileData>> groupedData=instrumentClassCodes.get(classCode);
 			if (groupedData==null) {
 				groupedData=new TreeMap<LocalDate, List<HkexTRFileData>>();
@@ -76,7 +77,10 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 				// create the compound DS and then attach the data.
 				createCoupoundDSForInstrument(instrumentCode, h5Group, dsName, dataList);
 				
+				
 				log.info("Compound DS for "+instrumentCode+" created");
+				
+				
 			}
 		}
 		

@@ -1,7 +1,6 @@
 package com.jbp.randommaster.hdf5;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
@@ -73,6 +72,7 @@ public class HDF5FileBuilder {
 			log.info("Opening HDF5 target file: "+targetFilename);
 			try {
 				h5File=(H5File) format.createInstance(targetFilename, FileFormat.WRITE);
+				//h5File.setWritable(true);
 			} catch (Exception e1) {
 				log.fatal("Unable to open HDF5 target file: "+targetFilename, e1);
 				throw new HDF5FileBuilderException("Unable to open HDF5 target file: "+targetFilename, e1);
@@ -170,22 +170,40 @@ public class HDF5FileBuilder {
 			throw new IllegalStateException("Unable to getOrCreateSubGroup(). The file is null or read-only");
 		
 		
+		/*
 		List<HObject> members=parentGroup.getMemberList();
+		H5Group targetGroup=null;
 		for (HObject o : members) {
 			if (o instanceof H5Group) {
 				H5Group g = (H5Group) o;
 				if (name.equals(g.getName())) {
-					return g;
+					targetGroup = g;
+					//targetGroup.open();
+					break;
 				}
+			}
+		}*/
+		H5Group targetGroup = null;
+
+		try {
+			HObject targetObj = h5File.get(parentGroup.getFullName()+"/"+name);
+			if (targetObj!=null && targetObj instanceof H5Group)
+				targetGroup = (H5Group) targetObj;
+		} catch (Exception e1) {
+			// just treat it as null
+			targetGroup = null;
+		}
+		
+		if (targetGroup==null) {
+		
+			try {
+				targetGroup=(H5Group) h5File.createGroup(name, parentGroup);
+			} catch (Exception e1) {
+				throw new HDF5FileBuilderException("unable to create group: "+name, e1);
 			}
 		}
 		
-		try {
-			H5Group result=(H5Group) h5File.createGroup(name, parentGroup);
-			return result;
-		} catch (Exception e1) {
-			throw new HDF5FileBuilderException("unable to create group: "+name, e1);
-		}
+		return targetGroup;
 		
 	}
 	
