@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -46,8 +45,6 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		
 		ZipFile zipFile = null;
 		
-		Collection<HkexTRFileData> loadedData = null;
-		
 		try {
 			zipFile=new ZipFile(new File(testingZipFile));
 			for (Enumeration<? extends ZipEntry> en=zipFile.entries();en.hasMoreElements();) {
@@ -58,7 +55,12 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 				InputStreamReader reader=new InputStreamReader(ins);
 				HkexTRFileSource src = new HkexTRFileSource(reader);
 				
-				loadedData=src.getData();
+				Iterable<HkexTRFileData> loadedData=src.getData();
+				
+				HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
+				builder.createOrOpen();
+				builder.createCompoundDSForTRData(loadedData);
+				builder.closeFile();
 				
 				ins.close();
 				
@@ -69,10 +71,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		}
 		
 		
-		HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
-		builder.createOrOpen();
-		builder.createCompoundDSForTRData(loadedData);
-		builder.closeFile();
+
 		
 		
 		// read the result and check it

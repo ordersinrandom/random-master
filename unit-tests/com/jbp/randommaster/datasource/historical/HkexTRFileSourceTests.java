@@ -1,8 +1,8 @@
 package com.jbp.randommaster.datasource.historical;
 
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
@@ -26,13 +26,16 @@ public class HkexTRFileSourceTests extends TestCase {
 		
 		HkexTRFileSource src=new HkexTRFileSource(sr);
 		try {
-			Collection<HkexTRFileData> data=src.getData();
-			Assert.assertEquals("Not exactly 3 items", 3, data.size());
+			Iterable<HkexTRFileData> data=src.getData();
+			
+			List<HkexTRFileData> r = new LinkedList<HkexTRFileData>();
+			for (HkexTRFileData d : data)
+				r.add(d);
+			Assert.assertEquals("Not exactly 3 items", 3, r.size());
 
-			Iterator<HkexTRFileData> it=data.iterator();
-			HkexTRFileData i1=it.next();
-			HkexTRFileData i2=it.next();
-			HkexTRFileData i3=it.next();
+			HkexTRFileData i1=r.get(0);
+			HkexTRFileData i2=r.get(1);
+			HkexTRFileData i3=r.get(2);
 			
 			Assert.assertEquals("item 1 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTimestamp());
 			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getData().getClassCode());

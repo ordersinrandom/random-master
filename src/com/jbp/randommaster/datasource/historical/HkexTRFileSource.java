@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.LinkedList;
 
 import org.joda.time.LocalDateTime;
@@ -97,7 +96,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	}	
 	
 	@Override
-	public Collection<HkexTRFileData> getData() throws HistoricalDataSourceException {
+	public Iterable<HkexTRFileData> getData() throws HistoricalDataSourceException {
 
 		LinkedList<HkexTRFileData> result=new LinkedList<HkexTRFileData>();
 		

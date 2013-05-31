@@ -1,6 +1,5 @@
 package com.jbp.randommaster.hdf5;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		super(targetFilename);
 	}
 	
-	public void createCompoundDSForTRData(Collection<HkexTRFileData> rawData) {
+	public void createCompoundDSForTRData(Iterable<HkexTRFileData> rawData) {
 		
 		// group by instrument code and then trade date and then the list of raw data.
 		TreeMap<String, Map<LocalDate,List<HkexTRFileData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<HkexTRFileData>>>();
