@@ -116,7 +116,7 @@ public class YahooHistoricalDataSource implements HistoricalDataSource<YahooHist
 	 * @throws YahooHistoricalDataSourceException if download error.
 	 * 
 	 */
-	public Collection<YahooHistoricalData> getData() throws HistoricalDataSourceException {
+	public Iterable<YahooHistoricalData> getData() throws HistoricalDataSourceException {
 		
 		TreeSet<YahooHistoricalData> result=new TreeSet<YahooHistoricalData>();
 		
