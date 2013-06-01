@@ -1,9 +1,9 @@
 package com.jbp.randommaster.hdf5;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -45,6 +45,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		
 		ZipFile zipFile = null;
 		
+		File tempFile = null;
 		try {
 			zipFile=new ZipFile(new File(testingZipFile));
 			for (Enumeration<? extends ZipEntry> en=zipFile.entries();en.hasMoreElements();) {
@@ -52,8 +53,22 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 				
 				// get the input stream
 				InputStream ins=zipFile.getInputStream(entry);
-				InputStreamReader reader=new InputStreamReader(ins);
-				HkexTRFileSource src = new HkexTRFileSource(reader);
+				
+				// unzip it to the temp file first.
+				tempFile=File.createTempFile("testBuildingHDF5HkexTRFile", null);
+				String tempFilename = tempFile.getAbsolutePath();
+				byte[] outBuf = new byte [1024*100]; // 100k buffer
+				FileOutputStream outs=new FileOutputStream(tempFilename);
+				int count=-1;
+				while ((count=ins.read(outBuf))!=-1) {
+					outs.write(outBuf, 0, count);
+				}
+				ins.close();
+				outs.close();
+				// finished unzip
+				
+				// now read the source file
+				HkexTRFileSource src = new HkexTRFileSource(tempFilename);
 				
 				Iterable<HkexTRFileData> loadedData=src.getData();
 				
@@ -62,7 +77,6 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 				builder.createCompoundDSForTRData(loadedData);
 				builder.closeFile();
 				
-				ins.close();
 				
 			}
 		} finally {
