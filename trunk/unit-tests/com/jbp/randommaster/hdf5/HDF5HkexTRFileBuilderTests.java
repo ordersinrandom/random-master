@@ -25,6 +25,43 @@ import junit.framework.TestCase;
 
 public class HDF5HkexTRFileBuilderTests extends TestCase {
 
+	private File unzipTestingFile(String testingZipFile) throws IOException {
+		ZipFile zipFile = null;
+		
+		File tempUnzippedFile = null;
+		try {
+			zipFile=new ZipFile(new File(testingZipFile));
+			for (Enumeration<? extends ZipEntry> en=zipFile.entries();en.hasMoreElements();) {
+				ZipEntry entry=en.nextElement();
+				
+				// get the input stream
+				InputStream ins=zipFile.getInputStream(entry);
+				
+				// unzip it to the temp file first.
+				tempUnzippedFile=File.createTempFile("testBuildingHDF5HkexTRFile", null);
+				String tempFilename = tempUnzippedFile.getAbsolutePath();
+				byte[] outBuf = new byte [1024*100]; // 100k buffer
+				FileOutputStream outs=new FileOutputStream(tempFilename);
+				int count=-1;
+				while ((count=ins.read(outBuf))!=-1) {
+					outs.write(outBuf, 0, count);
+				}
+				ins.close();
+				outs.close();
+				// finished unzip
+			}
+		} finally {
+			if (zipFile!=null)
+				zipFile.close();
+		}
+		
+		// mark as auto delete.
+		if (tempUnzippedFile!=null)
+			tempUnzippedFile.deleteOnExit();
+		
+		return tempUnzippedFile;
+	}
+	
 	@Test
 	public void testBuildingHDF5HkexTRFile() throws IOException, HistoricalDataSourceException {
 		
@@ -43,50 +80,24 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 			f.delete();
 		
 		
-		ZipFile zipFile = null;
 		
-		File tempFile = null;
-		try {
-			zipFile=new ZipFile(new File(testingZipFile));
-			for (Enumeration<? extends ZipEntry> en=zipFile.entries();en.hasMoreElements();) {
-				ZipEntry entry=en.nextElement();
-				
-				// get the input stream
-				InputStream ins=zipFile.getInputStream(entry);
-				
-				// unzip it to the temp file first.
-				tempFile=File.createTempFile("testBuildingHDF5HkexTRFile", null);
-				String tempFilename = tempFile.getAbsolutePath();
-				byte[] outBuf = new byte [1024*100]; // 100k buffer
-				FileOutputStream outs=new FileOutputStream(tempFilename);
-				int count=-1;
-				while ((count=ins.read(outBuf))!=-1) {
-					outs.write(outBuf, 0, count);
-				}
-				ins.close();
-				outs.close();
-				// finished unzip
-				
-				// now read the source file
-				HkexTRFileSource src = new HkexTRFileSource(tempFilename);
-				
-				Iterable<HkexTRFileData> loadedData=src.getData();
-				
-				HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
-				builder.createOrOpen();
-				builder.createCompoundDSForTRData(loadedData);
-				builder.closeFile();
-				
-				
-			}
-		} finally {
-			if (zipFile!=null)
-				zipFile.close();
-		}
+		File tempUnzippedFile = unzipTestingFile(testingZipFile);
+		if (tempUnzippedFile==null)
+			throw new IOException("unable to unzip file "+testingZipFile);
 		
+		String tempFilename = tempUnzippedFile.getAbsolutePath();
 		
+		// now read the source file
+		HkexTRFileSource src = new HkexTRFileSource(tempFilename);
+		
+		Iterable<HkexTRFileData> loadedData=src.getData();
+		
+		HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
+		builder.createOrOpen();
+		builder.createCompoundDSForTRData(loadedData);
+		builder.closeFile();
+			
 
-		
 		
 		// read the result and check it
 		H5File h5ReadOnlyFile=null;
