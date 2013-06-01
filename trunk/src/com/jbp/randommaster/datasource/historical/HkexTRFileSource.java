@@ -82,7 +82,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 				try {
 					return new InputFileIterator();
 				} catch (Exception e1) {
-					throw new RuntimeException("Unable to create iterator for getData(, nested) call in HkexTRFileSource("+inputFile+")", e1);
+					throw new RuntimeException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
 				}
 			}
 		};
