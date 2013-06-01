@@ -125,6 +125,9 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		
 		@Override
 		public boolean hasNext() {
+			if (lines.peek()!=null)
+				return true;
+			
 			try {
 				tryBuffing();
 				return lines.peek()!=null;
@@ -133,15 +136,18 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			}
 		}
 		
+		/**
+		 * Helper function to fetch one line from the file.
+		 */
 		private void tryBuffing() throws IOException {
 			String oneLine = null;
-			if (lines.isEmpty()) {
+			if (lines.peek()==null) {
 				try {
 					oneLine = bufReader.readLine();
 					if (oneLine!=null)
 						lines.add(oneLine);
 				} finally {
-					// close if nothing can be read when we are requierd to read something.
+					// close if nothing can be read when we are required to read something.
 					if (oneLine==null) {
 						try {
 							fileReader.close();
@@ -153,6 +159,11 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			}
 		}
 		
+		/**
+		 * Parse one row of input file.
+		 * @param l One line in the input file
+		 * @return A <code>HkexTRFileData</code> object if the input is in the correct format. null otherwise.
+		 */
 		private HkexTRFileData interpretOneLine(String l) {
 			String line=l.trim();
 			// ignore blank lines.
@@ -202,7 +213,8 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			HkexTRFileData data = null;
 			try {
 				String line=null;
-				while (data==null && (lines.peek()!=null || hasNext())) {
+				// if the data has been parsed we just leave
+				while (data==null && hasNext()) {
 					line=lines.poll();
 					data = interpretOneLine(line);
 				}
