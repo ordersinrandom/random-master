@@ -144,10 +144,13 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 			}
 		}
 		
+		System.out.println("Temp out file: "+testingOutputH5File);
+		/*
 		// delete the temp h5 file.
 		File f2=new File(testingOutputH5File);
 		if (f2.exists())
 			f2.delete();
+			*/
 		
 	}
 	

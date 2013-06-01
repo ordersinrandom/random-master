@@ -201,11 +201,9 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		public HkexTRFileData next() {
 			HkexTRFileData data = null;
 			try {
-				while (hasNext() && data==null) {
-					String line=lines.poll();
-					if (line==null)
-						return null;
-					
+				String line=null;
+				while (data==null && (lines.peek()!=null || hasNext())) {
+					line=lines.poll();
 					data = interpretOneLine(line);
 				}
 				return data;

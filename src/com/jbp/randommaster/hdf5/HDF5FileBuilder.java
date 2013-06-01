@@ -170,19 +170,6 @@ public class HDF5FileBuilder {
 			throw new IllegalStateException("Unable to getOrCreateSubGroup(). The file is null or read-only");
 		
 		
-		/*
-		List<HObject> members=parentGroup.getMemberList();
-		H5Group targetGroup=null;
-		for (HObject o : members) {
-			if (o instanceof H5Group) {
-				H5Group g = (H5Group) o;
-				if (name.equals(g.getName())) {
-					targetGroup = g;
-					//targetGroup.open();
-					break;
-				}
-			}
-		}*/
 		H5Group targetGroup = null;
 
 		try {
