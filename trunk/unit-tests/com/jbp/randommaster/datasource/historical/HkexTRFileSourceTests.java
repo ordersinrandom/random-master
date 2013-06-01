@@ -1,6 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
-import java.io.StringReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,10 +23,17 @@ public class HkexTRFileSourceTests extends TestCase {
 		buf.append("HHI,O,1211,8400,P,20121031,161459,2,5,001\n");
 		buf.append("MHI,O,1211,22400,C,20121031,161459,110,1,001");
 		
-		StringReader sr=new StringReader(buf.toString());
-		
-		HkexTRFileSource src=new HkexTRFileSource(sr);
+		File tempFile=null;
 		try {
+			tempFile=File.createTempFile("HkexTRFileSourceTests", null);
+			FileWriter fw=new FileWriter(tempFile);
+			fw.write(buf.toString());
+			fw.close();
+			
+			String tempFilename=tempFile.getAbsolutePath();
+			
+			HkexTRFileSource src=new HkexTRFileSource(tempFilename);
+			
 			Iterable<HkexTRFileData> data=src.getData();
 			
 			List<HkexTRFileData> r = new LinkedList<HkexTRFileData>();
@@ -74,6 +82,14 @@ public class HkexTRFileSourceTests extends TestCase {
 			
 		} catch (Exception e1) {
 			Assert.fail("unable to getData(), exception msg = "+e1.getMessage());
+		} finally {
+			if (tempFile!=null) {
+				try {
+					tempFile.delete();
+				} catch (Exception e1) {
+					Assert.fail("unable to delete temp file during the unit test: "+e1.getMessage());
+				}
+			}
 		}
 		
 	}

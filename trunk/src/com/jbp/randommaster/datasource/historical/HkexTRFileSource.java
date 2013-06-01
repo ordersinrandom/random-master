@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Queue;
 
+import org.apache.log4j.Logger;
 import org.joda.time.LocalDateTime;
+
 
 /**
  * 
@@ -16,7 +19,9 @@ import org.joda.time.LocalDateTime;
  */
 public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 
-	private Reader inputReader;
+	static Logger log=Logger.getLogger(HkexTRFileSource.class);	
+	
+	private String inputFile;
 	
 	private LocalDateTime startRange, endRange;
 	private String classCode;
@@ -25,42 +30,22 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	/**
 	 * Create an instance of HkexTRFileSource.
 	 *  
-	 * @param inputReader The source reader.
+	 * @param inputFile The source file name.
 	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
 	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
 	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
 	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
 	 */
-	public HkexTRFileSource(Reader inputReader, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
+	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
 		
-		this.inputReader=inputReader;
+		this.inputFile=inputFile;
 		
 		this.startRange=startRange;
 		this.endRange=endRange;
 		this.classCode=classCode;
 	}
 	
-	/**
-	 * Create an instance of HkexTRFileSource.
-	 *  
-	 * @param inputFile The source file path.
-	 * @param startRange Filter only trades on or after start time will be included. Null means no filtering 
-	 * @param endRange Filter only trades on or before end time will be included. Null means no filtering
-	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
-	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
-	 */
-	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) throws FileNotFoundException {
-		this(new FileReader(inputFile), startRange, endRange, classCode, futuresOrOptions);
-	}	
-	
-	/**
-	 * Create an instance of HkexTRFileSource with no filtering.
-	 * 
-	 * @param inputReader The input source reader.
-	 */
-	public HkexTRFileSource(Reader inputReader) {
-		this(inputReader, null, null, null, null);
-	}
+
 
 	/**
 	 * Create an instance of HkexTRFileSource with no filtering.
@@ -68,20 +53,10 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * @param inputFile The input source file.
 	 */
 	public HkexTRFileSource(String inputFile) throws FileNotFoundException {
-		this(new FileReader(inputFile), null, null, null, null);
+		this(inputFile, null, null, null, null);
 	}
 	
-	
-	/**
-	 * Create an instance of HkexTRFileSource with only filtering on class code and futures/options flag.
-	 * 
-	 * @param inputReader The input source reader.
-	 * @param classCode The class code such as HSI/MHI etc.
-	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
-	 */
-	public HkexTRFileSource(Reader inputReader, String classCode, String futuresOrOptions) {
-		this(inputReader, null, null, classCode, futuresOrOptions);
-	}
+
 	
 	
 	/**
@@ -92,78 +67,26 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
 	 */	
 	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) throws FileNotFoundException {
-		this(new FileReader(inputFile), null, null, classCode, futuresOrOptions);
-	}	
+		this(inputFile, null, null, classCode, futuresOrOptions);
+	}
+	
+
 	
 	@Override
 	public Iterable<HkexTRFileData> getData() throws HistoricalDataSourceException {
-
-		LinkedList<HkexTRFileData> result=new LinkedList<HkexTRFileData>();
 		
-		BufferedReader br=null;
-		try {
-			
-			br=new BufferedReader(inputReader);
-			
-			String line=null;
-			while ((line=br.readLine())!=null) {
-				line=line.trim();
-				// ignore blank lines.
-				if (line.length()>0) {
-					
-					// parse the input line.
-					HkexTRFileData d=new HkexTRFileData(line);
-					
-					// check time filter
-					boolean timeFilterPass = false;
-					if (startRange==null && endRange==null)
-						timeFilterPass=true;
-					else {
-						boolean startPass = false;
-						if (startRange==null || startRange.isEqual(d.getTimestamp()) || startRange.isBefore(d.getTimestamp()))
-							startPass=true;
-						boolean endPass = false;
-						if (endRange==null || endRange.isEqual(d.getTimestamp()) || endRange.isAfter(d.getTimestamp()))
-							endPass=true;
-						
-						timeFilterPass=(startPass && endPass);
-					}
-					
-					// check class code filter
-					boolean classCodePass = false;
-					classCodePass= (classCode==null || classCode.equals(d.getData().getClassCode()));
-					
-					// check futures or options filter
-					boolean futuresOrOptionsPass = false;
-					futuresOrOptionsPass = (futuresOrOptions==null || futuresOrOptions.equals(d.getData().getFuturesOrOptions()));
+		return new Iterable<HkexTRFileData>() {
 
-					
-					// aggregate all the filtering result
-					boolean allPass = (timeFilterPass && classCodePass && futuresOrOptionsPass);
-					
-					// add only if all filtering passed.
-					if (allPass)
-						result.add(d);
-				}
-			}
-			
-		} catch (IOException e1) {
-			// wrap up and re-throw.
-			throw new HistoricalDataSourceException("unable to from input reader: "+inputReader, e1);
-			
-		} finally {
-			
-			if (inputReader!=null) {
+			@Override
+			public Iterator<HkexTRFileData> iterator() {
 				try {
-					inputReader.close();
-				} catch (IOException e2) {
-					// ignore.
+					return new InputFileIterator();
+				} catch (Exception e1) {
+					throw new RuntimeException("Unable to create iterator for getData(, nested) call in HkexTRFileSource("+inputFile+")", e1);
 				}
 			}
-			
-		}
+		};
 		
-		return result;
 	}
 
 	public LocalDateTime getStartRange() {
@@ -182,4 +105,121 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		return futuresOrOptions;
 	}
 
+	
+	/**
+	 * Internal helper iterator class that actually carries out the file reading and parsing.
+	 *
+	 */
+	private class InputFileIterator implements Iterator<HkexTRFileData> {
+
+		private FileReader fileReader;
+		private BufferedReader bufReader;
+		private Queue<String> lines;
+
+		public InputFileIterator() throws FileNotFoundException {
+			fileReader = new FileReader(inputFile);
+			bufReader = new BufferedReader(fileReader);
+			lines=new LinkedList<String>();
+		}
+		
+		
+		@Override
+		public boolean hasNext() {
+			try {
+				tryBuffing();
+				return lines.peek()!=null;
+			} catch(Exception e1) {
+				return false;
+			}
+		}
+		
+		private void tryBuffing() throws IOException {
+			String oneLine = null;
+			if (lines.isEmpty()) {
+				try {
+					oneLine = bufReader.readLine();
+					if (oneLine!=null)
+						lines.add(oneLine);
+				} finally {
+					// close if nothing can be read when we are requierd to read something.
+					if (oneLine==null) {
+						try {
+							fileReader.close();
+						} catch (Exception e1) {
+							log.warn("Unable to close the FileReader for "+inputFile, e1);
+						}
+					}
+				}
+			}
+		}
+		
+		private HkexTRFileData interpretOneLine(String l) {
+			String line=l.trim();
+			// ignore blank lines.
+			if (line.length()>0) {
+				
+				// parse the input line.
+				HkexTRFileData d=new HkexTRFileData(line);
+				
+				// check time filter
+				boolean timeFilterPass = false;
+				if (startRange==null && endRange==null)
+					timeFilterPass=true;
+				else {
+					boolean startPass = false;
+					if (startRange==null || startRange.isEqual(d.getTimestamp()) || startRange.isBefore(d.getTimestamp()))
+						startPass=true;
+					boolean endPass = false;
+					if (endRange==null || endRange.isEqual(d.getTimestamp()) || endRange.isAfter(d.getTimestamp()))
+						endPass=true;
+					
+					timeFilterPass=(startPass && endPass);
+				}
+				
+				// check class code filter
+				boolean classCodePass = false;
+				classCodePass= (classCode==null || classCode.equals(d.getData().getClassCode()));
+				
+				// check futures or options filter
+				boolean futuresOrOptionsPass = false;
+				futuresOrOptionsPass = (futuresOrOptions==null || futuresOrOptions.equals(d.getData().getFuturesOrOptions()));
+
+				
+				// aggregate all the filtering result
+				boolean allPass = (timeFilterPass && classCodePass && futuresOrOptionsPass);
+				
+				// add only if all filtering passed.
+				if (allPass)
+					return d;
+				else return null;
+			}
+			else return null;
+		}
+		
+
+		@Override
+		public HkexTRFileData next() {
+			HkexTRFileData data = null;
+			try {
+				while (hasNext() && data==null) {
+					String line=lines.poll();
+					if (line==null)
+						return null;
+					
+					data = interpretOneLine(line);
+				}
+				return data;
+			} catch (Exception e1) {
+				log.fatal("Unable to read the next line for "+inputFile, e1);
+				return null;
+			}
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove() is not supported for HkexTRFileSource");
+		}
+		
+	}
+		
 }
