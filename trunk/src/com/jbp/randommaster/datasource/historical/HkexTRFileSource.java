@@ -80,6 +80,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			@Override
 			public Iterator<HkexTRFileData> iterator() {
 				try {
+					// return the iterator that truly runs through the input file line by line.
 					return new InputFileIterator();
 				} catch (Exception e1) {
 					throw new RuntimeException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
@@ -122,7 +123,6 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			lines=new LinkedList<String>();
 		}
 		
-		
 		@Override
 		public boolean hasNext() {
 			if (lines.peek()!=null)
@@ -134,6 +134,28 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 			} catch(Exception e1) {
 				return false;
 			}
+		}
+
+		@Override
+		public HkexTRFileData next() {
+			HkexTRFileData data = null;
+			try {
+				String line=null;
+				// if the data has been parsed we just leave
+				while (data==null && hasNext()) {
+					line=lines.poll();
+					data = interpretOneLine(line);
+				}
+				return data;
+			} catch (Exception e1) {
+				log.fatal("Unable to read the next line for "+inputFile, e1);
+				return null;
+			}
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove() is not supported for HkexTRFileSource");
 		}
 		
 		/**
@@ -205,31 +227,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 				else return null;
 			}
 			else return null;
-		}
-		
-
-		@Override
-		public HkexTRFileData next() {
-			HkexTRFileData data = null;
-			try {
-				String line=null;
-				// if the data has been parsed we just leave
-				while (data==null && hasNext()) {
-					line=lines.poll();
-					data = interpretOneLine(line);
-				}
-				return data;
-			} catch (Exception e1) {
-				log.fatal("Unable to read the next line for "+inputFile, e1);
-				return null;
-			}
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("remove() is not supported for HkexTRFileSource");
-		}
-		
+		}		
 	}
 		
 }
