@@ -1,7 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
@@ -19,8 +18,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-
-public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHistoricalData>> {
+/**
+ * 
+ * The callable object that implements the asynchronous operation of getData() in <code>YahooHistoricalDataSource</code>.
+ *
+ */
+public class YqlHistoricalDownloadTask implements Callable<Iterable<YahooHistoricalData>> {
 
 	private String yql;
 	
@@ -28,8 +31,13 @@ public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHisto
 		this.yql=yql;
 	}
 
+	/**
+	 * Invoke the http request of the given yql and parse the response XML.
+	 * 
+	 * @return A collection of <code>YahooHistoricalData</code>
+	 */
 	@Override
-	public Collection<YahooHistoricalData> call() throws Exception {
+	public Iterable<YahooHistoricalData> call() throws Exception {
 		
 		//System.out.println("invoking....");
 		Content content=Request.Get(yql).execute().returnContent();
@@ -43,7 +51,7 @@ public class YqlHistoricalDownloadTask implements Callable<Collection<YahooHisto
 	}
 	
 	
-	public static Collection<YahooHistoricalData> parseYqlResponse(String resultXml) throws XPathExpressionException {
+	public static Iterable<YahooHistoricalData> parseYqlResponse(String resultXml) throws XPathExpressionException {
 		
 	    XPathFactory factory = XPathFactory.newInstance();
 	    XPath xPath = factory.newXPath();		
