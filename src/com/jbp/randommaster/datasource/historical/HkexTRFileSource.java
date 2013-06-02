@@ -73,7 +73,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 
 	
 	@Override
-	public Iterable<HkexTRFileData> getData() throws HistoricalDataSourceException {
+	public Iterable<HkexTRFileData> getData() {
 		
 		return new Iterable<HkexTRFileData>() {
 
@@ -83,7 +83,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 					// return the iterator that truly runs through the input file line by line.
 					return new InputFileIterator();
 				} catch (Exception e1) {
-					throw new RuntimeException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
+					throw new HistoricalDataSourceException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
 				}
 			}
 		};
