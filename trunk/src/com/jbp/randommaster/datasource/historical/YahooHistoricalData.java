@@ -4,6 +4,10 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/**
+ * Encapsulate the Yahoo historical data (open, high, low, close, volume, adjusted close).
+ *
+ */
 public class YahooHistoricalData implements HistoricalData<YahooHistoricalDataTuple> {
 
 	private static final long serialVersionUID = 1643322330608553665L;

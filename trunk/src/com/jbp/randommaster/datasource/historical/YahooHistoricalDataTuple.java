@@ -1,7 +1,11 @@
 package com.jbp.randommaster.datasource.historical;
 
+/**
+ * 
+ * Encapsulation of Yahoo Historical data (open, high, low, close, volume, adjusted close).
+ *
+ */
 public class YahooHistoricalDataTuple implements HistoricalDataTuple {
-
 	
 	private static final long serialVersionUID = 1848524988662119076L;
 	

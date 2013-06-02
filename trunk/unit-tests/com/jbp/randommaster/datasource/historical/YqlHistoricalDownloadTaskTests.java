@@ -4,6 +4,7 @@ package com.jbp.randommaster.datasource.historical;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Test;
@@ -46,8 +47,7 @@ public class YqlHistoricalDownloadTaskTests extends TestCase {
 			Iterable<YahooHistoricalData> resultIt=YqlHistoricalDownloadTask.parseYqlResponse(inputXml.toString());
 			
 			List<YahooHistoricalData> result=new LinkedList<YahooHistoricalData>();
-			for (YahooHistoricalData d : resultIt)
-				result.add(d);
+			CollectionUtils.addAll(result, resultIt.iterator());
 			
 			Assert.assertEquals("Not getting exactly 3 items", 3, result.size());
 			
