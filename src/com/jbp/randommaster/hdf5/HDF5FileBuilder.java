@@ -113,7 +113,9 @@ public class HDF5FileBuilder {
 	}
 	
 	/**
-	 * Create the relevant groups for a given instrument code and a date.
+	 * Create or get the relevant groups for a given instrument code and a date.
+	 * 
+	 * The path of the group is /instrumentCode/yearStr/monthStr/dayStr
 	 * 
 	 * @return The H5Group object
 	 * 
