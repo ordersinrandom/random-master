@@ -11,5 +11,10 @@ import com.jbp.randommaster.datasource.FinancialDataSource;
  */
 public interface HistoricalDataSource<T extends HistoricalData<? extends HistoricalDataTuple>> extends FinancialDataSource {
 
-	public Iterable<T> getData() throws HistoricalDataSourceException;
+	/**
+	 * Get the data from this HistoricalDataSource object.
+	 * @return The iterable of T
+	 * @thorws HistoricalDataSourceException if there is any error with it.
+	 */
+	public Iterable<T> getData();
 }

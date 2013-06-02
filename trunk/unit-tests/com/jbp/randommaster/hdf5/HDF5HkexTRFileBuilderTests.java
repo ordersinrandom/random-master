@@ -17,7 +17,6 @@ import ncsa.hdf.object.h5.H5File;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.HistoricalDataSourceException;
 import com.jbp.randommaster.datasource.historical.HkexTRFileData;
 import com.jbp.randommaster.datasource.historical.HkexTRFileSource;
 
@@ -63,7 +62,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 	}
 	
 	@Test
-	public void testBuildingHDF5HkexTRFile() throws IOException, HistoricalDataSourceException {
+	public void testBuildingHDF5HkexTRFile() throws IOException {
 		
 		String zipFilename = "201210_01_TR_UnitTest.zip";
 		//String csvFilename = "201210_01_TR.csv";

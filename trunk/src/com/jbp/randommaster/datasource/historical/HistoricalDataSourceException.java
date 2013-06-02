@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
-public class HistoricalDataSourceException extends Exception {
+public class HistoricalDataSourceException extends RuntimeException {
 
 	private static final long serialVersionUID = -5628359859119514864L;
 	
