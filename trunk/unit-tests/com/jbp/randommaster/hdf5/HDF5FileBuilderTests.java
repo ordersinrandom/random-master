@@ -44,7 +44,7 @@ public class HDF5FileBuilderTests extends TestCase {
 		}
 		
 		
-		H5Group g1=b.createInstrumentAndDateGroups("MyBday", new LocalDate(2013, 05, 04));
+		H5Group g1=b.createOrGetInstrumentAndDateGroup("MyBday", new LocalDate(2013, 05, 04));
 		
 		//System.out.println("fullname: "+g1.getFullName());
 		
