@@ -67,7 +67,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 				List<HkexTRFileData> dataList = en2.getValue();
 				
 				log.info("Creating group "+instrumentCode+", "+tradeDate);
-				H5Group h5Group=super.createInstrumentAndDateGroups(instrumentCode, tradeDate);
+				H5Group h5Group=super.createOrGetInstrumentAndDateGroup(instrumentCode, tradeDate);
 				log.info("Group "+instrumentCode+", "+tradeDate+" created");
 				
 				String dsName = "TRData";

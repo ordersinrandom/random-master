@@ -118,7 +118,7 @@ public class HDF5FileBuilder {
 	 * @return The H5Group object
 	 * 
 	 */
-	protected H5Group createInstrumentAndDateGroups(String instrumentCode, LocalDate date) {
+	protected H5Group createOrGetInstrumentAndDateGroup(String instrumentCode, LocalDate date) {
 		
 		if (h5File==null || !h5File.canWrite())
 			throw new IllegalStateException("Unable to createInstrumentAndDateGroups(). The file is null or read-only");
@@ -126,9 +126,6 @@ public class HDF5FileBuilder {
 		String yearStr=date.toString(DateTimeFormat.forPattern("yyyy"));
 		String monthStr=date.toString(DateTimeFormat.forPattern("MM"));
 		String dayStr=date.toString(DateTimeFormat.forPattern("dd"));
-		
-		
-		
 		
 		try {
 			String path = "/"+instrumentCode+"/"+yearStr+"/"+monthStr+"/"+dayStr;
