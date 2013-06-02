@@ -2,7 +2,6 @@ package com.jbp.randommaster.datasource.historical;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,22 +122,26 @@ public class YahooHistoricalDataSource implements HistoricalDataSource<YahooHist
 		ExecutorService pool = Executors.newFixedThreadPool(THREADS_COUNT);
 		
 		
-		HashMap<Future<Collection<YahooHistoricalData>>, String> taskToYqlMap
-			=new HashMap<Future<Collection<YahooHistoricalData>>, String>();
+		HashMap<Future<Iterable<YahooHistoricalData>>, String> taskToYqlMap
+			=new HashMap<Future<Iterable<YahooHistoricalData>>, String>();
 		
 		
 		for (String yql: getYqls()) {
 			YqlHistoricalDownloadTask t=new YqlHistoricalDownloadTask(yql);
-			Future<Collection<YahooHistoricalData>> handle=pool.submit(t);
+			Future<Iterable<YahooHistoricalData>> handle=pool.submit(t);
 			taskToYqlMap.put(handle, yql);
 		}
 		
 		try {
 			// get all the result
-			for (Future<Collection<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
+			for (Future<Iterable<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
 				try {
-					Collection<YahooHistoricalData> batchResult=handle.get();
-					result.addAll(batchResult);
+					Iterable<YahooHistoricalData> batchResult=handle.get();
+					
+					for (YahooHistoricalData d : batchResult) {
+						result.add(d);
+					}
+					
 				} catch (Exception e1) {
 					throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToYqlMap.get(handle), e1);
 				}
