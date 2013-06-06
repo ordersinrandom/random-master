@@ -93,7 +93,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		
 		HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
 		builder.createOrOpen();
-		builder.createCompoundDSForTRData(loadedData);
+		builder.createCompoundDatasetsForTRData(loadedData);
 		builder.closeFile();
 			
 
@@ -104,7 +104,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 			FileFormat format=FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
 			h5ReadOnlyFile=(H5File) format.createInstance(testingOutputH5File, FileFormat.READ);
 			
-			String loadPath = "/HHI/2012/10/03/TRData";
+			String loadPath = "/Futures/HHI/2012/10/03/TRData";
 			HObject dataset=h5ReadOnlyFile.get(loadPath);
 			Assert.assertNotNull("Cannot load from "+loadPath+", result object is null", dataset);
 			if (dataset!=null) {
@@ -144,9 +144,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		}
 		
 		//System.out.println("Temp out file: "+testingOutputH5File);
-		
-		
-		
+
 		
 		// delete the temp h5 file.
 		File f2=new File(testingOutputH5File);

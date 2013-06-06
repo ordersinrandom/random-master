@@ -146,6 +146,15 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 	public String getFuturesOrOptions() {
 		return futuresOrOptions;
 	}
+	
+	public boolean isFutures() {
+		return "F".equals(futuresOrOptions);
+	}
+	
+	public boolean isOptions() {
+		return "O".equals(futuresOrOptions);
+	}
+	
 	public YearMonth getExpiryMonth() {
 		return expiryMonth;
 	}
