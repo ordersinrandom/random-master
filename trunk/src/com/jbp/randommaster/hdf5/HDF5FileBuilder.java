@@ -13,7 +13,7 @@ import ncsa.hdf.object.h5.H5Group;
 
 /**
  * 
- * Provides utility function for HDF5 file creation and update
+ * Provides utility function for HDF5 file creation and update.
  * 
  */
 public class HDF5FileBuilder {
@@ -24,7 +24,7 @@ public class HDF5FileBuilder {
 	private String targetFilename;
 	private H5File h5File;
 	
-	public HDF5FileBuilder(String targetFilename) {
+	protected HDF5FileBuilder(String targetFilename) {
 		this.targetFilename=targetFilename;
 	}
 	
