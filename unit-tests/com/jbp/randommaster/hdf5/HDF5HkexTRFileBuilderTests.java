@@ -61,6 +61,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		return tempUnzippedFile;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testBuildingHDF5HkexTRFile() throws IOException {
 		
@@ -114,8 +115,6 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 					Object dsData=ds.getData();
 					if (dsData!=null && dsData instanceof Vector) {
 						
-						// TODO: more checking on those result data later.
-						@SuppressWarnings("rawtypes")
 						Vector v = (Vector) dsData;
 						Assert.assertEquals("Not exactly 9 columns", 9, v.size());
 						
@@ -128,6 +127,49 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 						
 					}
 					else Assert.fail("Unexpected dataset data: "+dsData);
+					
+					// setup the testing expected data
+					String[] expectedClassCode=new String[7];
+					String[] expectedFuturesOrOptions = new String[7];
+					long[] expectedExpiryMonth = new long[7];
+					double[] expectedStrike = new double[7];
+					String[] expectedCallPut = new String[7];
+					String[] expectedTradeType = new String[7];
+					for (int i=0;i<expectedClassCode.length;i++) {
+						expectedClassCode[i]="HHI";
+						expectedFuturesOrOptions[i]="F";
+						expectedExpiryMonth[i]=1349020800000L;
+						expectedStrike[i]=0.0;
+						expectedCallPut[i]="";
+						expectedTradeType[i]="020";
+					}
+					long[] expectedTimestamp = new long[] {1349226841000L,1349226841000L,1349226841000L,1349226841000L,1349226841000L,1349226903000L,1349226961000L};
+					double[] expectedPrice = new double[] {9827.0,9827.0,9827.0,9827.0,9827.0,9987.0,9820.0};
+					double[] expectedQty = new double[] {1.0,2.0,2.0,2.0,2.0,3.0,5.0};
+					// testing data setup done
+					
+					// actual loaded data
+					String[] classCode = (String[]) ((Vector) dsData).get(0);
+					String[] futuresOrOptions = (String[]) ((Vector) dsData).get(1);
+					long[] expiryMonth = (long[]) ((Vector) dsData).get(2);
+					double[] strike = (double[]) ((Vector) dsData).get(3);
+					String[] callPut = (String[]) ((Vector) dsData).get(4);
+					long[] timestamp = (long[]) ((Vector) dsData).get(5);
+					double[] price = (double[]) ((Vector) dsData).get(6);
+					double[] qty = (double[]) ((Vector) dsData).get(7);
+					String[] tradeType = (String[]) ((Vector) dsData).get(8);
+					
+					// reconciliation of expected vs actual
+					stringArrayRecon("ClassCode", expectedClassCode, classCode);
+					stringArrayRecon("FuturesOrOptions", expectedFuturesOrOptions, futuresOrOptions);
+					longArrayRecon("ExpiryMonth", expectedExpiryMonth, expiryMonth);
+					doubleArrayRecon("Strike", expectedStrike, strike, 0.0000001);
+					stringArrayRecon("CallPut", expectedCallPut, callPut);
+					longArrayRecon("Timestamp", expectedTimestamp, timestamp);
+					doubleArrayRecon("Price", expectedPrice, price, 0.0000001);
+					doubleArrayRecon("Qty", expectedQty, qty, 0.000001);
+					stringArrayRecon("TradeType", expectedTradeType, tradeType);
+					
 				}
 			}
 			
@@ -147,6 +189,7 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 
 		
 		// delete the temp h5 file.
+		
 		File f2=new File(testingOutputH5File);
 		if (f2.exists())
 			f2.delete();
@@ -154,4 +197,40 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		
 	}
 	
+	
+	private void stringArrayRecon(String colName, String[] expected, String[] actual) {
+		Assert.assertNotNull(colName+" input rows are null", actual);
+		if (actual!=null) {
+			Assert.assertEquals(colName+" row count mismatched", expected.length, actual.length);
+			if (expected.length==actual.length) {
+				for (int i=0;i<expected.length;i++) {
+					Assert.assertEquals(colName+" row "+i+" mismatched", expected[i], actual[i]);
+				}
+			}
+		}
+	}
+
+	private void doubleArrayRecon(String colName, double[] expected, double[] actual, double threshold) {
+		Assert.assertNotNull(colName+" input rows are null", actual);
+		if (actual!=null) {
+			Assert.assertEquals(colName+" row count mismatched", expected.length, actual.length);
+			if (expected.length==actual.length) {
+				for (int i=0;i<expected.length;i++) {
+					Assert.assertEquals(colName+" row "+i+" mismatched", expected[i], actual[i], threshold);
+				}
+			}
+		}
+	}
+	
+	private void longArrayRecon(String colName, long[] expected, long[] actual) {
+		Assert.assertNotNull(colName+" input rows are null", actual);
+		if (actual!=null) {
+			Assert.assertEquals(colName+" row count mismatched", expected.length, actual.length);
+			if (expected.length==actual.length) {
+				for (int i=0;i<expected.length;i++) {
+					Assert.assertEquals(colName+" row "+i+" mismatched", expected[i], actual[i]);
+				}
+			}
+		}
+	}	
 }
