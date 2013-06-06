@@ -120,7 +120,7 @@ public class HDF5FileBuilder {
 	 * @return The H5Group object
 	 * 
 	 */
-	protected H5Group createOrGetInstrumentAndDateGroup(String instrumentCode, LocalDate date) {
+	protected H5Group createOrGetInstrumentAndDateGroup(String instrumentType, String underlying, LocalDate date) {
 		
 		if (h5File==null || !h5File.canWrite())
 			throw new IllegalStateException("Unable to createInstrumentAndDateGroups(). The file is null or read-only");
@@ -130,7 +130,7 @@ public class HDF5FileBuilder {
 		String dayStr=date.toString(DateTimeFormat.forPattern("dd"));
 		
 		try {
-			String path = "/"+instrumentCode+"/"+yearStr+"/"+monthStr+"/"+dayStr;
+			String path = "/" + instrumentType + "/" + underlying + "/" + yearStr + "/" + monthStr + "/" + dayStr;
 			log.info("Trying to search the group: "+path);
 			
 			H5Group existingGroup = (H5Group) h5File.get(path);
@@ -138,8 +138,9 @@ public class HDF5FileBuilder {
 				return existingGroup;
 			
 			H5Group root=(H5Group) h5File.get("/");
-			H5Group instrGroup=getOrCreateSubGroup(root, instrumentCode);
-			H5Group yearGroup=getOrCreateSubGroup(instrGroup, yearStr);
+			H5Group instrGroup=getOrCreateSubGroup(root, instrumentType);
+			H5Group underlyingGroup=getOrCreateSubGroup(instrGroup, underlying);
+			H5Group yearGroup=getOrCreateSubGroup(underlyingGroup, yearStr);
 			H5Group monthGroup=getOrCreateSubGroup(yearGroup, monthStr);
 			H5Group dayGroup=getOrCreateSubGroup(monthGroup, dayStr);
 			
@@ -149,8 +150,8 @@ public class HDF5FileBuilder {
 			
 		} catch (Exception e1) {
 			
-			log.fatal("Unable to createInstrumentAndDateGroups("+instrumentCode+", "+date+")", e1);
-			throw new HDF5FileBuilderException("Unable to createInstrumentAndDateGroups("+instrumentCode+", "+date+")", e1);
+			log.fatal("Unable to createInstrumentAndDateGroups("+instrumentType+", "+underlying+", "+date+")", e1);
+			throw new HDF5FileBuilderException("Unable to createInstrumentAndDateGroups("+instrumentType+", "+underlying+", "+date+")", e1);
 		}
 		
 		

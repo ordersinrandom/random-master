@@ -31,7 +31,12 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		super(targetFilename);
 	}
 	
-	public void createCompoundDSForTRData(Iterable<HkexTRFileData> rawData) {
+	/**
+	 * Create various compound datasets for the given large list of HKEX TR File data.
+	 * 
+	 * @param rawData The raw data of the whole HKEX TR File.
+	 */
+	public void createCompoundDatasetsForTRData(Iterable<HkexTRFileData> rawData) {
 		// group by instrument code and then trade date and then the list of raw data.
 		TreeMap<String, Map<LocalDate,List<HkexTRFileData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<HkexTRFileData>>>();
 		for (HkexTRFileData d : rawData) {
@@ -65,25 +70,53 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 			for (Map.Entry<LocalDate,List<HkexTRFileData>> en2 : relevantData.entrySet()) {
 				LocalDate tradeDate=en2.getKey();
 				List<HkexTRFileData> dataList = en2.getValue();
-				
-				log.info("Creating group "+instrumentCode+", "+tradeDate);
-				H5Group h5Group=super.createOrGetInstrumentAndDateGroup(instrumentCode, tradeDate);
-				log.info("Group "+instrumentCode+", "+tradeDate+" created");
-				
+				// split into options and futures
+				List<HkexTRFileData> optionsList = new LinkedList<HkexTRFileData>();
+				List<HkexTRFileData> futuresList = new LinkedList<HkexTRFileData>();
+				for (HkexTRFileData d : dataList) {
+					if (d.getData().isFutures()) 
+						futuresList.add(d);
+					else if (d.getData().isOptions())
+						optionsList.add(d);
+				}
+
 				String dsName = "TRData";
 				
-				// create the compound DS and then attach the data.
-				createCoupoundDSForInstrument(instrumentCode, h5Group, dsName, dataList);
-				
-				
-				log.info("Compound DS for "+instrumentCode+" created");
-				
+				createGroupAndCompoundDS("Futures", instrumentCode, tradeDate, dsName, futuresList);
+				createGroupAndCompoundDS("Options", instrumentCode, tradeDate, dsName, optionsList);
 				
 			}
 		}
-		
-
 	}
+	
+	
+	/**
+	 * Helper function to create the groups path and the compound DS for some particular instrument type and date
+	 * 
+	 * @param instrumentType For example "Futures", "Options"
+	 * @param underlying e.g. HSI
+	 * @param tradeDate The trade date of the group
+	 * @param dsName The dataset name to be used.
+	 * @param dataList The list of data grouped by instrument type.
+	 */
+	private void createGroupAndCompoundDS(String instrumentType, String underlying, LocalDate tradeDate, String dsName, List<HkexTRFileData> dataList) {
+
+		if (dataList!=null && !dataList.isEmpty()) {
+			// create the instrument and date group for futures or options
+			log.info("Creating group "+instrumentType+", "+underlying+", "+tradeDate);
+			H5Group h5FuturesGroup=super.createOrGetInstrumentAndDateGroup(instrumentType, underlying, tradeDate);
+			log.info("Group "+instrumentType+", "+underlying+", "+tradeDate+" created");
+			
+			// create the compound DS and then attach the data.
+			createCoupoundDSForInstrument(underlying, h5FuturesGroup, dsName, dataList);
+			log.info("Compound DS for "+instrumentType+", "+underlying+" created");
+		}
+		else {
+			log.info("Group "+instrumentType+", "+underlying+", "+tradeDate+" NOT created as the input data list is empty or null");
+		}
+		
+	}
+	
 	
 	/**
 	 * Helper class to create CompoundDS for instrument data.

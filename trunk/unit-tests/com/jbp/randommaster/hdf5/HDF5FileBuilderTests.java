@@ -44,11 +44,11 @@ public class HDF5FileBuilderTests extends TestCase {
 		}
 		
 		
-		H5Group g1=b.createOrGetInstrumentAndDateGroup("MyBday", new LocalDate(2013, 05, 04));
+		H5Group g1=b.createOrGetInstrumentAndDateGroup("Futures", "MyBday", new LocalDate(2013, 05, 04));
 		
 		//System.out.println("fullname: "+g1.getFullName());
 		
-		Assert.assertEquals("The group name doesn't match", "/MyBday/2013/05/04", g1.getFullName());
+		Assert.assertEquals("The group name doesn't match", "/Futures/MyBday/2013/05/04", g1.getFullName());
 
 		try {
 			b.getHDF5File().close();
