@@ -75,6 +75,12 @@ public class DerivativesTRFile2HDF5 {
 					String outputHDF5Filename=outputFolder.getAbsolutePath()+sp+en.getKey()+".hdf5";
 					
 					File outputHDF5File=new File(outputHDF5Filename);
+					if (outputHDF5File.exists()) {
+						log.warn("Target output file "+outputHDF5Filename+" already exists. SKIPPED");
+						continue;
+					}
+					
+					
 					(new File(outputHDF5File.getParent())).mkdirs();
 					
 					File inputFile=en.getValue();
