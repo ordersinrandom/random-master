@@ -2,12 +2,16 @@ package com.jbp.randommaster.applications.hdf5;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
+import com.jbp.randommaster.datasource.historical.HkexTRFileData;
+import com.jbp.randommaster.datasource.historical.HkexTRFileSource;
+import com.jbp.randommaster.hdf5.HDF5HkexTRFileBuilder;
 import com.jbp.randommaster.utils.ZipUtils;
 
 /**
@@ -27,7 +31,6 @@ public class HkexTRFile2HDF5 {
 		
 		this.inputFolder=inputFolder;
 		this.outputFolder=outputFolder;
-		
 
 	}
 	
@@ -45,19 +48,59 @@ public class HkexTRFile2HDF5 {
 		for (File srcZipFile : allZipFiles) {
 			log.info("Processing "+srcZipFile.getAbsolutePath());
 			
+			Map<String, File> tempUnzippedFiles = null;
+			ZipFile zip=null;
 			try {
+				log.info("Unzipping "+srcZipFile.getAbsolutePath());
 				// open the zip file
-				ZipFile z =new ZipFile(srcZipFile);
-				
-				Map<String, File> tempUnzippedFiles=ZipUtils.unzipToTempFiles(z, "HkexTRFile2HDF5_temp_", true);
-				
-				
-				
-
+				zip =new ZipFile(srcZipFile);
+				tempUnzippedFiles=ZipUtils.unzipToTempFiles(zip, "HkexTRFile2HDF5_temp_", true);
+				log.info("Unzip "+srcZipFile.getAbsolutePath()+" finished");
 			} catch (IOException e1) {
 				log.warn("Unable to unzip the file "+srcZipFile.getAbsolutePath()+". SKIPPED", e1);
+			} finally {
+				try {
+					zip.close();
+				} catch (Exception e1) {
+					log.warn("Unable to close the zip file: "+srcZipFile.getAbsolutePath(), e1);
+				}
 			}
 			
+			if (tempUnzippedFiles!=null) {
+				
+				String sp = System.getProperty("file.separator");
+				
+				for (Map.Entry<String, File> en : tempUnzippedFiles.entrySet()) {
+					
+					String outputHDF5Filename=outputFolder.getAbsolutePath()+sp+en.getKey()+".hdf5";
+					
+					File outputHDF5File=new File(outputHDF5Filename);
+					(new File(outputHDF5File.getParent())).mkdirs();
+					
+					File inputFile=en.getValue();
+					
+					try {
+						// now read the source file
+						HkexTRFileSource src = new HkexTRFileSource(inputFile.getAbsolutePath());
+
+						log.info("Loading data from "+inputFile.getAbsolutePath());
+						
+						Iterable<HkexTRFileData> loadedData=src.getData();
+
+						log.info("building HDF5 File: "+outputHDF5Filename);
+						HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(outputHDF5Filename);
+						builder.createOrOpen();
+						builder.createCompoundDatasetsForTRData(loadedData);
+						builder.closeFile();
+						log.info("HDF5 File ("+outputHDF5Filename+")data written and closed");
+					} catch (FileNotFoundException e1) {
+						log.warn("unable to find input file: "+inputFile.getAbsolutePath()+". HDF5 file not generated");
+					}
+					
+				}
+			}
+			
+			log.info("Zip file processing finished: "+srcZipFile.getAbsolutePath());
 			
 		}
 		
