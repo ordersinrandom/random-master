@@ -54,7 +54,7 @@ public class DerivativesTRFile2HDF5 {
 				log.info("Unzipping "+srcZipFile.getAbsolutePath());
 				// open the zip file
 				zip =new ZipFile(srcZipFile);
-				tempUnzippedFiles=ZipUtils.unzipToTempFiles(zip, "HkexTRFile2HDF5_temp_", true);
+				tempUnzippedFiles=ZipUtils.unzipToTempFiles(zip, "DerivativesTRFile2HDF5_temp_", true);
 				log.info("Unzip "+srcZipFile.getAbsolutePath()+" finished");
 			} catch (IOException e1) {
 				log.warn("Unable to unzip the file "+srcZipFile.getAbsolutePath()+". SKIPPED", e1);
