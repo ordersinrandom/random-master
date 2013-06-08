@@ -17,9 +17,9 @@ import org.joda.time.LocalDateTime;
  * Encapsulate the trade record data loading from a single HKEX TR file.
  *
  */
-public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
+public class DerivativesTRFileSource implements HistoricalDataSource<DerivativesTRFileData> {
 
-	static Logger log=Logger.getLogger(HkexTRFileSource.class);	
+	static Logger log=Logger.getLogger(DerivativesTRFileSource.class);	
 	
 	private String inputFile;
 	private LocalDateTime startRange, endRange;
@@ -35,7 +35,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * @param classCode Filter only trades of specific class code is included. Null means no filtering
 	 * @param futuresOrOptions Filter only futures or options included. Null means no filtering
 	 */
-	public HkexTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
+	public DerivativesTRFileSource(String inputFile, LocalDateTime startRange, LocalDateTime endRange, String classCode, String futuresOrOptions) {
 		
 		this.inputFile=inputFile;
 		
@@ -51,7 +51,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * 
 	 * @param inputFile The input source file.
 	 */
-	public HkexTRFileSource(String inputFile) throws FileNotFoundException {
+	public DerivativesTRFileSource(String inputFile) throws FileNotFoundException {
 		this(inputFile, null, null, null, null);
 	}
 	
@@ -65,19 +65,19 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * @param classCode The class code such as HSI/MHI etc.
 	 * @param futuresOrOptions The futures or options flag. F = Futures, O = Options.
 	 */	
-	public HkexTRFileSource(String inputFile, String classCode, String futuresOrOptions) throws FileNotFoundException {
+	public DerivativesTRFileSource(String inputFile, String classCode, String futuresOrOptions) throws FileNotFoundException {
 		this(inputFile, null, null, classCode, futuresOrOptions);
 	}
 	
 
 	
 	@Override
-	public Iterable<HkexTRFileData> getData() {
+	public Iterable<DerivativesTRFileData> getData() {
 		
-		return new Iterable<HkexTRFileData>() {
+		return new Iterable<DerivativesTRFileData>() {
 
 			@Override
-			public Iterator<HkexTRFileData> iterator() {
+			public Iterator<DerivativesTRFileData> iterator() {
 				try {
 					// return the iterator that truly runs through the input file line by line.
 					return new InputFileIterator();
@@ -110,7 +110,7 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	 * Internal helper iterator class that actually carries out the file reading and parsing.
 	 *
 	 */
-	private class InputFileIterator implements Iterator<HkexTRFileData> {
+	private class InputFileIterator implements Iterator<DerivativesTRFileData> {
 
 		private FileReader fileReader;
 		private BufferedReader bufReader;
@@ -136,8 +136,8 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		}
 
 		@Override
-		public HkexTRFileData next() {
-			HkexTRFileData data = null;
+		public DerivativesTRFileData next() {
+			DerivativesTRFileData data = null;
 			try {
 				String line=null;
 				// if the data has been parsed we just leave
@@ -185,13 +185,13 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 		 * @param l One line in the input file
 		 * @return A <code>HkexTRFileData</code> object if the input is in the correct format. null otherwise.
 		 */
-		private HkexTRFileData interpretOneLine(String l) {
+		private DerivativesTRFileData interpretOneLine(String l) {
 			String line=l.trim();
 			// ignore blank lines.
 			if (line.length()>0) {
 				
 				// parse the input line.
-				HkexTRFileData d=new HkexTRFileData(line);
+				DerivativesTRFileData d=new DerivativesTRFileData(line);
 				
 				// check time filter
 				boolean timeFilterPass = false;

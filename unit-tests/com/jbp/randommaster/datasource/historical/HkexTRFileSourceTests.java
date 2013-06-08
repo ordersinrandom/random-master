@@ -32,18 +32,18 @@ public class HkexTRFileSourceTests extends TestCase {
 			
 			String tempFilename=tempFile.getAbsolutePath();
 			
-			HkexTRFileSource src=new HkexTRFileSource(tempFilename);
+			DerivativesTRFileSource src=new DerivativesTRFileSource(tempFilename);
 			
-			Iterable<HkexTRFileData> data=src.getData();
+			Iterable<DerivativesTRFileData> data=src.getData();
 			
-			List<HkexTRFileData> r = new LinkedList<HkexTRFileData>();
-			for (HkexTRFileData d : data)
+			List<DerivativesTRFileData> r = new LinkedList<DerivativesTRFileData>();
+			for (DerivativesTRFileData d : data)
 				r.add(d);
 			Assert.assertEquals("Not exactly 3 items", 3, r.size());
 
-			HkexTRFileData i1=r.get(0);
-			HkexTRFileData i2=r.get(1);
-			HkexTRFileData i3=r.get(2);
+			DerivativesTRFileData i1=r.get(0);
+			DerivativesTRFileData i2=r.get(1);
+			DerivativesTRFileData i3=r.get(2);
 			
 			Assert.assertEquals("item 1 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTimestamp());
 			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getData().getClassCode());

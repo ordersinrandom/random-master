@@ -16,18 +16,18 @@ import ncsa.hdf.object.h5.H5Group;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
-import com.jbp.randommaster.datasource.historical.HkexTRFileData;
+import com.jbp.randommaster.datasource.historical.DerivativesTRFileData;
 
 /**
  * 
  * Helper class to create/modify the HDF5 file appending HkexTRFileData objects
  *
  */
-public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
+public class HDF5DerivativesTRFileBuilder extends HDF5FileBuilder {
 
-	static Logger log=Logger.getLogger(HDF5HkexTRFileBuilder.class);	
+	static Logger log=Logger.getLogger(HDF5DerivativesTRFileBuilder.class);	
 	
-	public HDF5HkexTRFileBuilder(String targetFilename) {
+	public HDF5DerivativesTRFileBuilder(String targetFilename) {
 		super(targetFilename);
 	}
 	
@@ -36,44 +36,44 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 	 * 
 	 * @param rawData The raw data of the whole HKEX TR File.
 	 */
-	public void createCompoundDatasetsForTRData(Iterable<HkexTRFileData> rawData) {
+	public void createCompoundDatasetsForTRData(Iterable<DerivativesTRFileData> rawData) {
 		// group by instrument code and then trade date and then the list of raw data.
-		TreeMap<String, Map<LocalDate,List<HkexTRFileData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<HkexTRFileData>>>();
-		for (HkexTRFileData d : rawData) {
+		TreeMap<String, Map<LocalDate,List<DerivativesTRFileData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<DerivativesTRFileData>>>();
+		for (DerivativesTRFileData d : rawData) {
 			
 			String classCode = d.getData().getClassCode();
 			// data grouped by trade date.
-			Map<LocalDate,List<HkexTRFileData>> groupedData=instrumentClassCodes.get(classCode);
+			Map<LocalDate,List<DerivativesTRFileData>> groupedData=instrumentClassCodes.get(classCode);
 			if (groupedData==null) {
-				groupedData=new TreeMap<LocalDate, List<HkexTRFileData>>();
+				groupedData=new TreeMap<LocalDate, List<DerivativesTRFileData>>();
 				instrumentClassCodes.put(classCode, groupedData);
 			}
 
 			LocalDate tradeDate=d.getTimestamp().toLocalDate();
-			List<HkexTRFileData> dataList=groupedData.get(tradeDate);
+			List<DerivativesTRFileData> dataList=groupedData.get(tradeDate);
 			if (dataList==null) {
-				dataList=new LinkedList<HkexTRFileData>();
+				dataList=new LinkedList<DerivativesTRFileData>();
 				groupedData.put(tradeDate, dataList);
 			}
 			dataList.add(d);
 		}
 		
 		// create all the relevant groups
-		for (Map.Entry<String, Map<LocalDate,List<HkexTRFileData>>> en : instrumentClassCodes.entrySet()) {
+		for (Map.Entry<String, Map<LocalDate,List<DerivativesTRFileData>>> en : instrumentClassCodes.entrySet()) {
 			
 			String instrumentCode = en.getKey();
 			
 			log.info("Creating compound DS for "+instrumentCode);
 			
-			Map<LocalDate,List<HkexTRFileData>> relevantData = en.getValue();
+			Map<LocalDate,List<DerivativesTRFileData>> relevantData = en.getValue();
 			
-			for (Map.Entry<LocalDate,List<HkexTRFileData>> en2 : relevantData.entrySet()) {
+			for (Map.Entry<LocalDate,List<DerivativesTRFileData>> en2 : relevantData.entrySet()) {
 				LocalDate tradeDate=en2.getKey();
-				List<HkexTRFileData> dataList = en2.getValue();
+				List<DerivativesTRFileData> dataList = en2.getValue();
 				// split into options and futures
-				List<HkexTRFileData> optionsList = new LinkedList<HkexTRFileData>();
-				List<HkexTRFileData> futuresList = new LinkedList<HkexTRFileData>();
-				for (HkexTRFileData d : dataList) {
+				List<DerivativesTRFileData> optionsList = new LinkedList<DerivativesTRFileData>();
+				List<DerivativesTRFileData> futuresList = new LinkedList<DerivativesTRFileData>();
+				for (DerivativesTRFileData d : dataList) {
 					if (d.getData().isFutures()) 
 						futuresList.add(d);
 					else if (d.getData().isOptions())
@@ -99,7 +99,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 	 * @param dsName The dataset name to be used.
 	 * @param dataList The list of data grouped by instrument type.
 	 */
-	private void createGroupAndCompoundDS(String instrumentType, String underlying, LocalDate tradeDate, String dsName, List<HkexTRFileData> dataList) {
+	private void createGroupAndCompoundDS(String instrumentType, String underlying, LocalDate tradeDate, String dsName, List<DerivativesTRFileData> dataList) {
 
 		if (dataList!=null && !dataList.isEmpty()) {
 			// create the instrument and date group for futures or options
@@ -127,7 +127,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 	 * @return The created compound DS.
 	 */
 	@SuppressWarnings("unchecked")
-	private H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkexTRFileData> dataForOneDay) {
+	private H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<DerivativesTRFileData> dataForOneDay) {
 		
 		if (dataForOneDay==null || dataForOneDay.isEmpty())
 			throw new IllegalArgumentException("Input raw data is empty for instrument: "+instrumentCode);
@@ -207,7 +207,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 		double[] quantity = new double[rowCount];
 		String[] tradeType = new String[rowCount];
 		int i=0;
-		for (HkexTRFileData d : dataForOneDay) {
+		for (DerivativesTRFileData d : dataForOneDay) {
 			classCode[i]=d.getData().getClassCode();
 			futuresOrOptions[i]=d.getData().getFuturesOrOptions();
 			expiryMonth[i]=d.getData().getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();

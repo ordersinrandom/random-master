@@ -3,16 +3,16 @@ package com.jbp.randommaster.datasource.historical;
 import org.joda.time.LocalDateTime;
 
 
-public class HkexTRFileData implements HistoricalData<HkexTRFileTuple> {
+public class DerivativesTRFileData implements HistoricalData<DerivativesTRFileTuple> {
 
 	private static final long serialVersionUID = -8221738364963370500L;
 
-	private HkexTRFileTuple tuple;
+	private DerivativesTRFileTuple tuple;
 	
 	
-	public HkexTRFileData(String inputLine) {
+	public DerivativesTRFileData(String inputLine) {
 		
-		tuple=HkexTRFileTuple.parse(inputLine);
+		tuple=DerivativesTRFileTuple.parse(inputLine);
 	}
 
 	public int hashCode() {
@@ -22,8 +22,8 @@ public class HkexTRFileData implements HistoricalData<HkexTRFileTuple> {
 	public boolean equals(Object obj) {
 		if (obj==null)
 			return false;
-		else if (obj instanceof HkexTRFileData) {
-			HkexTRFileData d=(HkexTRFileData) obj;
+		else if (obj instanceof DerivativesTRFileData) {
+			DerivativesTRFileData d=(DerivativesTRFileData) obj;
 			return this.tuple.equals(d.tuple);
 		}
 		else return false;
@@ -46,7 +46,7 @@ public class HkexTRFileData implements HistoricalData<HkexTRFileTuple> {
 
 		// this is bad. 
 		// it doesn't distinguish trade futures / options etc etc...
-		return this.getData().getClassCode().compareTo(((HkexTRFileTuple) o.getData()).getClassCode());
+		return this.getData().getClassCode().compareTo(((DerivativesTRFileTuple) o.getData()).getClassCode());
 		
 	}
 
@@ -56,7 +56,7 @@ public class HkexTRFileData implements HistoricalData<HkexTRFileTuple> {
 	}
 
 	@Override
-	public HkexTRFileTuple getData() {
+	public DerivativesTRFileTuple getData() {
 		return tuple;
 	}
 

@@ -17,8 +17,8 @@ import ncsa.hdf.object.h5.H5File;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.HkexTRFileData;
-import com.jbp.randommaster.datasource.historical.HkexTRFileSource;
+import com.jbp.randommaster.datasource.historical.DerivativesTRFileData;
+import com.jbp.randommaster.datasource.historical.DerivativesTRFileSource;
 
 import junit.framework.TestCase;
 
@@ -88,11 +88,11 @@ public class HDF5HkexTRFileBuilderTests extends TestCase {
 		String tempFilename = tempUnzippedFile.getAbsolutePath();
 		
 		// now read the source file
-		HkexTRFileSource src = new HkexTRFileSource(tempFilename);
+		DerivativesTRFileSource src = new DerivativesTRFileSource(tempFilename);
 		
-		Iterable<HkexTRFileData> loadedData=src.getData();
+		Iterable<DerivativesTRFileData> loadedData=src.getData();
 		
-		HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(testingOutputH5File);
+		HDF5DerivativesTRFileBuilder builder = new HDF5DerivativesTRFileBuilder(testingOutputH5File);
 		builder.createOrOpen();
 		builder.createCompoundDatasetsForTRData(loadedData);
 		builder.closeFile();

@@ -16,7 +16,7 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkexTRFileTuple implements HistoricalDataTuple {
+public class DerivativesTRFileTuple implements HistoricalDataTuple {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
@@ -40,7 +40,7 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 	private String tradeType;
 	
 	
-	public HkexTRFileTuple(String classCode, String futuresOrOptions,
+	public DerivativesTRFileTuple(String classCode, String futuresOrOptions,
 			YearMonth expiryMonth, double strikePrice, String callPut,
 			LocalDateTime tradeTimestamp, double price, double quantity,
 			String tradeType) {
@@ -56,7 +56,7 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 		this.tradeType=tradeType;
 	}
 	
-	public static HkexTRFileTuple parse(String line) {
+	public static DerivativesTRFileTuple parse(String line) {
 		
 		// examples
 		// MHI,F,1210,0,,20121003,091524,20900,1,001
@@ -132,7 +132,7 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 			throw new IllegalArgumentException("unable to interpret quantity: "+quantityString);
 		}
 		
-		return new HkexTRFileTuple(classCode, futuresOrOptions,
+		return new DerivativesTRFileTuple(classCode, futuresOrOptions,
 				expiryMonth, strikePrice, callPut,
 				tradeTimestamp, price, quantity,
 				tradeType);
@@ -180,8 +180,8 @@ public class HkexTRFileTuple implements HistoricalDataTuple {
 	public boolean equals(Object obj) {
 		if (obj==null)
 			return false;
-		else if (obj instanceof HkexTRFileTuple) {
-			HkexTRFileTuple t = (HkexTRFileTuple) obj;
+		else if (obj instanceof DerivativesTRFileTuple) {
+			DerivativesTRFileTuple t = (DerivativesTRFileTuple) obj;
 			return classCode.equals(t.classCode)
 					&& futuresOrOptions.equals(t.futuresOrOptions)
 					&& expiryMonth.equals(t.expiryMonth)
