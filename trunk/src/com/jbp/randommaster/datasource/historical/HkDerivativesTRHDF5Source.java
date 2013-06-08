@@ -17,6 +17,10 @@ import org.joda.time.YearMonth;
 
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 
+/**
+ * Data source to load Hk Derivatives TR data from HDF5.
+ *
+ */
 public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivativesTRData> {
 
 	static Logger log = Logger.getLogger(HkDerivativesTRHDF5Source.class);
@@ -27,6 +31,15 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 	private String instrumentName;
 	private YearMonth expiry;
 
+	/**
+	 * Create an instance of HkDerivativesTRHDF5Source.
+	 * 
+	 * @param hdf5Filename The source hdf5 file.
+	 * @param tradeDate The trade date of the data to be loaded.
+	 * @param instrumentType The instrument type such as "Futures" or "Options" etc
+	 * @param instrumentName The instrument name such as HSI or HHI etc
+	 * @param expiry The expiry date of those traded instruments.
+	 */
 	public HkDerivativesTRHDF5Source(String hdf5Filename, LocalDate tradeDate, String instrumentType,
 			String instrumentName, YearMonth expiry) {
 		this.hdf5Filename = hdf5Filename;

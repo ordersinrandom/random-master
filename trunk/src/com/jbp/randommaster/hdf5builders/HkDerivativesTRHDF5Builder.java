@@ -28,6 +28,8 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	static Logger log=Logger.getLogger(HkDerivativesTRHDF5Builder.class);
 	
 	public static final String DEFAULT_DATASET_NAME = "TRData";
+	public static final String FUTURES_GROUP_NAME = "Futures";
+	public static final String OPTIONS_GROUP_NAME = "Options";
 	
 	
 	public HkDerivativesTRHDF5Builder(String targetFilename) {
@@ -83,8 +85,8 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 						optionsList.add(d);
 				}
 
-				createGroupAndCompoundDS("Futures", instrumentCode, tradeDate, DEFAULT_DATASET_NAME, futuresList);
-				createGroupAndCompoundDS("Options", instrumentCode, tradeDate, DEFAULT_DATASET_NAME, optionsList);
+				createGroupAndCompoundDS(FUTURES_GROUP_NAME, instrumentCode, tradeDate, DEFAULT_DATASET_NAME, futuresList);
+				createGroupAndCompoundDS(OPTIONS_GROUP_NAME, instrumentCode, tradeDate, DEFAULT_DATASET_NAME, optionsList);
 				
 			}
 		}
