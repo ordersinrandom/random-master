@@ -14,6 +14,11 @@ public class HkDerivativesTRData implements HistoricalData<HkDerivativesTRTuple>
 		
 		tuple=HkDerivativesTRTuple.parse(inputLine);
 	}
+	
+	public HkDerivativesTRData(HkDerivativesTRTuple tuple) {
+		this.tuple=tuple;
+	}
+	
 
 	public int hashCode() {
 		return tuple.hashCode();

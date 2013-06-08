@@ -154,7 +154,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException("remove() is not supported for HkexTRFileSource");
+			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRFileSource");
 		}
 		
 		/**

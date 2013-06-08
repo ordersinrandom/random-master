@@ -25,7 +25,10 @@ import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
  */
 public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 
-	static Logger log=Logger.getLogger(HkDerivativesTRHDF5Builder.class);	
+	static Logger log=Logger.getLogger(HkDerivativesTRHDF5Builder.class);
+	
+	public static final String DEFAULT_DATASET_NAME = "TRData";
+	
 	
 	public HkDerivativesTRHDF5Builder(String targetFilename) {
 		super(targetFilename);
@@ -80,10 +83,8 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 						optionsList.add(d);
 				}
 
-				String dsName = "TRData";
-				
-				createGroupAndCompoundDS("Futures", instrumentCode, tradeDate, dsName, futuresList);
-				createGroupAndCompoundDS("Options", instrumentCode, tradeDate, dsName, optionsList);
+				createGroupAndCompoundDS("Futures", instrumentCode, tradeDate, DEFAULT_DATASET_NAME, futuresList);
+				createGroupAndCompoundDS("Options", instrumentCode, tradeDate, DEFAULT_DATASET_NAME, optionsList);
 				
 			}
 		}
