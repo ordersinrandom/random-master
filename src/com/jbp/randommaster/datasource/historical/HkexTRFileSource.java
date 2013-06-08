@@ -22,7 +22,6 @@ public class HkexTRFileSource implements HistoricalDataSource<HkexTRFileData> {
 	static Logger log=Logger.getLogger(HkexTRFileSource.class);	
 	
 	private String inputFile;
-	
 	private LocalDateTime startRange, endRange;
 	private String classCode;
 	private String futuresOrOptions;
