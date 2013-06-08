@@ -9,9 +9,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
-import com.jbp.randommaster.datasource.historical.DerivativesTRFileData;
-import com.jbp.randommaster.datasource.historical.DerivativesTRFileSource;
-import com.jbp.randommaster.hdf5.HDF5DerivativesTRFileBuilder;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
+import com.jbp.randommaster.hdf5.HkDerivativesTRHDF5Builder;
 import com.jbp.randommaster.utils.ZipUtils;
 
 /**
@@ -20,14 +20,14 @@ import com.jbp.randommaster.utils.ZipUtils;
  * save to another output folder.
  * 
  */
-public class DerivativesTRFile2HDF5 {
+public class HkDerivativesTRFile2HDF5 {
 
-	static Logger log = Logger.getLogger(DerivativesTRFile2HDF5.class);
+	static Logger log = Logger.getLogger(HkDerivativesTRFile2HDF5.class);
 
 
 	private File inputFolder, outputFolder;
 	
-	public DerivativesTRFile2HDF5(File inputFolder, File outputFolder) {
+	public HkDerivativesTRFile2HDF5(File inputFolder, File outputFolder) {
 		
 		this.inputFolder=inputFolder;
 		this.outputFolder=outputFolder;
@@ -87,14 +87,14 @@ public class DerivativesTRFile2HDF5 {
 					
 					try {
 						// now read the source file
-						DerivativesTRFileSource src = new DerivativesTRFileSource(inputFile.getAbsolutePath());
+						HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(inputFile.getAbsolutePath());
 
 						log.info("Loading data from "+inputFile.getAbsolutePath());
 						
-						Iterable<DerivativesTRFileData> loadedData=src.getData();
+						Iterable<HkDerivativesTRData> loadedData=src.getData();
 
 						log.info("building HDF5 File: "+outputHDF5Filename);
-						HDF5DerivativesTRFileBuilder builder = new HDF5DerivativesTRFileBuilder(outputHDF5Filename);
+						HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(outputHDF5Filename);
 						builder.createOrOpen();
 						builder.createCompoundDatasetsForTRData(loadedData);
 						builder.closeFile();
@@ -131,7 +131,7 @@ public class DerivativesTRFile2HDF5 {
 		if (!inputFolder.isDirectory() || !outputFolder.isDirectory())
 			throw new IllegalArgumentException("Input folders or output folders are not directories");
 
-		DerivativesTRFile2HDF5 app=new DerivativesTRFile2HDF5(inputFolder, outputFolder);
+		HkDerivativesTRFile2HDF5 app=new HkDerivativesTRFile2HDF5(inputFolder, outputFolder);
 		app.processFiles();
 
 	}

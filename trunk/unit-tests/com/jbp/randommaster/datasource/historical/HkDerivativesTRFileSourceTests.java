@@ -12,7 +12,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DerivativesTRFileSourceTests extends TestCase {
+public class HkDerivativesTRFileSourceTests extends TestCase {
 	
 	
 	@Test
@@ -32,18 +32,18 @@ public class DerivativesTRFileSourceTests extends TestCase {
 			
 			String tempFilename=tempFile.getAbsolutePath();
 			
-			DerivativesTRFileSource src=new DerivativesTRFileSource(tempFilename);
+			HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFilename);
 			
-			Iterable<DerivativesTRFileData> data=src.getData();
+			Iterable<HkDerivativesTRData> data=src.getData();
 			
-			List<DerivativesTRFileData> r = new LinkedList<DerivativesTRFileData>();
-			for (DerivativesTRFileData d : data)
+			List<HkDerivativesTRData> r = new LinkedList<HkDerivativesTRData>();
+			for (HkDerivativesTRData d : data)
 				r.add(d);
 			Assert.assertEquals("Not exactly 3 items", 3, r.size());
 
-			DerivativesTRFileData i1=r.get(0);
-			DerivativesTRFileData i2=r.get(1);
-			DerivativesTRFileData i3=r.get(2);
+			HkDerivativesTRData i1=r.get(0);
+			HkDerivativesTRData i2=r.get(1);
+			HkDerivativesTRData i3=r.get(2);
 			
 			Assert.assertEquals("item 1 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTimestamp());
 			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getData().getClassCode());

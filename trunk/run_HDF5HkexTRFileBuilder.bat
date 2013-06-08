@@ -24,4 +24,4 @@ set cp=%cp%;.\lib\junit.jar
 set cp=%cp%;.\lib\log4j-1.2.17.jar
 set cp=%cp%;.\lib\RCaller-2.1.1-SNAPSHOT.jar
 
-java -Xmx1300m -cp %cp%  com.jbp.randommaster.applications.hdf5.DerivativesTRFile2HDF5  ..\..\quant.trading.data\HkexTRFiles ..\..\quant.trading.data\HDF5Files
+java -Xmx1300m -cp %cp%  com.jbp.randommaster.applications.hdf5.HkDerivativesTRFile2HDF5  ..\..\quant.trading.data\HkDerivativesTRFiles ..\..\quant.trading.data\HkDerivativesTRHDF5

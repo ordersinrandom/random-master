@@ -16,15 +16,15 @@ import ncsa.hdf.object.h5.H5Group;
  * Provides utility function for HDF5 file creation and update.
  * 
  */
-public class HDF5FileBuilder {
+public class HDF5Builder {
 	
 	// logger instance
-	static Logger log=Logger.getLogger(HDF5FileBuilder.class);
+	static Logger log=Logger.getLogger(HDF5Builder.class);
 
 	private String targetFilename;
 	private H5File h5File;
 	
-	protected HDF5FileBuilder(String targetFilename) {
+	protected HDF5Builder(String targetFilename) {
 		this.targetFilename=targetFilename;
 	}
 	
@@ -49,7 +49,7 @@ public class HDF5FileBuilder {
 				log.info(targetFilename+" closed");
 			} catch (Exception e1) {
 				log.warn("unable to close "+targetFilename, e1);
-				throw new HDF5FileBuilderException("unable to close "+targetFilename, e1);
+				throw new HDF5BuilderException("unable to close "+targetFilename, e1);
 			} finally {
 				h5File=null;
 			}
@@ -60,7 +60,7 @@ public class HDF5FileBuilder {
 	/**
 	 * Create or open the target file.
 	 * 
-	 * @throws HDF5FileBuilderException in case it cannot create or open the file.
+	 * @throws HDF5BuilderException in case it cannot create or open the file.
 	 */
 	public void createOrOpen() {
 		
@@ -75,7 +75,7 @@ public class HDF5FileBuilder {
 				//h5File.setWritable(true);
 			} catch (Exception e1) {
 				log.fatal("Unable to open HDF5 target file: "+targetFilename, e1);
-				throw new HDF5FileBuilderException("Unable to open HDF5 target file: "+targetFilename, e1);
+				throw new HDF5BuilderException("Unable to open HDF5 target file: "+targetFilename, e1);
 			} finally {
 				if (h5File!=null) {
 					try {
@@ -95,7 +95,7 @@ public class HDF5FileBuilder {
 				h5File = (H5File) format.createFile(targetFilename,  FileFormat.FILE_CREATE_DELETE);
 			} catch (Exception e1) {
 				log.fatal("Unable to create HDF5 target file: "+targetFilename, e1);
-				throw new HDF5FileBuilderException("Unable to create HDF5 target file: "+targetFilename, e1);
+				throw new HDF5BuilderException("Unable to create HDF5 target file: "+targetFilename, e1);
 			} finally {
 				if (h5File!=null) {
 					try {
@@ -151,7 +151,7 @@ public class HDF5FileBuilder {
 		} catch (Exception e1) {
 			
 			log.fatal("Unable to createInstrumentAndDateGroups("+instrumentType+", "+underlying+", "+date+")", e1);
-			throw new HDF5FileBuilderException("Unable to createInstrumentAndDateGroups("+instrumentType+", "+underlying+", "+date+")", e1);
+			throw new HDF5BuilderException("Unable to createInstrumentAndDateGroups("+instrumentType+", "+underlying+", "+date+")", e1);
 		}
 		
 		
@@ -186,7 +186,7 @@ public class HDF5FileBuilder {
 			try {
 				targetGroup=(H5Group) h5File.createGroup(name, parentGroup);
 			} catch (Exception e1) {
-				throw new HDF5FileBuilderException("unable to create group: "+name, e1);
+				throw new HDF5BuilderException("unable to create group: "+name, e1);
 			}
 		}
 		
