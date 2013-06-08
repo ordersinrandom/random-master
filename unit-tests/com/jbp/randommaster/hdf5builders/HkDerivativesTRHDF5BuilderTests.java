@@ -1,4 +1,4 @@
-package com.jbp.randommaster.hdf5;
+package com.jbp.randommaster.hdf5builders;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
+import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 
 import junit.framework.TestCase;
 

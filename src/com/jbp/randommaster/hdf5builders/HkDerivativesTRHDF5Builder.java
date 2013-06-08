@@ -1,4 +1,4 @@
-package com.jbp.randommaster.hdf5;
+package com.jbp.randommaster.hdf5builders;
 
 import java.util.LinkedList;
 import java.util.List;

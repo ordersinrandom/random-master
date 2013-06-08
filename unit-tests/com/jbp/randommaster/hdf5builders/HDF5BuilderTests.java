@@ -1,4 +1,4 @@
-package com.jbp.randommaster.hdf5;
+package com.jbp.randommaster.hdf5builders;
 
 
 import ncsa.hdf.object.h5.H5File;
@@ -7,6 +7,8 @@ import ncsa.hdf.object.h5.H5Group;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.jbp.randommaster.hdf5builders.HDF5Builder;
 
 import junit.framework.TestCase;
 
