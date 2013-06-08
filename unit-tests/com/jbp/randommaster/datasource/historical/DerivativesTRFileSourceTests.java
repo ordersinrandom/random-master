@@ -12,7 +12,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class HkexTRFileSourceTests extends TestCase {
+public class DerivativesTRFileSourceTests extends TestCase {
 	
 	
 	@Test

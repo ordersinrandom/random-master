@@ -7,7 +7,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class HkexTRFileTupleTests extends TestCase {
+public class DerivativesTRFileTupleTests extends TestCase {
 
 	
 	@Test

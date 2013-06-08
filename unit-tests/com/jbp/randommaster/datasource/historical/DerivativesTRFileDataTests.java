@@ -6,7 +6,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class HkexTRFileDataTests extends TestCase {
+public class DerivativesTRFileDataTests extends TestCase {
 
 	@Test
 	public void testTimestampMatching() {

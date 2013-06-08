@@ -22,7 +22,7 @@ import com.jbp.randommaster.datasource.historical.DerivativesTRFileSource;
 
 import junit.framework.TestCase;
 
-public class HDF5HkexTRFileBuilderTests extends TestCase {
+public class HDF5DerivativesTRFileBuilderTests extends TestCase {
 
 	private File unzipTestingFile(String testingZipFile) throws IOException {
 		ZipFile zipFile = null;
