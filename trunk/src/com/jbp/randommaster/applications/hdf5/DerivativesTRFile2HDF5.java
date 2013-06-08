@@ -9,9 +9,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
-import com.jbp.randommaster.datasource.historical.HkexTRFileData;
-import com.jbp.randommaster.datasource.historical.HkexTRFileSource;
-import com.jbp.randommaster.hdf5.HDF5HkexTRFileBuilder;
+import com.jbp.randommaster.datasource.historical.DerivativesTRFileData;
+import com.jbp.randommaster.datasource.historical.DerivativesTRFileSource;
+import com.jbp.randommaster.hdf5.HDF5DerivativesTRFileBuilder;
 import com.jbp.randommaster.utils.ZipUtils;
 
 /**
@@ -20,14 +20,14 @@ import com.jbp.randommaster.utils.ZipUtils;
  * save to another output folder.
  * 
  */
-public class HkexTRFile2HDF5 {
+public class DerivativesTRFile2HDF5 {
 
-	static Logger log = Logger.getLogger(HkexTRFile2HDF5.class);
+	static Logger log = Logger.getLogger(DerivativesTRFile2HDF5.class);
 
 
 	private File inputFolder, outputFolder;
 	
-	public HkexTRFile2HDF5(File inputFolder, File outputFolder) {
+	public DerivativesTRFile2HDF5(File inputFolder, File outputFolder) {
 		
 		this.inputFolder=inputFolder;
 		this.outputFolder=outputFolder;
@@ -81,14 +81,14 @@ public class HkexTRFile2HDF5 {
 					
 					try {
 						// now read the source file
-						HkexTRFileSource src = new HkexTRFileSource(inputFile.getAbsolutePath());
+						DerivativesTRFileSource src = new DerivativesTRFileSource(inputFile.getAbsolutePath());
 
 						log.info("Loading data from "+inputFile.getAbsolutePath());
 						
-						Iterable<HkexTRFileData> loadedData=src.getData();
+						Iterable<DerivativesTRFileData> loadedData=src.getData();
 
 						log.info("building HDF5 File: "+outputHDF5Filename);
-						HDF5HkexTRFileBuilder builder = new HDF5HkexTRFileBuilder(outputHDF5Filename);
+						HDF5DerivativesTRFileBuilder builder = new HDF5DerivativesTRFileBuilder(outputHDF5Filename);
 						builder.createOrOpen();
 						builder.createCompoundDatasetsForTRData(loadedData);
 						builder.closeFile();
@@ -125,7 +125,7 @@ public class HkexTRFile2HDF5 {
 		if (!inputFolder.isDirectory() || !outputFolder.isDirectory())
 			throw new IllegalArgumentException("Input folders or output folders are not directories");
 
-		HkexTRFile2HDF5 app=new HkexTRFile2HDF5(inputFolder, outputFolder);
+		DerivativesTRFile2HDF5 app=new DerivativesTRFile2HDF5(inputFolder, outputFolder);
 		app.processFiles();
 
 	}
