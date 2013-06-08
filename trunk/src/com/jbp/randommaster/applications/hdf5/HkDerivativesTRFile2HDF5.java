@@ -16,18 +16,21 @@ import com.jbp.randommaster.utils.ZipUtils;
 
 /**
  * 
- * This tool takes a folder of HKEX TR files, transform them into HDF5 and then
+ * This tool takes a folder of HKEX Derivatives TR files, transform them into HDF5 and then
  * save to another output folder.
  * 
  */
 public class HkDerivativesTRFile2HDF5 {
-
 	
 	static Logger log = Logger.getLogger(HkDerivativesTRFile2HDF5.class);
 
-
 	private File inputFolder, outputFolder;
 	
+	/**
+	 * Create an instance of HkDerivativesTRFile2HDF5.
+	 * @param inputFolder The input folder that contains a number of zipped HKEX Derivatives TR CSV Files.
+	 * @param outputFolder The target output folder where we will save down the corresponding HDF5 Files.
+	 */
 	public HkDerivativesTRFile2HDF5(File inputFolder, File outputFolder) {
 		
 		this.inputFolder=inputFolder;
@@ -35,7 +38,10 @@ public class HkDerivativesTRFile2HDF5 {
 
 	}
 	
-	
+	/**
+	 * Unzip the input files and then generate the HDF5 files one by one.
+	 * Note that if the same HDF5 filename exists it will skip that particular zip entry.
+	 */
 	public void processFiles() {
 
 		File[] allZipFiles = inputFolder.listFiles(new FileFilter() {
