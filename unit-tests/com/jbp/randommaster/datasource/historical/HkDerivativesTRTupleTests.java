@@ -7,13 +7,13 @@ import org.junit.Test;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DerivativesTRFileTupleTests extends TestCase {
+public class HkDerivativesTRTupleTests extends TestCase {
 
 	
 	@Test
 	public void testParsing1() {
 		
-		DerivativesTRFileTuple t=DerivativesTRFileTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,20,001");
+		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,20,001");
 
 		Assert.assertEquals("Class code doesn't match", "HSI", t.getClassCode());
 		Assert.assertEquals("Futures/Options flag doesn't match", "O", t.getFuturesOrOptions());
@@ -29,7 +29,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	
 	@Test
 	public void testParsing2() {
-		DerivativesTRFileTuple t=DerivativesTRFileTuple.parse("MHI,F,1211,0,,20121031,161459,21662,1,001");
+		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("MHI,F,1211,0,,20121031,161459,21662,1,001");
 
 		Assert.assertEquals("Class code doesn't match", "MHI", t.getClassCode());
 		Assert.assertEquals("Futures/Options flag doesn't match", "F", t.getFuturesOrOptions());
@@ -47,7 +47,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	public void testNullInputCheck() {
 		
 		try {
-			DerivativesTRFileTuple.parse(null);
+			HkDerivativesTRTuple.parse(null);
 			
 			Assert.fail("No exception thrown even input is null");
 			
@@ -64,7 +64,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testMissingDataCheck() {
 		try {
-			DerivativesTRFileTuple.parse("MHI,F,1211,0,,20121031,161459,21662");
+			HkDerivativesTRTuple.parse("MHI,F,1211,0,,20121031,161459,21662");
 			
 			Assert.fail("No exception thrown even input doesn't have enough items");
 		} catch (Exception e1) {
@@ -77,7 +77,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidExpiryMonthCheck() {
 		try {
-			DerivativesTRFileTuple.parse("MHI,F,xxyyy,0,,20121031,161459,21662,1,001");
+			HkDerivativesTRTuple.parse("MHI,F,xxyyy,0,,20121031,161459,21662,1,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -92,7 +92,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidStrikeCheck() {
 		try {
-			DerivativesTRFileTuple.parse("HSI,O,1212,25000xx,C,20121003,091524,7,20,001");
+			HkDerivativesTRTuple.parse("HSI,O,1212,25000xx,C,20121003,091524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -106,7 +106,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidTradeTimestampCheck1() {
 		try {
-			DerivativesTRFileTuple.parse("HSI,O,1212,25000,C,20121003,991524,7,20,001");
+			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,991524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -120,7 +120,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidTradeTimestampCheck2() {
 		try {
-			DerivativesTRFileTuple.parse("HSI,O,1212,25000,C,201210=3,091524,7,20,001");
+			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,201210=3,091524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -134,7 +134,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidPriceCheck() {
 		try {
-			DerivativesTRFileTuple.parse("HSI,O,1212,25000,C,20121003,091524,x7,20,001");
+			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,x7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -149,7 +149,7 @@ public class DerivativesTRFileTupleTests extends TestCase {
 	@Test
 	public void testInvalidQuantityCheck() {
 		try {
-			DerivativesTRFileTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,yy20,001");
+			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,yy20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {

@@ -17,12 +17,12 @@ import ncsa.hdf.object.h5.H5File;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.DerivativesTRFileData;
-import com.jbp.randommaster.datasource.historical.DerivativesTRFileSource;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
 
 import junit.framework.TestCase;
 
-public class HDF5DerivativesTRFileBuilderTests extends TestCase {
+public class HkDerivativesTRHDF5BuilderTests extends TestCase {
 
 	private File unzipTestingFile(String testingZipFile) throws IOException {
 		ZipFile zipFile = null;
@@ -88,11 +88,11 @@ public class HDF5DerivativesTRFileBuilderTests extends TestCase {
 		String tempFilename = tempUnzippedFile.getAbsolutePath();
 		
 		// now read the source file
-		DerivativesTRFileSource src = new DerivativesTRFileSource(tempFilename);
+		HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(tempFilename);
 		
-		Iterable<DerivativesTRFileData> loadedData=src.getData();
+		Iterable<HkDerivativesTRData> loadedData=src.getData();
 		
-		HDF5DerivativesTRFileBuilder builder = new HDF5DerivativesTRFileBuilder(testingOutputH5File);
+		HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(testingOutputH5File);
 		builder.createOrOpen();
 		builder.createCompoundDatasetsForTRData(loadedData);
 		builder.closeFile();

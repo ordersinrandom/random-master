@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 
-public class HDF5FileBuilderTests extends TestCase {
+public class HDF5BuilderTests extends TestCase {
 
 	@Test
 	public void testCreateOrOpen() {
@@ -20,7 +20,7 @@ public class HDF5FileBuilderTests extends TestCase {
 		
 		String filename = tempFolder+"HDF5FileBuilderUnitTest-TempFile.h5";
 		
-		HDF5FileBuilder b=new HDF5FileBuilder(filename);
+		HDF5Builder b=new HDF5Builder(filename);
 
 		try {
 			b.createOrOpen();
