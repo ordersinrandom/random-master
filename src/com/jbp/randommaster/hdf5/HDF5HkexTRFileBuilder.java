@@ -127,7 +127,7 @@ public class HDF5HkexTRFileBuilder extends HDF5FileBuilder {
 	 * @return The created compound DS.
 	 */
 	@SuppressWarnings("unchecked")
-	protected H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkexTRFileData> dataForOneDay) {
+	private H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkexTRFileData> dataForOneDay) {
 		
 		if (dataForOneDay==null || dataForOneDay.isEmpty())
 			throw new IllegalArgumentException("Input raw data is empty for instrument: "+instrumentCode);
