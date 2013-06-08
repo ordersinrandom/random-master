@@ -1,4 +1,4 @@
-package com.jbp.randommaster.hdf5;
+package com.jbp.randommaster.hdf5builders;
 
 public class HDF5BuilderException extends RuntimeException {
 
