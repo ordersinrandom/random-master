@@ -183,6 +183,19 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRHDF5Source");
 		}
 
+		/**
+		 * Implement this to "hopefully" handle the case if some code break the iterator from a for loop
+		 */
+		protected void finalize() throws Throwable {
+			try {
+				closeHDF5File();
+			} catch (Exception e1) {
+				// ignore
+			} finally {
+				super.finalize();
+			}
+		}
+		
 	}
 
 }
