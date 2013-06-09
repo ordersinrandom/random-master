@@ -181,6 +181,22 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		}
 		
 		/**
+		 * Although not guaranteed we still better to have this in case some code break out from a loop of this iterator.
+		 */
+		protected void finalize() throws Throwable {
+			if (fileReader!=null) {
+				try {
+					fileReader.close();
+				} catch (Exception e1) {
+					// ignore.
+				} finally {
+					super.finalize();
+				}
+			}
+		}
+		
+		
+		/**
 		 * Parse one row of input file.
 		 * @param l One line in the input file
 		 * @return A <code>HkexTRFileData</code> object if the input is in the correct format. null otherwise.
