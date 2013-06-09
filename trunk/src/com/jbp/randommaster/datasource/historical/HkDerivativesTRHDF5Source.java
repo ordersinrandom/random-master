@@ -29,7 +29,6 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 	private LocalDate tradeDate;
 	private String instrumentType;
 	private String instrumentName;
-	private YearMonth expiry;
 
 	/**
 	 * Create an instance of HkDerivativesTRHDF5Source.
@@ -38,15 +37,12 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 	 * @param tradeDate The trade date of the data to be loaded.
 	 * @param instrumentType The instrument type such as "Futures" or "Options" etc
 	 * @param instrumentName The instrument name such as HSI or HHI etc
-	 * @param expiry The expiry date of those traded instruments.
 	 */
-	public HkDerivativesTRHDF5Source(String hdf5Filename, LocalDate tradeDate, String instrumentType,
-			String instrumentName, YearMonth expiry) {
+	public HkDerivativesTRHDF5Source(String hdf5Filename, LocalDate tradeDate, String instrumentType, String instrumentName) {
 		this.hdf5Filename = hdf5Filename;
 		this.tradeDate = tradeDate;
 		this.instrumentType = instrumentType;
 		this.instrumentName = instrumentName;
-		this.expiry = expiry;
 	}
 
 	public String getHDF5LoadPath() {
@@ -64,10 +60,6 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 	public String getInstrumentType() {
 		return instrumentType;
-	}
-
-	public YearMonth getExpiry() {
-		return expiry;
 	}
 
 	@Override
@@ -137,17 +129,14 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 							YearMonth expiryMonthObj = new YearMonth(expiryMonthDateTime.getYear(),
 									expiryMonthDateTime.getMonthOfYear());
 
-							if (getExpiry().equals(expiryMonthObj)) {
+							LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
 
-								LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
+							HkDerivativesTRTuple tuple = new HkDerivativesTRTuple(classCode[currentIndex],
+									futuresOrOptions[currentIndex], expiryMonthObj, strikePrice[currentIndex],
+									callPut[currentIndex], tradeDateTime, price[currentIndex],
+									quantity[currentIndex], tradeType[currentIndex]);
 
-								HkDerivativesTRTuple tuple = new HkDerivativesTRTuple(classCode[currentIndex],
-										futuresOrOptions[currentIndex], expiryMonthObj, strikePrice[currentIndex],
-										callPut[currentIndex], tradeDateTime, price[currentIndex],
-										quantity[currentIndex], tradeType[currentIndex]);
-
-								dataBuf.add(new HkDerivativesTRData(tuple));
-							}
+							dataBuf.add(new HkDerivativesTRData(tuple));
 
 						}
 
