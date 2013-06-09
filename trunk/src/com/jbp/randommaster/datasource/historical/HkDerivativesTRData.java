@@ -51,7 +51,7 @@ public class HkDerivativesTRData implements HistoricalData<HkDerivativesTRTuple>
 
 		// this is bad. 
 		// it doesn't distinguish trade futures / options etc etc...
-		return this.getData().getClassCode().compareTo(((HkDerivativesTRTuple) o.getData()).getClassCode());
+		return this.getData().getUnderlying().compareTo(((HkDerivativesTRTuple) o.getData()).getUnderlying());
 		
 	}
 

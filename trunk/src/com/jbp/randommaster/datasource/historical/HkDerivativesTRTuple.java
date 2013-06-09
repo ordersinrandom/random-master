@@ -16,11 +16,11 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkDerivativesTRTuple implements HistoricalDataTuple {
+public class HkDerivativesTRTuple implements DerivativesDataTuple {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
-	private String classCode; // e.g. HSI 
+	private String underlying; // e.g. HSI 
 	private String futuresOrOptions; // e.g. F or O
 	private YearMonth expiryMonth; 
 	private double strikePrice; // 0 for futures
@@ -40,12 +40,12 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 	private String tradeType;
 	
 	
-	public HkDerivativesTRTuple(String classCode, String futuresOrOptions,
+	public HkDerivativesTRTuple(String underlying, String futuresOrOptions,
 			YearMonth expiryMonth, double strikePrice, String callPut,
 			LocalDateTime tradeTimestamp, double price, double quantity,
 			String tradeType) {
 
-		this.classCode=classCode;
+		this.underlying=underlying;
 		this.futuresOrOptions=futuresOrOptions;
 		this.expiryMonth=expiryMonth;
 		this.strikePrice=strikePrice;
@@ -69,7 +69,7 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 		if (terms.length!=10)
 			throw new IllegalArgumentException("Input line doesn't exactly having 10 csv delimited items");
 
-		String classCode = terms[0].trim();
+		String underlying = terms[0].trim();
 		String futuresOrOptions = terms[1].trim();
 		String expiryMonthString = terms[2].trim();
 		String strikeString = terms[3].trim();
@@ -132,7 +132,7 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 			throw new IllegalArgumentException("unable to interpret quantity: "+quantityString);
 		}
 		
-		return new HkDerivativesTRTuple(classCode, futuresOrOptions,
+		return new HkDerivativesTRTuple(underlying, futuresOrOptions,
 				expiryMonth, strikePrice, callPut,
 				tradeTimestamp, price, quantity,
 				tradeType);
@@ -140,8 +140,8 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 	}
 	
 	
-	public String getClassCode() {
-		return classCode;
+	public String getUnderlying() {
+		return underlying;
 	}
 	public String getFuturesOrOptions() {
 		return futuresOrOptions;
@@ -182,7 +182,7 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 			return false;
 		else if (obj instanceof HkDerivativesTRTuple) {
 			HkDerivativesTRTuple t = (HkDerivativesTRTuple) obj;
-			return classCode.equals(t.classCode)
+			return underlying.equals(t.underlying)
 					&& futuresOrOptions.equals(t.futuresOrOptions)
 					&& expiryMonth.equals(t.expiryMonth)
 					&& strikePrice==t.strikePrice
@@ -198,7 +198,7 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 
 	public int hashCode() {
 
-		return classCode.hashCode()
+		return underlying.hashCode()
 				^futuresOrOptions.hashCode()
 				^expiryMonth.hashCode()
 				^Double.valueOf(strikePrice).hashCode()
@@ -220,8 +220,8 @@ public class HkDerivativesTRTuple implements HistoricalDataTuple {
 	
 	public String toString() {
 		StringBuilder buf=new StringBuilder(300);
-		buf.append("HkexTRFileTuple { classCode=");
-		buf.append(classCode);
+		buf.append("HkexTRFileTuple { underlying=");
+		buf.append(underlying);
 		buf.append(", futuresOrOptions=");
 		buf.append(futuresOrOptions);
 		buf.append(", expiryMonth=");
