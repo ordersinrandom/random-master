@@ -4,11 +4,22 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 
+ * A generic filtered data source that accept some filtering logic on an existing data source.
+ *
+ * @param <T> The HistoricalData type.
+ */
 public class FilteredHistoricalDataSource<T extends HistoricalData<? extends HistoricalDataTuple>> implements HistoricalDataSource<T> {
 
 	protected HistoricalDataSource<T> source;
 	protected HistoricalDataFilter<T> filter;
 
+	/**
+	 * Create an instance of FilteredHistoricalDataSource
+	 * @param src The original data source
+	 * @param filter The filtering logic.
+	 */
 	public FilteredHistoricalDataSource(HistoricalDataSource<T> src, HistoricalDataFilter<T> filter) {
 		// check arguments
 		if (src == null)
