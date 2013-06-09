@@ -42,16 +42,16 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	 * @param rawData The raw data of the whole HKEX TR File.
 	 */
 	public void createCompoundDatasetsForTRData(Iterable<HkDerivativesTRData> rawData) {
-		// group by instrument code and then trade date and then the list of raw data.
-		TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>> instrumentClassCodes=new TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>>();
+		// group by underlying and then trade date and then the list of raw data.
+		TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>> instrumentUnderlyings=new TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>>();
 		for (HkDerivativesTRData d : rawData) {
 			
-			String classCode = d.getData().getClassCode();
+			String underlying = d.getData().getUnderlying();
 			// data grouped by trade date.
-			Map<LocalDate,List<HkDerivativesTRData>> groupedData=instrumentClassCodes.get(classCode);
+			Map<LocalDate,List<HkDerivativesTRData>> groupedData=instrumentUnderlyings.get(underlying);
 			if (groupedData==null) {
 				groupedData=new TreeMap<LocalDate, List<HkDerivativesTRData>>();
-				instrumentClassCodes.put(classCode, groupedData);
+				instrumentUnderlyings.put(underlying, groupedData);
 			}
 
 			LocalDate tradeDate=d.getTimestamp().toLocalDate();
@@ -64,11 +64,11 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 		}
 		
 		// create all the relevant groups
-		for (Map.Entry<String, Map<LocalDate,List<HkDerivativesTRData>>> en : instrumentClassCodes.entrySet()) {
+		for (Map.Entry<String, Map<LocalDate,List<HkDerivativesTRData>>> en : instrumentUnderlyings.entrySet()) {
 			
-			String instrumentCode = en.getKey();
+			String underlying = en.getKey();
 			
-			log.info("Creating compound DS for "+instrumentCode);
+			log.info("Creating compound DS for "+underlying);
 			
 			Map<LocalDate,List<HkDerivativesTRData>> relevantData = en.getValue();
 			
@@ -85,8 +85,8 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 						optionsList.add(d);
 				}
 
-				createGroupAndCompoundDS(FUTURES_GROUP_NAME, instrumentCode, tradeDate, DEFAULT_DATASET_NAME, futuresList);
-				createGroupAndCompoundDS(OPTIONS_GROUP_NAME, instrumentCode, tradeDate, DEFAULT_DATASET_NAME, optionsList);
+				createGroupAndCompoundDS(FUTURES_GROUP_NAME, underlying, tradeDate, DEFAULT_DATASET_NAME, futuresList);
+				createGroupAndCompoundDS(OPTIONS_GROUP_NAME, underlying, tradeDate, DEFAULT_DATASET_NAME, optionsList);
 				
 			}
 		}
@@ -123,17 +123,17 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	
 	/**
 	 * Helper class to create CompoundDS for instrument data.
-	 * @param instrumentCode The instrument code of the data
+	 * @param underlying The instrument code of the data
 	 * @param parentGroup The group that the dataset going to be attached to
 	 * @param dsName The Dataset name to be used.
 	 * @param dataForOneDay The data to be added. Supposed to be in a single trade date.
 	 * @return The created compound DS.
 	 */
 	@SuppressWarnings("unchecked")
-	private H5CompoundDS createCoupoundDSForInstrument(String instrumentCode, H5Group parentGroup, String dsName, List<HkDerivativesTRData> dataForOneDay) {
+	private H5CompoundDS createCoupoundDSForInstrument(String underlying, H5Group parentGroup, String dsName, List<HkDerivativesTRData> dataForOneDay) {
 		
 		if (dataForOneDay==null || dataForOneDay.isEmpty())
-			throw new IllegalArgumentException("Input raw data is empty for instrument: "+instrumentCode);
+			throw new IllegalArgumentException("Input raw data is empty for instrument: "+underlying);
 		
 		H5File h5f=super.getHDF5File();
 		
@@ -200,7 +200,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 		@SuppressWarnings("rawtypes")
 		Vector dataVect=new Vector();
 		// copy all the raw data to the arrays
-		String[] classCode = new String[rowCount];
+		String[] und = new String[rowCount];
 		String[] futuresOrOptions = new String[rowCount];
 		long[] expiryMonth = new long[rowCount];
 		double[] strike = new double[rowCount];
@@ -211,7 +211,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 		String[] tradeType = new String[rowCount];
 		int i=0;
 		for (HkDerivativesTRData d : dataForOneDay) {
-			classCode[i]=d.getData().getClassCode();
+			und[i]=d.getData().getUnderlying();
 			futuresOrOptions[i]=d.getData().getFuturesOrOptions();
 			expiryMonth[i]=d.getData().getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
 			strike[i]=d.getData().getStrikePrice();
@@ -222,7 +222,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 			tradeType[i]=d.getData().getTradeType();
 			i++;
 		}
-		dataVect.add(classCode);
+		dataVect.add(und);
 		dataVect.add(futuresOrOptions);
 		dataVect.add(expiryMonth);
 		dataVect.add(strike);

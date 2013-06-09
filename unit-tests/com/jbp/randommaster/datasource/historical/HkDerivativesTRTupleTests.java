@@ -15,7 +15,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 		
 		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,20,001");
 
-		Assert.assertEquals("Class code doesn't match", "HSI", t.getClassCode());
+		Assert.assertEquals("Class code doesn't match", "HSI", t.getUnderlying());
 		Assert.assertEquals("Futures/Options flag doesn't match", "O", t.getFuturesOrOptions());
 		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 12), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 25000.0, t.getStrikePrice(), 0.000001);
@@ -31,7 +31,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	public void testParsing2() {
 		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("MHI,F,1211,0,,20121031,161459,21662,1,001");
 
-		Assert.assertEquals("Class code doesn't match", "MHI", t.getClassCode());
+		Assert.assertEquals("Class code doesn't match", "MHI", t.getUnderlying());
 		Assert.assertEquals("Futures/Options flag doesn't match", "F", t.getFuturesOrOptions());
 		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 11), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 0.0, t.getStrikePrice(), 0.000001);

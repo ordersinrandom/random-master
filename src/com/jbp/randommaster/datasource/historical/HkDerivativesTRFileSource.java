@@ -210,7 +210,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 				
 				// check class code filter
 				boolean classCodePass = false;
-				classCodePass= (classCode==null || classCode.equals(d.getData().getClassCode()));
+				classCodePass= (classCode==null || classCode.equals(d.getData().getUnderlying()));
 				
 				// check futures or options filter
 				boolean futuresOrOptionsPass = false;
