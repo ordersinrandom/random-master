@@ -1,10 +1,12 @@
 package com.jbp.randommaster.datasource.historical;
 
+import java.util.LinkedList;
+
 import org.joda.time.LocalDateTime;
 
 /**
  * Enrich the HkDerivativesConsolidatedTuple with a given timestamp.
- *
+ * 
  */
 public class HkDerivativesConsolidatedData implements HistoricalData<HkDerivativesConsolidatedTuple> {
 
@@ -18,9 +20,14 @@ public class HkDerivativesConsolidatedData implements HistoricalData<HkDerivativ
 		this.data = data;
 	}
 
-	public HkDerivativesConsolidatedData(LocalDateTime timestamp, Iterable<HkDerivativesTRTuple> tuples) {
+	public HkDerivativesConsolidatedData(LocalDateTime timestamp, Iterable<HkDerivativesTRData> original) {
+		LinkedList<HkDerivativesTRTuple> tuples = new LinkedList<HkDerivativesTRTuple>();
+		for (HkDerivativesTRData d : original)
+			tuples.add(d.getData());
+
+		HkDerivativesConsolidatedTuple consolidated = HkDerivativesConsolidatedTuple.consolidate(tuples);
 		this.timestamp = timestamp;
-		this.data = HkDerivativesConsolidatedTuple.consolidate(tuples);
+		this.data = consolidated;
 	}
 
 	@Override
@@ -69,7 +76,7 @@ public class HkDerivativesConsolidatedData implements HistoricalData<HkDerivativ
 
 	@Override
 	public String toString() {
-		StringBuilder buf=new StringBuilder(300);
+		StringBuilder buf = new StringBuilder(300);
 		buf.append("HkDerivativesConsolidatedData { timestamp=");
 		buf.append(timestamp);
 		buf.append(", data=");
@@ -77,5 +84,5 @@ public class HkDerivativesConsolidatedData implements HistoricalData<HkDerivativ
 		buf.append(" }");
 		return buf.toString();
 	}
-	
+
 }
