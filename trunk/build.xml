@@ -2,7 +2,9 @@
 <project name="random-master" default="print-usage" basedir=".">
 
     <property name="src" location="src"/>
-    <property name="test-src" location="unit-tests"/>
+    <property name="unit-test-src" location="unit-tests"/>
+	<property name="testing-tools-src" location="testing-tools"/>
+	<property name="draft-src" location="draft-src"/>
     <property name="build" location="bin"/>
     <property name="lib" location="lib"/>
 
@@ -28,7 +30,9 @@ ant unit-test        Run unit tests
     <target name="compile" depends="init">
         <javac destdir="${build}"  includeantruntime="false" >
             <src path="${src}"/>
-            <src path="${test-src}"/>
+            <src path="${unit-test-src}"/>
+        	<src path="${testing-tools-src}"/>
+        	<src path="${draft-src}"/>
             <classpath>
                 <fileset dir="${lib}"/>
             </classpath>
@@ -49,7 +53,7 @@ ant unit-test        Run unit tests
             <test name="testing.MatrixTest" haltonfailure="no"/>
             -->
             <batchtest fork="no">
-                <fileset dir="${test-src}">
+                <fileset dir="${unit-test-src}">
                     <include name="**/*Test*.java"/>
                 </fileset>
             </batchtest>
