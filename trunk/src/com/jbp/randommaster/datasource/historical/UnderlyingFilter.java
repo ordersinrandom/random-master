@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
-public class UnderlyingFilter<T extends HistoricalData<? extends DerivativesDataTuple>> implements HistoricalDataFilter<T> {
+public class UnderlyingFilter<T extends DerivativesData> implements HistoricalDataFilter<T> {
 
 	private String underlying;
 	
@@ -17,8 +17,8 @@ public class UnderlyingFilter<T extends HistoricalData<? extends DerivativesData
 	public boolean accept(T data) {
 		if (data==null)
 			throw new IllegalArgumentException("data cannot be null for UnderlyingFilter");
-		
-		return underlying.equals(data.getData().getUnderlying());
+	
+		return underlying.equals(data.getUnderlying());
 	}
 
 }

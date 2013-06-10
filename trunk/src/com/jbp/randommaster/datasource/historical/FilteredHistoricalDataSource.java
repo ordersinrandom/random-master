@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @param <T> The HistoricalData type.
  */
-public class FilteredHistoricalDataSource<T extends HistoricalData<? extends HistoricalDataTuple>> implements HistoricalDataSource<T> {
+public class FilteredHistoricalDataSource<T extends HistoricalData> implements HistoricalDataSource<T> {
 
 	protected HistoricalDataSource<T> source;
 	protected HistoricalDataFilter<T> filter;

@@ -17,7 +17,7 @@ import org.joda.time.LocalDateTime;
  * Encapsulate the trade record data loading from a single HKEX TR file.
  *
  */
-public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivativesTRData> {
+public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivativesTR> {
 
 	static Logger log=Logger.getLogger(HkDerivativesTRFileSource.class);	
 	
@@ -72,12 +72,12 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 
 	
 	@Override
-	public Iterable<HkDerivativesTRData> getData() {
+	public Iterable<HkDerivativesTR> getData() {
 		
-		return new Iterable<HkDerivativesTRData>() {
+		return new Iterable<HkDerivativesTR>() {
 
 			@Override
-			public Iterator<HkDerivativesTRData> iterator() {
+			public Iterator<HkDerivativesTR> iterator() {
 				try {
 					// return the iterator that truly runs through the input file line by line.
 					return new InputFileIterator();
@@ -110,7 +110,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	 * Internal helper iterator class that actually carries out the file reading and parsing.
 	 *
 	 */
-	private class InputFileIterator implements Iterator<HkDerivativesTRData> {
+	private class InputFileIterator implements Iterator<HkDerivativesTR> {
 
 		private FileReader fileReader;
 		private BufferedReader bufReader;
@@ -136,8 +136,8 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		}
 
 		@Override
-		public HkDerivativesTRData next() {
-			HkDerivativesTRData data = null;
+		public HkDerivativesTR next() {
+			HkDerivativesTR data = null;
 			try {
 				String line=null;
 				// if the data has been parsed we just leave
@@ -201,13 +201,14 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		 * @param l One line in the input file
 		 * @return A <code>HkexTRFileData</code> object if the input is in the correct format. null otherwise.
 		 */
-		private HkDerivativesTRData interpretOneLine(String l) {
+		private HkDerivativesTR interpretOneLine(String l) {
 			String line=l.trim();
 			// ignore blank lines.
 			if (line.length()>0) {
 				
 				// parse the input line.
-				HkDerivativesTRData d=new HkDerivativesTRData(line);
+				//HkDerivativesTR d=new HkDerivativesTR(line);
+				HkDerivativesTR d=HkDerivativesTR.parse(line);
 				
 				// check time filter
 				boolean timeFilterPass = false;
@@ -226,11 +227,11 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 				
 				// check class code filter
 				boolean classCodePass = false;
-				classCodePass= (classCode==null || classCode.equals(d.getData().getUnderlying()));
+				classCodePass= (classCode==null || classCode.equals(d.getUnderlying()));
 				
 				// check futures or options filter
 				boolean futuresOrOptionsPass = false;
-				futuresOrOptionsPass = (futuresOrOptions==null || futuresOrOptions.equals(d.getData().getFuturesOrOptions()));
+				futuresOrOptionsPass = (futuresOrOptions==null || futuresOrOptions.equals(d.getFuturesOrOptions()));
 
 				
 				// aggregate all the filtering result

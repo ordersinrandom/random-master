@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
-public interface HistoricalDataFilter<T extends HistoricalData<? extends HistoricalDataTuple>> {
+public interface HistoricalDataFilter<T extends HistoricalData> {
 
 	/**
 	 * Accept this Historical Data.
