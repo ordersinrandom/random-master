@@ -23,8 +23,8 @@ public class HkDerivativesTRHDF5SourceTests extends TestCase {
 				"HSI");
 		
 
-		HkDerivativesTRTuple tuple20000 = new HkDerivativesTRTuple("HSI", "F",
-					new YearMonth(2012,10), 0.0, "",
+		HkDerivativesTRTuple tuple20000 = new HkDerivativesTRTuple("HSI", VanillaDerivativesDataTuple.FuturesOptions.FUTURES,
+					new YearMonth(2012,10), 0.0, VanillaDerivativesDataTuple.CallPut.NA,
 					LocalDateTime.parse("2012-10-09T10:21:57.000"), 21078.0, 1.0,
 					"001");
 		HkDerivativesTRData expected20000 = new HkDerivativesTRData(tuple20000);

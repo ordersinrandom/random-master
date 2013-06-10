@@ -16,15 +16,17 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkDerivativesTRTuple implements DerivativesDataTuple {
+public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
 	private String underlying; // e.g. HSI 
-	private String futuresOrOptions; // e.g. F or O
+	//private String futuresOrOptions; // e.g. F or O
+	private FuturesOptions futuresOrOptions;
 	private YearMonth expiryMonth; 
 	private double strikePrice; // 0 for futures
-	private String callPut; // C for call, P for put, futures will have empty string
+	//private String callPut; // C for call, P for put, futures will have empty string
+	private CallPut callPut;
 	private LocalDateTime tradeTimestamp; // including date and time
 	private double price;
 	private double quantity;
@@ -39,9 +41,9 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 	 */
 	private String tradeType;
 	
-	
-	public HkDerivativesTRTuple(String underlying, String futuresOrOptions,
-			YearMonth expiryMonth, double strikePrice, String callPut,
+
+	public HkDerivativesTRTuple(String underlying, FuturesOptions futuresOrOptions,
+			YearMonth expiryMonth, double strikePrice, CallPut callPut,
 			LocalDateTime tradeTimestamp, double price, double quantity,
 			String tradeType) {
 
@@ -55,7 +57,7 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 		this.quantity=quantity;
 		this.tradeType=tradeType;
 	}
-	
+
 	public static HkDerivativesTRTuple parse(String line) {
 		
 		// examples
@@ -70,10 +72,10 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 			throw new IllegalArgumentException("Input line doesn't exactly having 10 csv delimited items");
 
 		String underlying = terms[0].trim();
-		String futuresOrOptions = terms[1].trim();
+		String futuresOrOptionsStr = terms[1].trim();
 		String expiryMonthString = terms[2].trim();
 		String strikeString = terms[3].trim();
-		String callPut = terms[4].trim();
+		String callPutStr = terms[4].trim();
 		String tradeDateString = terms[5].trim();
 		String tradeTimeString = terms[6].trim();
 		String priceString = terms[7].trim();
@@ -132,6 +134,22 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 			throw new IllegalArgumentException("unable to interpret quantity: "+quantityString);
 		}
 		
+		FuturesOptions futuresOrOptions=null;
+		if ("F".equals(futuresOrOptionsStr))
+			futuresOrOptions=FuturesOptions.FUTURES;
+		else if ("O".equals(futuresOrOptionsStr))
+			futuresOrOptions=FuturesOptions.OPTIONS;
+		else throw new IllegalArgumentException("Unknown futuersOrOptionStr: "+futuresOrOptionsStr);
+		
+		CallPut callPut=null;
+		if (callPutStr==null || callPutStr.length()==0)
+			callPut=CallPut.NA;
+		else if ("C".equals(callPutStr))
+			callPut=CallPut.CALL;
+		else if ("P".equals(callPutStr))
+			callPut=CallPut.PUT;
+		else throw new IllegalArgumentException("unknown callPutStr: "+callPutStr);
+		
 		return new HkDerivativesTRTuple(underlying, futuresOrOptions,
 				expiryMonth, strikePrice, callPut,
 				tradeTimestamp, price, quantity,
@@ -143,16 +161,16 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 	public String getUnderlying() {
 		return underlying;
 	}
-	public String getFuturesOrOptions() {
+	public FuturesOptions getFuturesOrOptions() {
 		return futuresOrOptions;
 	}
 	
 	public boolean isFutures() {
-		return "F".equals(futuresOrOptions);
+		return futuresOrOptions==FuturesOptions.FUTURES;
 	}
 	
 	public boolean isOptions() {
-		return "O".equals(futuresOrOptions);
+		return futuresOrOptions==FuturesOptions.OPTIONS;
 	}
 	
 	public YearMonth getExpiryMonth() {
@@ -161,9 +179,18 @@ public class HkDerivativesTRTuple implements DerivativesDataTuple {
 	public double getStrikePrice() {
 		return strikePrice;
 	}
-	public String getCallPut() {
+	public CallPut getCallPut() {
 		return callPut;
 	}
+	
+	public boolean isCall() {
+		return callPut==CallPut.CALL;
+	}
+	
+	public boolean isPut() {
+		return callPut==CallPut.PUT;
+	}
+	
 	public LocalDateTime getTradeTimestamp() {
 		return tradeTimestamp;
 	}

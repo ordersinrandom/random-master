@@ -2,6 +2,11 @@ package com.jbp.randommaster.datasource.historical;
 
 import org.joda.time.YearMonth;
 
+/**
+ * A data filter that would accept the historical data object depending on its expiry month.
+ *
+ * @param <T> The HistoricalData class that contains a DerivativesDataTuple.
+ */
 public class ExpiryMonthFilter<T extends HistoricalData<? extends DerivativesDataTuple>> implements HistoricalDataFilter<T> {
 
 	private YearMonth expiryMonth;
