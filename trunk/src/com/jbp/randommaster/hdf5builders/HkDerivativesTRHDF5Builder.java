@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
+import com.jbp.randommaster.datasource.historical.VanillaDerivativesDataTuple;
 
 /**
  * 
@@ -212,10 +213,21 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 		int i=0;
 		for (HkDerivativesTRData d : dataForOneDay) {
 			und[i]=d.getData().getUnderlying();
-			futuresOrOptions[i]=d.getData().getFuturesOrOptions();
+			// futures or options
+			if (d.getData().getFuturesOrOptions()==VanillaDerivativesDataTuple.FuturesOptions.FUTURES)
+				futuresOrOptions[i]="F";
+			else if (d.getData().getFuturesOrOptions()==VanillaDerivativesDataTuple.FuturesOptions.OPTIONS)
+				futuresOrOptions[i]="O";
+			// expiry
 			expiryMonth[i]=d.getData().getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
+			// strike
 			strike[i]=d.getData().getStrikePrice();
-			callPut[i]=d.getData().getCallPut();
+			// call or put
+			if (d.getData().getCallPut()==VanillaDerivativesDataTuple.CallPut.CALL)
+				callPut[i]="C";
+			else if (d.getData().getCallPut()==VanillaDerivativesDataTuple.CallPut.PUT)
+				callPut[i]="P";
+			else callPut[i]="";
 			timestamp[i]=d.getTimestamp().toDateTime().getMillis();
 			price[i]=d.getData().getPrice();
 			quantity[i]=d.getData().getQuantity();
