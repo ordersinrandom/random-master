@@ -9,7 +9,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
-import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 import com.jbp.randommaster.utils.ZipUtils;
@@ -98,7 +98,7 @@ public class HkDerivativesTRFile2HDF5 {
 
 						log.info("Loading data from "+inputFile.getAbsolutePath());
 						
-						Iterable<HkDerivativesTRData> loadedData=src.getData();
+						Iterable<HkDerivativesTR> loadedData=src.getData();
 
 						log.info("building HDF5 File: "+outputHDF5Filename);
 						HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(outputHDF5Filename);

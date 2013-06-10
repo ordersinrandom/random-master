@@ -7,7 +7,7 @@ import org.joda.time.YearMonth;
  *
  * @param <T> The HistoricalData class that contains a DerivativesDataTuple.
  */
-public class ExpiryMonthFilter<T extends HistoricalData<? extends DerivativesDataTuple>> implements HistoricalDataFilter<T> {
+public class ExpiryMonthFilter<T extends DerivativesData> implements HistoricalDataFilter<T> {
 
 	private YearMonth expiryMonth;
 	
@@ -24,7 +24,7 @@ public class ExpiryMonthFilter<T extends HistoricalData<? extends DerivativesDat
 		if (data==null)
 			throw new IllegalArgumentException("data cannot be null for ExpiryMonthFilter");
 		
-		YearMonth m=data.getData().getExpiryMonth();
+		YearMonth m=data.getExpiryMonth();
 		
 		return expiryMonth.equals(m);
 		

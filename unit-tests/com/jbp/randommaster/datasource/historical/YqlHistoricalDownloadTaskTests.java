@@ -61,8 +61,8 @@ public class YqlHistoricalDownloadTaskTests extends TestCase {
 			int i=0;
 			for (YahooHistoricalData d : result) {
 				
-				YahooHistoricalDataTuple dtu = d.getData();
-				YahooHistoricalDataTuple tu = expected[i].getData();
+				YahooHistoricalData dtu = d;
+				YahooHistoricalData tu = expected[i];
 				
 				Assert.assertEquals("Date not matched: "+expected[i].getTimestamp(), expected[i].getTimestamp(), d.getTimestamp());
 				Assert.assertEquals("Open not matched: "+tu.getOpen(), tu.getOpen(), dtu.getOpen(), 0.00001);

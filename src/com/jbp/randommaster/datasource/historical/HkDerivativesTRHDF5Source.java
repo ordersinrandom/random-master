@@ -21,7 +21,7 @@ import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
  * Data source to load Hk Derivatives TR data from HDF5.
  *
  */
-public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivativesTRData> {
+public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivativesTR> {
 
 	static Logger log = Logger.getLogger(HkDerivativesTRHDF5Source.class);
 
@@ -63,12 +63,12 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 	}
 
 	@Override
-	public Iterable<HkDerivativesTRData> getData() {
+	public Iterable<HkDerivativesTR> getData() {
 
-		return new Iterable<HkDerivativesTRData>() {
+		return new Iterable<HkDerivativesTR>() {
 
 			@Override
-			public Iterator<HkDerivativesTRData> iterator() {
+			public Iterator<HkDerivativesTR> iterator() {
 				try {
 					return new InputFileIterator();
 				} catch (Exception e1) {
@@ -84,11 +84,11 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 	/**
 	 * Helper class to implement the iterator of the HDF5 data.
 	 */
-	private class InputFileIterator implements Iterator<HkDerivativesTRData> {
+	private class InputFileIterator implements Iterator<HkDerivativesTR> {
 
 		private H5File h5ReadOnlyFile;
 
-		private Iterator<HkDerivativesTRData> dataBufIt;
+		private Iterator<HkDerivativesTR> dataBufIt;
 
 		@SuppressWarnings("rawtypes")
 		public InputFileIterator() {
@@ -121,7 +121,7 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 						int totalLength = classCode.length;
 
-						List<HkDerivativesTRData> dataBuf = new LinkedList<HkDerivativesTRData>();
+						List<HkDerivativesTR> dataBuf = new LinkedList<HkDerivativesTR>();
 
 						for (int currentIndex = 0; currentIndex < totalLength; currentIndex++) {
 
@@ -132,31 +132,32 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 							LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
 							
 							// convert the futures/options flag.
-							VanillaDerivativesDataTuple.FuturesOptions futOpt = null;
+							VanillaDerivativesData.FuturesOptions futOpt = null;
 							if (futuresOrOptions[currentIndex].equals("F"))
-								futOpt=VanillaDerivativesDataTuple.FuturesOptions.FUTURES;
+								futOpt=VanillaDerivativesData.FuturesOptions.FUTURES;
 							else if (futuresOrOptions[currentIndex].equals("O"))
-								futOpt=VanillaDerivativesDataTuple.FuturesOptions.OPTIONS;
+								futOpt=VanillaDerivativesData.FuturesOptions.OPTIONS;
 							else throw new IllegalStateException("unrecognized futuresOrOptions data: "+futuresOrOptions[currentIndex]+" at row "+currentIndex);
 
 							// convert the call/put flag.
-							VanillaDerivativesDataTuple.CallPut cp=null;
+							VanillaDerivativesData.CallPut cp=null;
 							if (callPut[currentIndex]==null || callPut[currentIndex].length()==0)
-								cp=VanillaDerivativesDataTuple.CallPut.NA;
+								cp=VanillaDerivativesData.CallPut.NA;
 							else if (callPut[currentIndex].equals("C"))
-								cp=VanillaDerivativesDataTuple.CallPut.CALL;
+								cp=VanillaDerivativesData.CallPut.CALL;
 							else if (callPut[currentIndex].equals("P"))
-								cp=VanillaDerivativesDataTuple.CallPut.PUT;
+								cp=VanillaDerivativesData.CallPut.PUT;
 							else throw new IllegalStateException("urecognized callPut data: "+callPut[currentIndex]+" at row "+currentIndex);
 
-							HkDerivativesTRTuple tuple = new HkDerivativesTRTuple(classCode[currentIndex],
+							HkDerivativesTR tuple = new HkDerivativesTR(classCode[currentIndex],
 									futOpt, 
 									expiryMonthObj, strikePrice[currentIndex],
 									cp, 
 									tradeDateTime, price[currentIndex],
 									quantity[currentIndex], tradeType[currentIndex]);
 
-							dataBuf.add(new HkDerivativesTRData(tuple));
+							//dataBuf.add(new HkDerivativesTRData(tuple));
+							dataBuf.add(tuple);
 
 						}
 
@@ -192,7 +193,7 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 		}
 
 		@Override
-		public HkDerivativesTRData next() {
+		public HkDerivativesTR next() {
 
 			return dataBufIt.next();
 

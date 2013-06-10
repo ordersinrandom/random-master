@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
-public interface VanillaDerivativesDataTuple extends DerivativesDataTuple {
+public interface VanillaDerivativesData extends DerivativesData {
 
 	public enum CallPut { CALL, PUT, NA };
 	public enum FuturesOptions { FUTURES, OPTIONS };

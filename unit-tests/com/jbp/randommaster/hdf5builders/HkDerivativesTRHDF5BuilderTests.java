@@ -17,7 +17,7 @@ import ncsa.hdf.object.h5.H5File;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 
@@ -91,7 +91,7 @@ public class HkDerivativesTRHDF5BuilderTests extends TestCase {
 		// now read the source file
 		HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(tempFilename);
 		
-		Iterable<HkDerivativesTRData> loadedData=src.getData();
+		Iterable<HkDerivativesTR> loadedData=src.getData();
 		
 		HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(testingOutputH5File);
 		builder.createOrOpen();

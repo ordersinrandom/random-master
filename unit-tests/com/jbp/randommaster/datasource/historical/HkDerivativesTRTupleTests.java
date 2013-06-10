@@ -13,13 +13,13 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testParsing1() {
 		
-		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,20,001");
+		HkDerivativesTR t=HkDerivativesTR.parse("HSI,O,1212,25000,C,20121003,091524,7,20,001");
 
 		Assert.assertEquals("Class code doesn't match", "HSI", t.getUnderlying());
-		Assert.assertEquals("Futures/Options flag doesn't match", VanillaDerivativesDataTuple.FuturesOptions.OPTIONS, t.getFuturesOrOptions());
+		Assert.assertEquals("Futures/Options flag doesn't match", VanillaDerivativesData.FuturesOptions.OPTIONS, t.getFuturesOrOptions());
 		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 12), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 25000.0, t.getStrikePrice(), 0.000001);
-		Assert.assertEquals("Call/Put flag doesn't match", VanillaDerivativesDataTuple.CallPut.CALL, t.getCallPut());
+		Assert.assertEquals("Call/Put flag doesn't match", VanillaDerivativesData.CallPut.CALL, t.getCallPut());
 		Assert.assertEquals("trade timestamp doesn't match", new LocalDateTime(2012,10,3, 9, 15, 24), t.getTradeTimestamp());
 		Assert.assertEquals("Price doesn't match", 7.0, t.getPrice(), 0.000001);
 		Assert.assertEquals("Quantity doesn't match", 20.0, t.getQuantity(), 0.000001);
@@ -29,13 +29,13 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	
 	@Test
 	public void testParsing2() {
-		HkDerivativesTRTuple t=HkDerivativesTRTuple.parse("MHI,F,1211,0,,20121031,161459,21662,1,001");
+		HkDerivativesTR t=HkDerivativesTR.parse("MHI,F,1211,0,,20121031,161459,21662,1,001");
 
 		Assert.assertEquals("Class code doesn't match", "MHI", t.getUnderlying());
-		Assert.assertEquals("Futures/Options flag doesn't match", VanillaDerivativesDataTuple.FuturesOptions.FUTURES, t.getFuturesOrOptions());
+		Assert.assertEquals("Futures/Options flag doesn't match", VanillaDerivativesData.FuturesOptions.FUTURES, t.getFuturesOrOptions());
 		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 11), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 0.0, t.getStrikePrice(), 0.000001);
-		Assert.assertEquals("Call/Put flag doesn't match", VanillaDerivativesDataTuple.CallPut.NA, t.getCallPut());
+		Assert.assertEquals("Call/Put flag doesn't match", VanillaDerivativesData.CallPut.NA, t.getCallPut());
 		Assert.assertEquals("trade timestamp doesn't match", new LocalDateTime(2012,10,31, 16, 14, 59), t.getTradeTimestamp());
 		Assert.assertEquals("Price doesn't match", 21662.0, t.getPrice(), 0.000001);
 		Assert.assertEquals("Quantity doesn't match", 1.0, t.getQuantity(), 0.000001);
@@ -47,7 +47,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	public void testNullInputCheck() {
 		
 		try {
-			HkDerivativesTRTuple.parse(null);
+			HkDerivativesTR.parse(null);
 			
 			Assert.fail("No exception thrown even input is null");
 			
@@ -64,7 +64,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testMissingDataCheck() {
 		try {
-			HkDerivativesTRTuple.parse("MHI,F,1211,0,,20121031,161459,21662");
+			HkDerivativesTR.parse("MHI,F,1211,0,,20121031,161459,21662");
 			
 			Assert.fail("No exception thrown even input doesn't have enough items");
 		} catch (Exception e1) {
@@ -77,7 +77,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidExpiryMonthCheck() {
 		try {
-			HkDerivativesTRTuple.parse("MHI,F,xxyyy,0,,20121031,161459,21662,1,001");
+			HkDerivativesTR.parse("MHI,F,xxyyy,0,,20121031,161459,21662,1,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -92,7 +92,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidStrikeCheck() {
 		try {
-			HkDerivativesTRTuple.parse("HSI,O,1212,25000xx,C,20121003,091524,7,20,001");
+			HkDerivativesTR.parse("HSI,O,1212,25000xx,C,20121003,091524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -106,7 +106,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidTradeTimestampCheck1() {
 		try {
-			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,991524,7,20,001");
+			HkDerivativesTR.parse("HSI,O,1212,25000,C,20121003,991524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -120,7 +120,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidTradeTimestampCheck2() {
 		try {
-			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,201210=3,091524,7,20,001");
+			HkDerivativesTR.parse("HSI,O,1212,25000,C,201210=3,091524,7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -134,7 +134,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidPriceCheck() {
 		try {
-			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,x7,20,001");
+			HkDerivativesTR.parse("HSI,O,1212,25000,C,20121003,091524,x7,20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {
@@ -149,7 +149,7 @@ public class HkDerivativesTRTupleTests extends TestCase {
 	@Test
 	public void testInvalidQuantityCheck() {
 		try {
-			HkDerivativesTRTuple.parse("HSI,O,1212,25000,C,20121003,091524,7,yy20,001");
+			HkDerivativesTR.parse("HSI,O,1212,25000,C,20121003,091524,7,yy20,001");
 			
 			Assert.fail("No exception thrown even input is invalid");
 		} catch (Exception e1) {

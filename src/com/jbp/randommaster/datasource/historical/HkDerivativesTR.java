@@ -16,7 +16,7 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
+public class HkDerivativesTR implements VanillaDerivativesData {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
@@ -42,7 +42,7 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 	private String tradeType;
 	
 
-	public HkDerivativesTRTuple(String underlying, FuturesOptions futuresOrOptions,
+	public HkDerivativesTR(String underlying, FuturesOptions futuresOrOptions,
 			YearMonth expiryMonth, double strikePrice, CallPut callPut,
 			LocalDateTime tradeTimestamp, double price, double quantity,
 			String tradeType) {
@@ -58,7 +58,7 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 		this.tradeType=tradeType;
 	}
 
-	public static HkDerivativesTRTuple parse(String line) {
+	public static HkDerivativesTR parse(String line) {
 		
 		// examples
 		// MHI,F,1210,0,,20121003,091524,20900,1,001
@@ -150,7 +150,7 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 			callPut=CallPut.PUT;
 		else throw new IllegalArgumentException("unknown callPutStr: "+callPutStr);
 		
-		return new HkDerivativesTRTuple(underlying, futuresOrOptions,
+		return new HkDerivativesTR(underlying, futuresOrOptions,
 				expiryMonth, strikePrice, callPut,
 				tradeTimestamp, price, quantity,
 				tradeType);
@@ -207,8 +207,8 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 	public boolean equals(Object obj) {
 		if (obj==null)
 			return false;
-		else if (obj instanceof HkDerivativesTRTuple) {
-			HkDerivativesTRTuple t = (HkDerivativesTRTuple) obj;
+		else if (obj instanceof HkDerivativesTR) {
+			HkDerivativesTR t = (HkDerivativesTR) obj;
 			return underlying.equals(t.underlying)
 					&& futuresOrOptions.equals(t.futuresOrOptions)
 					&& expiryMonth.equals(t.expiryMonth)
@@ -247,7 +247,7 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 	
 	public String toString() {
 		StringBuilder buf=new StringBuilder(300);
-		buf.append("HkexTRFileTuple { underlying=");
+		buf.append("HkDerivativesTR { underlying=");
 		buf.append(underlying);
 		buf.append(", futuresOrOptions=");
 		buf.append(futuresOrOptions);
@@ -267,6 +267,23 @@ public class HkDerivativesTRTuple implements VanillaDerivativesDataTuple {
 		buf.append(tradeType);
 		buf.append(" }");
 		return buf.toString();
+	}
+
+	/**
+	 * Exactly the same as getTradeTimestamp().
+	 */
+	@Override
+	public LocalDateTime getTimestamp() {
+		return this.getTradeTimestamp();
+	}
+
+	/**
+	 * Implementation of the Comparable<HistoricalData> interface.
+	 * @return A simple comparising based on timestamp.
+	 */
+	@Override
+	public int compareTo(HistoricalData o) {
+		return this.getTimestamp().compareTo(o.getTimestamp());
 	}
 	
 	

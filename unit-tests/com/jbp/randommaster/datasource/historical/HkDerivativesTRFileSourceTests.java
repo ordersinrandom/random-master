@@ -34,50 +34,50 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 			
 			HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFilename);
 			
-			Iterable<HkDerivativesTRData> data=src.getData();
+			Iterable<HkDerivativesTR> data=src.getData();
 			
-			List<HkDerivativesTRData> r = new LinkedList<HkDerivativesTRData>();
-			for (HkDerivativesTRData d : data)
+			List<HkDerivativesTR> r = new LinkedList<HkDerivativesTR>();
+			for (HkDerivativesTR d : data)
 				r.add(d);
 			Assert.assertEquals("Not exactly 3 items", 3, r.size());
 
-			HkDerivativesTRData i1=r.get(0);
-			HkDerivativesTRData i2=r.get(1);
-			HkDerivativesTRData i3=r.get(2);
+			HkDerivativesTR i1=r.get(0);
+			HkDerivativesTR i2=r.get(1);
+			HkDerivativesTR i3=r.get(2);
 			
 			Assert.assertEquals("item 1 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTimestamp());
-			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getData().getUnderlying());
-			Assert.assertEquals("item 1 futures/options mismatched", VanillaDerivativesDataTuple.FuturesOptions.FUTURES, i1.getData().getFuturesOrOptions());
-			Assert.assertEquals("item 1 expiry month mismatched", new YearMonth(2012, 11), i1.getData().getExpiryMonth());
-			Assert.assertEquals("item 1 strike mismatched", 0.0, i1.getData().getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 1 call/put mismatched", VanillaDerivativesDataTuple.CallPut.NA, i1.getData().getCallPut());
-			Assert.assertEquals("item 1 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getData().getTradeTimestamp());
-			Assert.assertEquals("item 1 price mismatched", 10607.0, i1.getData().getPrice(), 0.000001);
-			Assert.assertEquals("item 1 quantity mismatched", 1.0, i1.getData().getQuantity(), 0.000001);
-			Assert.assertEquals("item 1 trade type mismatched", "001", i1.getData().getTradeType());
+			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getUnderlying());
+			Assert.assertEquals("item 1 futures/options mismatched", VanillaDerivativesData.FuturesOptions.FUTURES, i1.getFuturesOrOptions());
+			Assert.assertEquals("item 1 expiry month mismatched", new YearMonth(2012, 11), i1.getExpiryMonth());
+			Assert.assertEquals("item 1 strike mismatched", 0.0, i1.getStrikePrice(), 0.000001);
+			Assert.assertEquals("item 1 call/put mismatched", VanillaDerivativesData.CallPut.NA, i1.getCallPut());
+			Assert.assertEquals("item 1 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTradeTimestamp());
+			Assert.assertEquals("item 1 price mismatched", 10607.0, i1.getPrice(), 0.000001);
+			Assert.assertEquals("item 1 quantity mismatched", 1.0, i1.getQuantity(), 0.000001);
+			Assert.assertEquals("item 1 trade type mismatched", "001", i1.getTradeType());
 			
 
 			Assert.assertEquals("item 2 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i2.getTimestamp());
-			Assert.assertEquals("item 2 class code mismatched", "HHI", i2.getData().getUnderlying());
-			Assert.assertEquals("item 2 futures/options mismatched", VanillaDerivativesDataTuple.FuturesOptions.OPTIONS, i2.getData().getFuturesOrOptions());
-			Assert.assertEquals("item 2 expiry month mismatched", new YearMonth(2012, 11), i2.getData().getExpiryMonth());
-			Assert.assertEquals("item 2 strike mismatched", 8400.0, i2.getData().getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 2 call/put mismatched", VanillaDerivativesDataTuple.CallPut.PUT, i2.getData().getCallPut());
-			Assert.assertEquals("item 2 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i2.getData().getTradeTimestamp());
-			Assert.assertEquals("item 2 price mismatched", 2.0, i2.getData().getPrice(), 0.000001);
-			Assert.assertEquals("item 2 quantity mismatched", 5.0, i2.getData().getQuantity(), 0.000001);
-			Assert.assertEquals("item 2 trade type mismatched", "001", i2.getData().getTradeType());
+			Assert.assertEquals("item 2 class code mismatched", "HHI", i2.getUnderlying());
+			Assert.assertEquals("item 2 futures/options mismatched", VanillaDerivativesData.FuturesOptions.OPTIONS, i2.getFuturesOrOptions());
+			Assert.assertEquals("item 2 expiry month mismatched", new YearMonth(2012, 11), i2.getExpiryMonth());
+			Assert.assertEquals("item 2 strike mismatched", 8400.0, i2.getStrikePrice(), 0.000001);
+			Assert.assertEquals("item 2 call/put mismatched", VanillaDerivativesData.CallPut.PUT, i2.getCallPut());
+			Assert.assertEquals("item 2 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i2.getTradeTimestamp());
+			Assert.assertEquals("item 2 price mismatched", 2.0, i2.getPrice(), 0.000001);
+			Assert.assertEquals("item 2 quantity mismatched", 5.0, i2.getQuantity(), 0.000001);
+			Assert.assertEquals("item 2 trade type mismatched", "001", i2.getTradeType());
 			
 			Assert.assertEquals("item 3 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i3.getTimestamp());
-			Assert.assertEquals("item 3 class code mismatched", "MHI", i3.getData().getUnderlying());
-			Assert.assertEquals("item 3 futures/options mismatched", VanillaDerivativesDataTuple.FuturesOptions.OPTIONS, i3.getData().getFuturesOrOptions());
-			Assert.assertEquals("item 3 expiry month mismatched", new YearMonth(2012, 11), i3.getData().getExpiryMonth());
-			Assert.assertEquals("item 3 strike mismatched", 22400.0, i3.getData().getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 3 call/put mismatched", VanillaDerivativesDataTuple.CallPut.CALL, i3.getData().getCallPut());
-			Assert.assertEquals("item 3 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i3.getData().getTradeTimestamp());
-			Assert.assertEquals("item 3 price mismatched", 110.0, i3.getData().getPrice(), 0.000001);
-			Assert.assertEquals("item 3 quantity mismatched", 1.0, i3.getData().getQuantity(), 0.000001);
-			Assert.assertEquals("item 3 trade type mismatched", "001", i3.getData().getTradeType());
+			Assert.assertEquals("item 3 class code mismatched", "MHI", i3.getUnderlying());
+			Assert.assertEquals("item 3 futures/options mismatched", VanillaDerivativesData.FuturesOptions.OPTIONS, i3.getFuturesOrOptions());
+			Assert.assertEquals("item 3 expiry month mismatched", new YearMonth(2012, 11), i3.getExpiryMonth());
+			Assert.assertEquals("item 3 strike mismatched", 22400.0, i3.getStrikePrice(), 0.000001);
+			Assert.assertEquals("item 3 call/put mismatched", VanillaDerivativesData.CallPut.CALL, i3.getCallPut());
+			Assert.assertEquals("item 3 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i3.getTradeTimestamp());
+			Assert.assertEquals("item 3 price mismatched", 110.0, i3.getPrice(), 0.000001);
+			Assert.assertEquals("item 3 quantity mismatched", 1.0, i3.getQuantity(), 0.000001);
+			Assert.assertEquals("item 3 trade type mismatched", "001", i3.getTradeType());
 			
 			
 		} catch (Exception e1) {

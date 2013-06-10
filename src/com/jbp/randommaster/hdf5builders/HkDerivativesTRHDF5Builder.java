@@ -16,8 +16,7 @@ import ncsa.hdf.object.h5.H5Group;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
-import com.jbp.randommaster.datasource.historical.HkDerivativesTRData;
-import com.jbp.randommaster.datasource.historical.VanillaDerivativesDataTuple;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 
 /**
  * 
@@ -42,47 +41,47 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	 * 
 	 * @param rawData The raw data of the whole HKEX TR File.
 	 */
-	public void createCompoundDatasetsForTRData(Iterable<HkDerivativesTRData> rawData) {
+	public void createCompoundDatasetsForTRData(Iterable<HkDerivativesTR> rawData) {
 		// group by underlying and then trade date and then the list of raw data.
-		TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>> instrumentUnderlyings=new TreeMap<String, Map<LocalDate,List<HkDerivativesTRData>>>();
-		for (HkDerivativesTRData d : rawData) {
+		TreeMap<String, Map<LocalDate,List<HkDerivativesTR>>> instrumentUnderlyings=new TreeMap<String, Map<LocalDate,List<HkDerivativesTR>>>();
+		for (HkDerivativesTR d : rawData) {
 			
-			String underlying = d.getData().getUnderlying();
+			String underlying = d.getUnderlying();
 			// data grouped by trade date.
-			Map<LocalDate,List<HkDerivativesTRData>> groupedData=instrumentUnderlyings.get(underlying);
+			Map<LocalDate,List<HkDerivativesTR>> groupedData=instrumentUnderlyings.get(underlying);
 			if (groupedData==null) {
-				groupedData=new TreeMap<LocalDate, List<HkDerivativesTRData>>();
+				groupedData=new TreeMap<LocalDate, List<HkDerivativesTR>>();
 				instrumentUnderlyings.put(underlying, groupedData);
 			}
 
 			LocalDate tradeDate=d.getTimestamp().toLocalDate();
-			List<HkDerivativesTRData> dataList=groupedData.get(tradeDate);
+			List<HkDerivativesTR> dataList=groupedData.get(tradeDate);
 			if (dataList==null) {
-				dataList=new LinkedList<HkDerivativesTRData>();
+				dataList=new LinkedList<HkDerivativesTR>();
 				groupedData.put(tradeDate, dataList);
 			}
 			dataList.add(d);
 		}
 		
 		// create all the relevant groups
-		for (Map.Entry<String, Map<LocalDate,List<HkDerivativesTRData>>> en : instrumentUnderlyings.entrySet()) {
+		for (Map.Entry<String, Map<LocalDate,List<HkDerivativesTR>>> en : instrumentUnderlyings.entrySet()) {
 			
 			String underlying = en.getKey();
 			
 			log.info("Creating compound DS for "+underlying);
 			
-			Map<LocalDate,List<HkDerivativesTRData>> relevantData = en.getValue();
+			Map<LocalDate,List<HkDerivativesTR>> relevantData = en.getValue();
 			
-			for (Map.Entry<LocalDate,List<HkDerivativesTRData>> en2 : relevantData.entrySet()) {
+			for (Map.Entry<LocalDate,List<HkDerivativesTR>> en2 : relevantData.entrySet()) {
 				LocalDate tradeDate=en2.getKey();
-				List<HkDerivativesTRData> dataList = en2.getValue();
+				List<HkDerivativesTR> dataList = en2.getValue();
 				// split into options and futures
-				List<HkDerivativesTRData> optionsList = new LinkedList<HkDerivativesTRData>();
-				List<HkDerivativesTRData> futuresList = new LinkedList<HkDerivativesTRData>();
-				for (HkDerivativesTRData d : dataList) {
-					if (d.getData().isFutures()) 
+				List<HkDerivativesTR> optionsList = new LinkedList<HkDerivativesTR>();
+				List<HkDerivativesTR> futuresList = new LinkedList<HkDerivativesTR>();
+				for (HkDerivativesTR d : dataList) {
+					if (d.isFutures()) 
 						futuresList.add(d);
-					else if (d.getData().isOptions())
+					else if (d.isOptions())
 						optionsList.add(d);
 				}
 
@@ -103,7 +102,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	 * @param dsName The dataset name to be used.
 	 * @param dataList The list of data grouped by instrument type.
 	 */
-	private void createGroupAndCompoundDS(String instrumentType, String underlying, LocalDate tradeDate, String dsName, List<HkDerivativesTRData> dataList) {
+	private void createGroupAndCompoundDS(String instrumentType, String underlying, LocalDate tradeDate, String dsName, List<HkDerivativesTR> dataList) {
 
 		if (dataList!=null && !dataList.isEmpty()) {
 			// create the instrument and date group for futures or options
@@ -131,7 +130,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 	 * @return The created compound DS.
 	 */
 	@SuppressWarnings("unchecked")
-	private H5CompoundDS createCoupoundDSForInstrument(String underlying, H5Group parentGroup, String dsName, List<HkDerivativesTRData> dataForOneDay) {
+	private H5CompoundDS createCoupoundDSForInstrument(String underlying, H5Group parentGroup, String dsName, List<HkDerivativesTR> dataForOneDay) {
 		
 		if (dataForOneDay==null || dataForOneDay.isEmpty())
 			throw new IllegalArgumentException("Input raw data is empty for instrument: "+underlying);
@@ -211,27 +210,27 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 		double[] quantity = new double[rowCount];
 		String[] tradeType = new String[rowCount];
 		int i=0;
-		for (HkDerivativesTRData d : dataForOneDay) {
-			und[i]=d.getData().getUnderlying();
+		for (HkDerivativesTR d : dataForOneDay) {
+			und[i]=d.getUnderlying();
 			// futures or options
-			if (d.getData().getFuturesOrOptions()==VanillaDerivativesDataTuple.FuturesOptions.FUTURES)
+			if (d.isFutures())
 				futuresOrOptions[i]="F";
-			else if (d.getData().getFuturesOrOptions()==VanillaDerivativesDataTuple.FuturesOptions.OPTIONS)
+			else if (d.isOptions())
 				futuresOrOptions[i]="O";
 			// expiry
-			expiryMonth[i]=d.getData().getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
+			expiryMonth[i]=d.getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
 			// strike
-			strike[i]=d.getData().getStrikePrice();
+			strike[i]=d.getStrikePrice();
 			// call or put
-			if (d.getData().getCallPut()==VanillaDerivativesDataTuple.CallPut.CALL)
+			if (d.isCall())
 				callPut[i]="C";
-			else if (d.getData().getCallPut()==VanillaDerivativesDataTuple.CallPut.PUT)
+			else if (d.isPut())
 				callPut[i]="P";
 			else callPut[i]="";
 			timestamp[i]=d.getTimestamp().toDateTime().getMillis();
-			price[i]=d.getData().getPrice();
-			quantity[i]=d.getData().getQuantity();
-			tradeType[i]=d.getData().getTradeType();
+			price[i]=d.getPrice();
+			quantity[i]=d.getQuantity();
+			tradeType[i]=d.getTradeType();
 			i++;
 		}
 		dataVect.add(und);

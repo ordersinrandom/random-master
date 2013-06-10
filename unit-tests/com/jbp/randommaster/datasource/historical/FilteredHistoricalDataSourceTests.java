@@ -23,20 +23,20 @@ public class FilteredHistoricalDataSourceTests extends TestCase {
 		
 		
 		
-		FilteredHistoricalDataSource<HkDerivativesTRData> src = new FilteredHistoricalDataSource<>(originalSrc, 
-				new ExpiryMonthFilter<HkDerivativesTRData>(new YearMonth(2012,10)));
+		FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, 
+				new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
 		
 		
-		HkDerivativesTRTuple tuple20000 = new HkDerivativesTRTuple("HSI", VanillaDerivativesDataTuple.FuturesOptions.FUTURES,
-					new YearMonth(2012,10), 0.0, VanillaDerivativesDataTuple.CallPut.NA,
+		HkDerivativesTR expected20000 = new HkDerivativesTR("HSI", VanillaDerivativesData.FuturesOptions.FUTURES,
+					new YearMonth(2012,10), 0.0, VanillaDerivativesData.CallPut.NA,
 					LocalDateTime.parse("2012-10-09T10:23:24.000"), 21081.0, 1.0,
 					"001");
-		HkDerivativesTRData expected20000 = new HkDerivativesTRData(tuple20000);
 		
-		HkDerivativesTRData actual20000 = null;
+		
+		HkDerivativesTR actual20000 = null;
 		
 		int rowCount = 0;
-		for (HkDerivativesTRData data : src.getData()) {
+		for (HkDerivativesTR data : src.getData()) {
 			if (rowCount==20000)
 				actual20000=data;
 			rowCount++;

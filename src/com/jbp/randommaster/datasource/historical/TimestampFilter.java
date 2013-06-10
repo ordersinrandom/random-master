@@ -8,7 +8,7 @@ import org.joda.time.LocalDateTime;
  *
  * @param <T> A HistoricalData class that has a timestamp.
  */
-public class TimestampFilter<T extends HistoricalData<? extends HistoricalDataTuple>> implements HistoricalDataFilter<T> {
+public class TimestampFilter<T extends HistoricalData> implements HistoricalDataFilter<T> {
 
 	private LocalDateTime start, end;
 	
