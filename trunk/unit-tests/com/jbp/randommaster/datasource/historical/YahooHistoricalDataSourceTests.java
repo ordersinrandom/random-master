@@ -1,7 +1,5 @@
 package com.jbp.randommaster.datasource.historical;
 
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.LocalDate;
@@ -71,6 +69,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 		
 	}
 	
+	/* DISABLED FOR NOW: sometimes Yahoo blocks the YQL download. We better switch to CSV directly.
 	@Test 
 	public void testDownloadAcrossYears() {
 		
@@ -83,7 +82,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 		
 		Assert.assertEquals("Not exactly 296 items downloaded", 296, data.size());
 	}
-	
+	*/
 	
 	@Test
 	public void testAcrossYears() {
