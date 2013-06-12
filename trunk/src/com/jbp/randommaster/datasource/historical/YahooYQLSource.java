@@ -22,7 +22,7 @@ import org.joda.time.format.DateTimeFormatter;
  * from yahoo using YQL.
  *
  */
-public class YahooHistoricalDataSource implements HistoricalDataSource<YahooHistoricalData> {
+public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData> {
 
 	private static final int THREADS_COUNT=10;
 	
@@ -39,7 +39,7 @@ public class YahooHistoricalDataSource implements HistoricalDataSource<YahooHist
 	 * @param startDate The start date range inclusive.
 	 * @param endDate The end date range inclusive.
 	 */
-	public YahooHistoricalDataSource(String yahooSymbol, LocalDate startDate, LocalDate endDate) {
+	public YahooYQLSource(String yahooSymbol, LocalDate startDate, LocalDate endDate) {
 
 		// throw exception for error case
 		if (endDate.compareTo(startDate) < 0)

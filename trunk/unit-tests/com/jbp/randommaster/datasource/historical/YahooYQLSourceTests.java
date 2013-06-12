@@ -5,19 +5,19 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.YahooHistoricalDataSource;
+import com.jbp.randommaster.datasource.historical.YahooYQLSource;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class YahooHistoricalDataSourceTests extends TestCase {
+public class YahooYQLSourceTests extends TestCase {
 
 	@Test
 	public void testWrongConstructorParam() {
 		
 		boolean gotException=false;
 		try {
-			new YahooHistoricalDataSource("0005.HK",
+			new YahooYQLSource("0005.HK",
 					new LocalDate(2011, 1, 1), new LocalDate(2010, 2, 1));
 		} catch (Exception e1) {
 			gotException=true;
@@ -37,7 +37,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 	
 	@Test
 	public void testWithinOneYear() {
-		YahooHistoricalDataSource t = new YahooHistoricalDataSource("0005.HK",
+		YahooYQLSource t = new YahooYQLSource("0005.HK",
 				new LocalDate(2010, 1, 1), new LocalDate(2010, 2, 1));
 
 		List<String> yqls = t.getYqls();
@@ -55,7 +55,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 	@Test
 	public void testStartEqualsEnd() {
 		
-		YahooHistoricalDataSource t = new YahooHistoricalDataSource("0005.HK",
+		YahooYQLSource t = new YahooYQLSource("0005.HK",
 				new LocalDate(2010, 1, 11), new LocalDate(2010, 1, 11));
 
 		List<String> yqls = t.getYqls();
@@ -86,7 +86,7 @@ public class YahooHistoricalDataSourceTests extends TestCase {
 	
 	@Test
 	public void testAcrossYears() {
-		YahooHistoricalDataSource t = new YahooHistoricalDataSource("^HSI",
+		YahooYQLSource t = new YahooYQLSource("^HSI",
 				new LocalDate(2008, 1, 1), 
 				new LocalDate(2013, 3, 5));
 
