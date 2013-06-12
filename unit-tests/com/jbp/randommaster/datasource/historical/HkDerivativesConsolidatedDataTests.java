@@ -12,7 +12,7 @@ import com.jbp.randommaster.datasource.historical.VanillaDerivativesData.Futures
 
 import junit.framework.TestCase;
 
-public class HkDerivativesConsolidatedTupleTests extends TestCase {
+public class HkDerivativesConsolidatedDataTests extends TestCase {
 
 	@Test
 	public void testEmptyIterableCase() {
