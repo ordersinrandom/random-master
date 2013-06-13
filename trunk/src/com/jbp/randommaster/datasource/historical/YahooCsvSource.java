@@ -10,24 +10,36 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/**
+ * 
+ * Implementation of historical data source that features Yahoo finance webpage CSV download.
+ * Maximum it spawns 10 threads to download data in parallel.
+ *
+ */
 public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData> {
 
 	private static final int THREADS_COUNT=10;
 	
-	
-	private String csvPattern = "http://ichart.finance.yahoo.com/table.csv?s={SYMBOL}&d={ENDMONTH}&e={ENDDAY}&f={ENDYEAR}&g=d&a={STARTMONTH}&b={STARTDAY}&c={STARTYEAR}&ignore=.csv";
+	private static String csvPattern = "http://ichart.finance.yahoo.com/table.csv?s={SYMBOL}&d={ENDMONTH}&e={ENDDAY}&f={ENDYEAR}&g=d&a={STARTMONTH}&b={STARTDAY}&c={STARTYEAR}&ignore=.csv";
 	
 	private String yahooSymbol;
 	private LocalDate startDate, endDate;
-	
 	private List<String> allUrls;
-	
+
+	/**
+	 * Create a new instance of YahooCsvSource.
+	 * 
+	 * @param yahooSymbol The target symbol to be loaded
+	 * @param startDate The start date of the loading task.
+	 * @param endDate The end date of the loading task.
+	 */
 	public YahooCsvSource(String yahooSymbol, LocalDate startDate, LocalDate endDate) {
 		
 		if (endDate.compareTo(startDate) < 0)
@@ -119,10 +131,7 @@ public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData>
 			for (Future<Iterable<YahooHistoricalData>> handle : taskToUrlMap.keySet()) {
 				try {
 					Iterable<YahooHistoricalData> batchResult=handle.get();
-					
-					for (YahooHistoricalData d : batchResult) {
-						result.add(d);
-					}
+					CollectionUtils.addAll(result, batchResult.iterator());
 					
 				} catch (Exception e1) {
 					throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToUrlMap.get(handle), e1);
