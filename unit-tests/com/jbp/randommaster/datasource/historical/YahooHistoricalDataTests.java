@@ -47,9 +47,9 @@ public class YahooHistoricalDataTests extends TestCase {
 		double adjustedClose=20050.02;
 		YahooHistoricalData d=new YahooHistoricalData(inputDate.toLocalDateTime(LocalTime.MIDNIGHT), 
 				open, high, low, close, vol, adjustedClose);
-		
+
 		Assert.assertEquals("toString() output mismatched", 
-				"YahooHistoricalData { date=2011-01-0120000.0, high=20100.0, low=19900.0, close=20050.0, volume=1.234567812E7, adjustedClose=20050.02 }",
+				"YahooHistoricalData { date=2011-01-01, open=20000.0, high=20100.0, low=19900.0, close=20050.0, volume=1.234567812E7, adjustedClose=20050.02 }",
 				d.toString());
 		
 	}
