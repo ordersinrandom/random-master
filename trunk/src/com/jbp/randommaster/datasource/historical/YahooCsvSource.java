@@ -16,32 +16,20 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/**
- * 
- * Implementation of HistoricalDataSource that downloads daily data of any instruments
- * from yahoo using YQL.
- *
- */
-public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData> {
+public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData> {
 
 	private static final int THREADS_COUNT=10;
 	
-	private String yqlPattern = "http://query.yahooapis.com/v1/public/yql?q={YQL}&env=http%3A%2F%2Fdatatables.org%2Falltables.env";
-
+	
+	private String csvPattern = "http://ichart.finance.yahoo.com/table.csv?s={SYMBOL}&d={ENDMONTH}&e={ENDDAY}&f={ENDYEAR}&g=d&a={STARTMONTH}&b={STARTDAY}&c={STARTYEAR}&ignore=.csv";
+	
 	private String yahooSymbol;
 	private LocalDate startDate, endDate;
-	private List<String> yqls;
-
-	/**
-	 * Create a new YahooHistoricalDataSource instance.
-	 * 
-	 * @param yahooSymbol The symbol to be loaded
-	 * @param startDate The start date range inclusive.
-	 * @param endDate The end date range inclusive.
-	 */
-	public YahooYQLSource(String yahooSymbol, LocalDate startDate, LocalDate endDate) {
-
-		// throw exception for error case
+	
+	private List<String> allUrls;
+	
+	public YahooCsvSource(String yahooSymbol, LocalDate startDate, LocalDate endDate) {
+		
 		if (endDate.compareTo(startDate) < 0)
 			throw new IllegalArgumentException("endDate " + endDate
 					+ " is before the startDate " + startDate + " for symbol "
@@ -50,10 +38,9 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 		this.yahooSymbol = yahooSymbol;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		yqls = new LinkedList<String>();
-
-		String queryPattern = "select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22{SYMBOL}%22%20and%20startDate%20%3D%20%22{STARTDATE}%22%20and%20endDate%20%3D%20%22{ENDDATE}%22";
-
+		this.allUrls=new LinkedList<String>();
+		
+		
 		LocalDateTime nextStartDate = startDate.toLocalDateTime(LocalTime.MIDNIGHT);
 		while (nextStartDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) <= 0) {
 
@@ -62,8 +49,6 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 			if (nextEndDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) > 0)
 				nextEndDate = endDate.toLocalDateTime(LocalTime.MIDNIGHT);
 
-			DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-			
 			String escapedSymbol = yahooSymbol;
 			try {
 				escapedSymbol=URLEncoder.encode(yahooSymbol, "UTF-8");
@@ -71,17 +56,23 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 				throw new IllegalArgumentException("Unable to escape input symbol: "+yahooSymbol, e);
 			}
 
-			String query = queryPattern.replace("{SYMBOL}", escapedSymbol)
-					.replace("{STARTDATE}", nextStartDate.toString(fmt))
-					.replace("{ENDDATE}", nextEndDate.toString(fmt));
-
-			yqls.add(yqlPattern.replace("{YQL}", query));
+			
+			String url = csvPattern.replace("{SYMBOL}", escapedSymbol)
+				.replace("{ENDYEAR}", Integer.valueOf(nextEndDate.getYear()).toString())
+				.replace("{ENDMONTH}", Integer.valueOf(nextEndDate.getMonthOfYear()-1).toString())
+				.replace("{ENDDAY}", Integer.valueOf(nextEndDate.getDayOfMonth()).toString())
+				.replace("{STARTYEAR}", Integer.valueOf(nextStartDate.getYear()).toString())
+				.replace("{STARTMONTH}", Integer.valueOf(nextStartDate.getMonthOfYear()-1).toString())
+				.replace("{STARTDAY}", Integer.valueOf(nextStartDate.getDayOfMonth()).toString());
+			
+			allUrls.add(url);
 
 			nextStartDate = nextEndDate.plusDays(1);
 		}
-
+		
+		
 	}
-
+	
 	public String getYahooSymbol() {
 		return yahooSymbol;
 	}
@@ -94,24 +85,18 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 		return endDate;
 	}
 
-	public List<String> getYqls() {
-		return yqls;
-	}
-
+	public List<String> getUrls() {
+		return allUrls;
+	}	
+	
 	public String toString() {
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-		return "YahooHistoricalDataSource { " + yahooSymbol + ", "
+		return "YahooCsvSource { " + yahooSymbol + ", "
 				+ startDate.toString(fmt) + ", " + endDate.toString(fmt) + " }";
 	}
-	
-	/**
-	 * Get the data downloaded from yahoo.
-	 * 
-	 * Note that it spawns threads to load the data and wait until all threads finished loading.
-	 * 
-	 * @throws YahooHistoricalDataSourceException if download error.
-	 * 
-	 */
+		
+
+	@Override
 	public Iterable<YahooHistoricalData> getData() {
 		
 		TreeSet<YahooHistoricalData> result=new TreeSet<YahooHistoricalData>();
@@ -119,19 +104,19 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 		ExecutorService pool = Executors.newFixedThreadPool(THREADS_COUNT);
 		
 		
-		HashMap<Future<Iterable<YahooHistoricalData>>, String> taskToYqlMap
+		HashMap<Future<Iterable<YahooHistoricalData>>, String> taskToUrlMap
 			=new HashMap<Future<Iterable<YahooHistoricalData>>, String>();
 		
 		
-		for (String yql: getYqls()) {
-			YqlHistoricalDownloadTask t=new YqlHistoricalDownloadTask(yql);
+		for (String url: getUrls()) {
+			YahooCsvDownloadTask t=new YahooCsvDownloadTask(url);
 			Future<Iterable<YahooHistoricalData>> handle=pool.submit(t);
-			taskToYqlMap.put(handle, yql);
+			taskToUrlMap.put(handle, url);
 		}
 		
 		try {
 			// get all the result
-			for (Future<Iterable<YahooHistoricalData>> handle : taskToYqlMap.keySet()) {
+			for (Future<Iterable<YahooHistoricalData>> handle : taskToUrlMap.keySet()) {
 				try {
 					Iterable<YahooHistoricalData> batchResult=handle.get();
 					
@@ -140,7 +125,7 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 					}
 					
 				} catch (Exception e1) {
-					throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToYqlMap.get(handle), e1);
+					throw new YahooHistoricalDataSourceException("Unable to download the data from "+taskToUrlMap.get(handle), e1);
 				}
 			}
 		} finally {
@@ -149,8 +134,10 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 			pool.shutdownNow();
 		}
 		
-		return result;
+		return result;		
+		
 	}
-	
 
+	
+	
 }

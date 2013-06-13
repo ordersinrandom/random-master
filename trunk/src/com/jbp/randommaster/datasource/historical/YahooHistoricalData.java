@@ -97,6 +97,7 @@ public class YahooHistoricalData implements HistoricalData {
 		StringBuilder buf=new StringBuilder();
 		buf.append("YahooHistoricalData { date=");
 		buf.append(getTimestamp().toString(fmt));
+		buf.append(", open=");
 		buf.append(open);
 		buf.append(", high=");
 		buf.append(high);
@@ -141,8 +142,8 @@ public class YahooHistoricalData implements HistoricalData {
 	public double getAdjustedClose() {
 		return adjustedClose;
 	}
-	
 
+	
 	public Object clone() {
 		try {
 			return super.clone();
