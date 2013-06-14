@@ -10,7 +10,7 @@ import org.joda.time.YearMonth;
  * 
  * 
  */
-public class HkDerivativesConsolidatedData implements VanillaDerivativesData {
+public class HkDerivativesConsolidatedData implements VanillaDerivativesData, ConsolidatedTradeRecordsData {
 
 	private static final long serialVersionUID = -8174697719234067519L;
 
@@ -303,5 +303,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData {
 	public int compareTo(HistoricalData o) {
 		return this.timestamp.compareTo(o.getTimestamp());
 	}
+
 
 }
