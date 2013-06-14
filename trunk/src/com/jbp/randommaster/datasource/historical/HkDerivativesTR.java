@@ -16,7 +16,7 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkDerivativesTR implements VanillaDerivativesData {
+public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
