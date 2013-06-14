@@ -64,7 +64,7 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * Subclass to implement this function to "build" the new ConsolidatedTradeRecordsData object.
 	 *  
 	 * @param refTimestamp The timestamp to be used.
-	 * @param original The original iterable just in case the new object needs to copy some values from it.
+	 * @param original The original iterable just in case the new object needs to copy some values from it. Must not empty or null.
 	 * @param lastTradedPrice The computed last traded price based on the iterable.
 	 * @param maxTradedPrice The max traded price computed based on the iterable.
 	 * @param minTradedPrice The min traded price computed based on the iterable.
