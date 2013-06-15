@@ -23,7 +23,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	private double maxTradedPrice;
 	private double minTradedPrice;
 	private double averagedPrice;
-	private int transactionsCount;
 	private double tradedVolume;
 	private LocalDateTime timestamp;
 
@@ -41,7 +40,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		minTradedPrice = Double.MAX_VALUE;
 		averagedPrice = 0.0;
 		tradedVolume = 0.0;
-		transactionsCount = 0;
 		this.timestamp=timestamp;
 
 	}
@@ -50,7 +48,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	 * Create a new instance of HkDerivativesConsolidatedTuple with given data.
 	 */
 	public HkDerivativesConsolidatedData(LocalDateTime timestamp, YearMonth expiryMonth, String underlying, double strikePrice, FuturesOptions futOpt, CallPut cp,
-			double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume, int transactionsCount) {
+			double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume) {
 		this.expiryMonth = expiryMonth;
 		this.underlying = underlying;
 		this.strikePrice = strikePrice;
@@ -61,7 +59,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		this.minTradedPrice = minTradedPrice;
 		this.averagedPrice = averagedPrice;
 		this.tradedVolume = tradedVolume;
-		this.transactionsCount = transactionsCount;
 		this.timestamp=timestamp;
 	}
 
@@ -109,16 +106,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	 */
 	public double getAveragedPrice() {
 		return averagedPrice;
-	}
-
-	/**
-	 * Consolidated field
-	 * 
-	 * @return The number of transaction we have observed in the given tuple
-	 *         collections.
-	 */
-	public int getTransactionsCount() {
-		return transactionsCount;
 	}
 
 	@Override
@@ -181,8 +168,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		buf.append(averagedPrice);
 		buf.append(", tradedVolume=");
 		buf.append(tradedVolume);
-		buf.append(", transactionsCount=");
-		buf.append(transactionsCount);
 		buf.append(" }");
 		return buf.toString();
 
@@ -206,7 +191,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 			return expiryMonth.equals(t.expiryMonth) && underlying.equals(t.underlying) && strikePrice == t.strikePrice
 					&& futuresOrOptions == t.futuresOrOptions && callPut == t.callPut && lastTradedPrice == t.lastTradedPrice
 					&& maxTradedPrice == t.maxTradedPrice && minTradedPrice == t.minTradedPrice && averagedPrice == t.averagedPrice
-					&& transactionsCount == t.transactionsCount && tradedVolume == t.tradedVolume
+					&& tradedVolume == t.tradedVolume
 					&& timestamp == t.timestamp;
 		} else
 			return false;
@@ -217,7 +202,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		return expiryMonth.hashCode() ^ underlying.hashCode() ^ Double.valueOf(strikePrice).hashCode() ^ futuresOrOptions.hashCode()
 				^ callPut.hashCode() ^ Double.valueOf(lastTradedPrice).hashCode() ^ Double.valueOf(maxTradedPrice).hashCode()
 				^ Double.valueOf(minTradedPrice).hashCode() ^ Double.valueOf(averagedPrice).hashCode()
-				^ Integer.valueOf(transactionsCount).hashCode() ^ Double.valueOf(tradedVolume).hashCode()
+				^ Double.valueOf(tradedVolume).hashCode()
 				^ timestamp.hashCode();
 	}
 

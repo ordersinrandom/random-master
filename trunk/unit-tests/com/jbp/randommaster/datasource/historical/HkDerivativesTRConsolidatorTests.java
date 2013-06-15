@@ -44,7 +44,7 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 20000.0, 
 															FuturesOptions.OPTIONS, CallPut.CALL,
 															1662.0, 1662.0, 1662.0, 
-															1662.0, 1.0, 1);
+															1662.0, 1.0);
 		
 		Assert.assertEquals("Result object not matching expected", expected, result);
 	}
@@ -68,7 +68,7 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
 															FuturesOptions.FUTURES, CallPut.NA,
 															21664.0, 21664.0, 21662.0, 
-															21663.0, 4.0, 3);
+															21663.0, 4.0);
 		
 		Assert.assertEquals("Result object not matching expected", expected, result);
 		

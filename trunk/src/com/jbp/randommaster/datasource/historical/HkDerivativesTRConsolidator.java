@@ -14,7 +14,7 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 
 	@Override
 	protected HkDerivativesConsolidatedData createConsolidatedData(LocalDateTime refTimestamp, Iterable<HkDerivativesTR> original,
-			double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume, int transactionsCount) {
+			double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume) {
 
 		YearMonth expiryMonth = null;
 		String underlying = null;
@@ -56,7 +56,7 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 		}
 
 		HkDerivativesConsolidatedData result = new HkDerivativesConsolidatedData(refTimestamp, expiryMonth, underlying, strikePrice,
-				futuresOrOptions, callPut, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice, tradedVolume, transactionsCount);
+				futuresOrOptions, callPut, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice, tradedVolume);
 
 		return result;
 	}
