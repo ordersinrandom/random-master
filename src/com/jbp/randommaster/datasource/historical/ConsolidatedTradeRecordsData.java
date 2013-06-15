@@ -37,13 +37,5 @@ public interface ConsolidatedTradeRecordsData extends HistoricalData {
 	 */
 	public double getAveragedPrice();
 
-	/**
-	 * Consolidated field
-	 * 
-	 * @return The number of transaction we have observed in the given tuple
-	 *         collections.
-	 */
-	public int getTransactionsCount();
-
 
 }

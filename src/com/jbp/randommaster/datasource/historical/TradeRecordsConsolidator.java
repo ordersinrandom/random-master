@@ -28,10 +28,11 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 		
 		double tradedVolume = 0.0;
 		double averagedPrice = 0.0;
-		int transactionsCount = 0;
 		double lastTradedPrice = 0.0;
 		double maxTradedPrice = Double.MIN_VALUE;
 		double minTradedPrice = Double.MAX_VALUE;
+		
+		int itemsCount=0;
 		
 		for (T2 t : original) {
 
@@ -43,25 +44,29 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 			averagedPrice += (t.getPrice() * t.getQuantity());
 			tradedVolume += t.getQuantity();
 
-			transactionsCount++;
+			itemsCount++;
 		}
 
 		averagedPrice /= tradedVolume;
 
 		// case for empty input iterable
-		if (transactionsCount == 0)
+		if (itemsCount == 0)
 			return null;		
 		
 		return createConsolidatedData(refTimestamp, original,
 				lastTradedPrice, maxTradedPrice,
 				minTradedPrice, averagedPrice,
-				tradedVolume, transactionsCount);
+				tradedVolume);
 		
 	}
 	
 	
 	/**
-	 * Subclass to implement this function to "build" the new ConsolidatedTradeRecordsData object.
+	 * Subclass to implement this function to "instantiate" the new ConsolidatedTradeRecordsData object.
+	 * This function requires to subclass to look at the original iterable items and extract their
+	 * common properties and use our calculated results 
+	 * (lastTradedPrice/maxTradedPrice/minTradedPrice/averagedPrice/tradedVolume) 
+	 * to instantiate the new ConsolidatedTradeRecordsData object.
 	 *  
 	 * @param refTimestamp The timestamp to be used.
 	 * @param original The original iterable just in case the new object needs to copy some values from it. Must not empty or null.
@@ -77,6 +82,6 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 			LocalDateTime refTimestamp, Iterable<T2> original,
 			double lastTradedPrice, double maxTradedPrice, 
 			double minTradedPrice, double averagedPrice,
-			double tradedVolume, int transactionsCount);
+			double tradedVolume);
 	
 }
