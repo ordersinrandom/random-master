@@ -98,40 +98,73 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 	
 
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testConsolidations1() {
 		
 		
 		LinkedList<HkDerivativesTR> inputData=new LinkedList<HkDerivativesTR>();
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,153405,21630,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,154104,21658,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,154401,21660,1,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,154901,21662,1,001"));
-		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155201,21663,2,001"));
-		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155301,21659,1,001"));
-		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155500,21640,3,001"));
-		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155701,21670,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155201,21668,3,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155301,21656,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155500,21670,3,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155701,21640,1,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155901,21672,1,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,160000,21699,5,001"));
 		
 		
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 		
-		LocalDateTime start = new LocalDateTime(2012,10,31,15, 45, 0);
+		LocalDateTime start = new LocalDateTime(2012,10,31,15, 30, 0);
 		LocalDateTime end = new LocalDateTime(2012,10,31,16, 00, 0);
 		Period interval = new Period(0, 5, 0, 0);
 		Iterable<HkDerivativesConsolidatedData> result=con.consolidateByTimeIntervals(start, end, interval, inputData);
 		
+		
+		HkDerivativesConsolidatedData[] expected = new HkDerivativesConsolidatedData[] {
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,35,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21630.0, 21630.0, 21630.0, 21630.0, 
+						21630.0, 1.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,40,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21630.0, 21630.0, 21630.0, 21630.0, 
+						21630.0, 0.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,45,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21658.0, 21660.0, 21660.0, 21658.0, 
+						21659.0, 2.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,50,0), 
+								new YearMonth(2012,11), "MHI", 0.0, "F", "",
+								21662.0, 21662.0, 21662.0, 21662.0, 
+								21662.0, 1.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,55,0), 
+								new YearMonth(2012,11), "MHI", 0.0, "F", "",
+								21668.0, 21656.0, 21668.0, 21656.0, 
+								21665.0, 4.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,16,0,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21670.0, 21699.0, 21699.0, 21640.0, 
+						21681.7, 10.0)						
+		};
+		
+		int count=0;
 		for (HkDerivativesConsolidatedData d : result) {
-			System.out.println(d);
+			//System.out.println(d);
+			count++;
 		}
 		
-		/*
-		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, inputData);
-
-		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
-															FuturesOptions.FUTURES, CallPut.NA,
-															21664.0, 21664.0, 21662.0, 
-															21663.0, 4.0);
-		
-		Assert.assertEquals("Result object not matching expected", expected, result);*/
+		Assert.assertEquals("Number of output mismatched", expected.length, count);
+		if (count==expected.length) {
+			int i=0;
+			for (HkDerivativesConsolidatedData d : result) {
+				Assert.assertEquals("Output item "+i+" mismatched", expected[i], d);
+				i++;
+			}
+		}
 		
 	}	
 	

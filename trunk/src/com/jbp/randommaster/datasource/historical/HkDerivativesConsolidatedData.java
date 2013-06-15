@@ -203,7 +203,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Fu
 					&& lastTradedPrice == t.lastTradedPrice
 					&& maxTradedPrice == t.maxTradedPrice && minTradedPrice == t.minTradedPrice && averagedPrice == t.averagedPrice
 					&& tradedVolume == t.tradedVolume
-					&& timestamp == t.timestamp;
+					&& timestamp.equals(t.timestamp);
 		} else
 			return false;
 	}

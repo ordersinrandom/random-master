@@ -27,21 +27,19 @@ public class HkDerivativesConsolidatedDataTests extends TestCase {
 	@Test
 	public void testEqualsAndHashcode() {
 
-		LocalDateTime tradeDateTime=new LocalDateTime(2012,10,31, 16,15, 1);
-		
-		HkDerivativesConsolidatedData r1= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
+		HkDerivativesConsolidatedData r1= new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31, 16,15, 1), new YearMonth(2012,11), "MHI", 0.0, 
 				"F", "",
 				21660.0,
 				21664.0, 21664.0, 21662.0, 
 				21663.0, 4.0);
 		
-		HkDerivativesConsolidatedData r2= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
+		HkDerivativesConsolidatedData r2= new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31, 16,15, 1), new YearMonth(2012,11), "MHI", 0.0, 
 				"F", "",
 				21660.0,
 				21664.0, 21664.0, 21662.0, 
 				21663.0, 4.0);
 
-		HkDerivativesConsolidatedData r3= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
+		HkDerivativesConsolidatedData r3= new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31, 16,15, 1), new YearMonth(2012,11), "MHI", 0.0, 
 				"F", "",
 				21660.0,
 				21664.0, 21664.0, 21662.0, 
