@@ -1,6 +1,5 @@
 package com.jbp.randommaster.datasource.historical;
 
-
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -43,6 +42,8 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 		LinkedList<T2> nextBuffer = new LinkedList<T2>();
 		
 		Iterator<T2> inputIt = inputData.iterator();
+		
+		LinkedList<LocalDateTime> backwardExtrapolateList = new LinkedList<LocalDateTime>();
 		
 		LocalDateTime nextStart = start;
 		while (nextStart.compareTo(end) < 0) {
@@ -105,17 +106,23 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 			// if there is a result from this interval
 			if (currentIntervalResult!=null)
 				result.add(currentIntervalResult);
-			
-			// potentially currentIntervalResult can be null if at start early intervals and there are no previous data.
-			// we would need to backward extrapolate the data if we want a proper "plot"
+			else {
+				// potentially currentIntervalResult can be null if at start early intervals and there are no previous data.
+				// we would need to backward extrapolate the data if we want a proper "plot"
+				backwardExtrapolateList.add(nextEnd);
+			}
 			
 			nextStart = nextEnd;
 		}
 		
 		// TODO: handle the remaining data in the nextBuffer ???
 		
-		// TODO: handle backward extrapolating the early intervals data.
-		
+		// handle backward extrapolating the early intervals data.
+		for (Iterator<LocalDateTime> it=backwardExtrapolateList.descendingIterator();it.hasNext();) {
+			LocalDateTime t = it.next();
+			T1 exResult=backwardExtrapolate(t, result);
+			result.add(0, exResult);
+		}
 
 		return result;
 	}
@@ -213,5 +220,14 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * @return A new entry of T1 type.
 	 */
 	protected abstract T1 extrapolate(LocalDateTime refTimestamp, Iterable<T1> previousIntervalResults);
+	
+	/**
+	 * Given a new reference timestamp and later interval results, extrapolate a new result in backward direction.
+	 * 
+	 * @param refTimestamp Reference timestamp to be used.
+	 * @param laterIntervalResults The results after this given timestamp.
+	 * @return A new entry of T1 type.
+	 */
+	protected abstract T1 backwardExtrapolate(LocalDateTime refTimestamp, Iterable<T1> laterIntervalResults);
 	
 }
