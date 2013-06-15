@@ -8,15 +8,15 @@ import org.joda.time.YearMonth;
  * lastTradedPrice / maxTradedPrice / minTradedPrice / averagedPrice / tradedVolume.
  * 
  */
-public class HkDerivativesConsolidatedData implements VanillaDerivativesData, ConsolidatedTradeRecordsData {
+public class HkDerivativesConsolidatedData implements VanillaDerivativesData, FuturesData, ConsolidatedTradeRecordsData {
 
 	private static final long serialVersionUID = -8174697719234067519L;
 
 	private YearMonth expiryMonth;
 	private String underlying;
 	private double strikePrice;
-	private FuturesOptions futuresOrOptions;
-	private CallPut callPut;
+	private String futuresOrOptions; // F or O
+	private String callPut; // C or P or empty string
 	private double firstTradedPrice;
 	private double lastTradedPrice;
 	private double maxTradedPrice;
@@ -28,13 +28,13 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	/**
 	 * Create a new instance of HkDerivativesConsolidatedTuple with given data.
 	 */
-	public HkDerivativesConsolidatedData(LocalDateTime timestamp, YearMonth expiryMonth, String underlying, double strikePrice, FuturesOptions futOpt, CallPut cp,
+	public HkDerivativesConsolidatedData(LocalDateTime timestamp, YearMonth expiryMonth, String underlying, double strikePrice, String futuresOrOptions, String callPut,
 			double firstTradedPrice, double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume) {
 		this.expiryMonth = expiryMonth;
 		this.underlying = underlying;
 		this.strikePrice = strikePrice;
-		this.futuresOrOptions = futOpt;
-		this.callPut = cp;
+		this.futuresOrOptions = futuresOrOptions;
+		this.callPut = callPut;
 		this.firstTradedPrice = firstTradedPrice;
 		this.lastTradedPrice = lastTradedPrice;
 		this.maxTradedPrice = maxTradedPrice;
@@ -44,6 +44,15 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		this.timestamp=timestamp;
 	}
 	
+	
+	public String getFuturesOrOptions() { 
+		return futuresOrOptions;
+	}
+	
+	public String getCallPut() {
+		return callPut;
+	}
+		
 	/**
 	 * Consolidated field.
 	 * 
@@ -118,25 +127,27 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	public double getStrikePrice() {
 		return strikePrice;
 	}
+	
 
-	@Override
-	public CallPut getCallPut() {
-		return callPut;
-	}
-
-	@Override
-	public FuturesOptions getFuturesOrOptions() {
-		return futuresOrOptions;
-	}
 
 	@Override
 	public boolean isFutures() {
-		return futuresOrOptions == FuturesOptions.FUTURES;
+		return "F".equals(futuresOrOptions);
 	}
 
 	@Override
 	public boolean isOptions() {
-		return futuresOrOptions == FuturesOptions.OPTIONS;
+		return "O".equals(futuresOrOptions);
+	}
+	
+	@Override
+	public boolean isCall() {
+		return !isFutures() && "C".equals(callPut);
+	}
+	
+	@Override
+	public boolean isPut() {
+		return !isFutures() && "P".equals(callPut);
 	}
 
 	@Override
@@ -187,7 +198,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 		else if (obj instanceof HkDerivativesConsolidatedData) {
 			HkDerivativesConsolidatedData t = (HkDerivativesConsolidatedData) obj;
 			return expiryMonth.equals(t.expiryMonth) && underlying.equals(t.underlying) && strikePrice == t.strikePrice
-					&& futuresOrOptions == t.futuresOrOptions && callPut == t.callPut
+					&& futuresOrOptions.equals(t.futuresOrOptions) && callPut.equals(t.callPut)
 					&& firstTradedPrice == t.firstTradedPrice
 					&& lastTradedPrice == t.lastTradedPrice
 					&& maxTradedPrice == t.maxTradedPrice && minTradedPrice == t.minTradedPrice && averagedPrice == t.averagedPrice
