@@ -16,17 +16,15 @@ import org.joda.time.YearMonth;
  * 
  *
  */
-public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData {
+public class HkDerivativesTR implements VanillaDerivativesData, FuturesData, TradeRecordData {
 
 	private static final long serialVersionUID = -5725594588284543984L;
 
 	private String underlying; // e.g. HSI 
-	//private String futuresOrOptions; // e.g. F or O
-	private FuturesOptions futuresOrOptions;
+	private String futuresOrOptions; // e.g. F or O
 	private YearMonth expiryMonth; 
 	private double strikePrice; // 0 for futures
-	//private String callPut; // C for call, P for put, futures will have empty string
-	private CallPut callPut;
+	private String callPut; // C for call, P for put, futures will have empty string
 	private LocalDateTime tradeTimestamp; // including date and time
 	private double price;
 	private double quantity;
@@ -42,11 +40,21 @@ public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData 
 	private String tradeType;
 	
 
-	public HkDerivativesTR(String underlying, FuturesOptions futuresOrOptions,
-			YearMonth expiryMonth, double strikePrice, CallPut callPut,
+	public HkDerivativesTR(String underlying, String futuresOrOptions,
+			YearMonth expiryMonth, double strikePrice, String callPut,
 			LocalDateTime tradeTimestamp, double price, double quantity,
 			String tradeType) {
 
+		// some input checking
+		if (!"F".equals(futuresOrOptions) && !"O".equals(futuresOrOptions))
+			throw new IllegalArgumentException("unrecognized input for futuresOrOptions: "+futuresOrOptions);
+		if (!"C".equals(callPut) && !"P".equals(callPut) && !"".equals(callPut) && callPut!=null)
+			throw new IllegalArgumentException("unrecognized input for callPut: "+callPut);
+		
+		// wrap it to empty string if the input callPut is a null string.
+		if (callPut==null)
+			callPut="";
+		
 		this.underlying=underlying;
 		this.futuresOrOptions=futuresOrOptions;
 		this.expiryMonth=expiryMonth;
@@ -134,24 +142,9 @@ public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData 
 			throw new IllegalArgumentException("unable to interpret quantity: "+quantityString);
 		}
 		
-		FuturesOptions futuresOrOptions=null;
-		if ("F".equals(futuresOrOptionsStr))
-			futuresOrOptions=FuturesOptions.FUTURES;
-		else if ("O".equals(futuresOrOptionsStr))
-			futuresOrOptions=FuturesOptions.OPTIONS;
-		else throw new IllegalArgumentException("Unknown futuersOrOptionStr: "+futuresOrOptionsStr);
 		
-		CallPut callPut=null;
-		if (callPutStr==null || callPutStr.length()==0)
-			callPut=CallPut.NA;
-		else if ("C".equals(callPutStr))
-			callPut=CallPut.CALL;
-		else if ("P".equals(callPutStr))
-			callPut=CallPut.PUT;
-		else throw new IllegalArgumentException("unknown callPutStr: "+callPutStr);
-		
-		return new HkDerivativesTR(underlying, futuresOrOptions,
-				expiryMonth, strikePrice, callPut,
+		return new HkDerivativesTR(underlying, futuresOrOptionsStr,
+				expiryMonth, strikePrice, callPutStr,
 				tradeTimestamp, price, quantity,
 				tradeType);
 		
@@ -161,16 +154,16 @@ public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData 
 	public String getUnderlying() {
 		return underlying;
 	}
-	public FuturesOptions getFuturesOrOptions() {
+	public String getFuturesOrOptions() {
 		return futuresOrOptions;
 	}
 	
 	public boolean isFutures() {
-		return futuresOrOptions==FuturesOptions.FUTURES;
+		return "F".equals(futuresOrOptions);
 	}
 	
 	public boolean isOptions() {
-		return futuresOrOptions==FuturesOptions.OPTIONS;
+		return "O".equals(futuresOrOptions);
 	}
 	
 	public YearMonth getExpiryMonth() {
@@ -179,16 +172,16 @@ public class HkDerivativesTR implements VanillaDerivativesData, TradeRecordData 
 	public double getStrikePrice() {
 		return strikePrice;
 	}
-	public CallPut getCallPut() {
+	public String getCallPut() {
 		return callPut;
 	}
 	
 	public boolean isCall() {
-		return callPut==CallPut.CALL;
+		return !isFutures() && "C".equals(callPut);
 	}
 	
 	public boolean isPut() {
-		return callPut==CallPut.PUT;
+		return !isFutures() && "P".equals(callPut);
 	}
 	
 	public LocalDateTime getTradeTimestamp() {

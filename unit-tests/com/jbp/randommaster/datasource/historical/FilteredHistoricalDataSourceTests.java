@@ -27,8 +27,8 @@ public class FilteredHistoricalDataSourceTests extends TestCase {
 				new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
 		
 		
-		HkDerivativesTR expected20000 = new HkDerivativesTR("HSI", VanillaDerivativesData.FuturesOptions.FUTURES,
-					new YearMonth(2012,10), 0.0, VanillaDerivativesData.CallPut.NA,
+		HkDerivativesTR expected20000 = new HkDerivativesTR("HSI", "F",
+					new YearMonth(2012,10), 0.0, "",
 					LocalDateTime.parse("2012-10-09T10:23:24.000"), 21081.0, 1.0,
 					"001");
 		

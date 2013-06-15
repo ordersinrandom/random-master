@@ -8,9 +8,6 @@ import org.joda.time.YearMonth;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.VanillaDerivativesData.CallPut;
-import com.jbp.randommaster.datasource.historical.VanillaDerivativesData.FuturesOptions;
-
 import junit.framework.TestCase;
 
 public class HkDerivativesTRConsolidatorTests extends TestCase {
@@ -40,7 +37,7 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		
 		
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 20000.0, 
-															FuturesOptions.OPTIONS, CallPut.CALL,
+															"O", "C",
 															1662.0,
 															1662.0, 1662.0, 1662.0, 
 															1662.0, 1.0);
@@ -63,7 +60,7 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, tuples);
 
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
-															FuturesOptions.FUTURES, CallPut.NA,
+															"F", "",
 															21662.0,
 															21664.0, 21664.0, 21662.0, 
 															21663.0, 4.0);
@@ -93,7 +90,7 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		} catch (Exception e1) {
 			
 			Assert.assertEquals("Exception type mismatched", true, e1 instanceof IllegalArgumentException);
-			Assert.assertEquals("Exception message mismatched", "input data doesn't have the same underlying: current=MHI, input=HSI", e1.getMessage());
+			Assert.assertEquals("Exception message mismatched", "input data series doesn't have the same underlying: current=MHI, input=HSI", e1.getMessage());
 			
 		}
 		

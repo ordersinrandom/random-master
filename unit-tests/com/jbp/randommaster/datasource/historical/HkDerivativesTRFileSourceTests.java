@@ -47,10 +47,10 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 			
 			Assert.assertEquals("item 1 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTimestamp());
 			Assert.assertEquals("item 1 class code mismatched", "HHI", i1.getUnderlying());
-			Assert.assertEquals("item 1 futures/options mismatched", VanillaDerivativesData.FuturesOptions.FUTURES, i1.getFuturesOrOptions());
+			Assert.assertEquals("item 1 futures/options mismatched", "F", i1.getFuturesOrOptions());
 			Assert.assertEquals("item 1 expiry month mismatched", new YearMonth(2012, 11), i1.getExpiryMonth());
 			Assert.assertEquals("item 1 strike mismatched", 0.0, i1.getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 1 call/put mismatched", VanillaDerivativesData.CallPut.NA, i1.getCallPut());
+			Assert.assertEquals("item 1 call/put mismatched", "", i1.getCallPut());
 			Assert.assertEquals("item 1 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,58), i1.getTradeTimestamp());
 			Assert.assertEquals("item 1 price mismatched", 10607.0, i1.getPrice(), 0.000001);
 			Assert.assertEquals("item 1 quantity mismatched", 1.0, i1.getQuantity(), 0.000001);
@@ -59,10 +59,10 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 
 			Assert.assertEquals("item 2 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i2.getTimestamp());
 			Assert.assertEquals("item 2 class code mismatched", "HHI", i2.getUnderlying());
-			Assert.assertEquals("item 2 futures/options mismatched", VanillaDerivativesData.FuturesOptions.OPTIONS, i2.getFuturesOrOptions());
+			Assert.assertEquals("item 2 futures/options mismatched", "O", i2.getFuturesOrOptions());
 			Assert.assertEquals("item 2 expiry month mismatched", new YearMonth(2012, 11), i2.getExpiryMonth());
 			Assert.assertEquals("item 2 strike mismatched", 8400.0, i2.getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 2 call/put mismatched", VanillaDerivativesData.CallPut.PUT, i2.getCallPut());
+			Assert.assertEquals("item 2 call/put mismatched", "P", i2.getCallPut());
 			Assert.assertEquals("item 2 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i2.getTradeTimestamp());
 			Assert.assertEquals("item 2 price mismatched", 2.0, i2.getPrice(), 0.000001);
 			Assert.assertEquals("item 2 quantity mismatched", 5.0, i2.getQuantity(), 0.000001);
@@ -70,10 +70,10 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 			
 			Assert.assertEquals("item 3 timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i3.getTimestamp());
 			Assert.assertEquals("item 3 class code mismatched", "MHI", i3.getUnderlying());
-			Assert.assertEquals("item 3 futures/options mismatched", VanillaDerivativesData.FuturesOptions.OPTIONS, i3.getFuturesOrOptions());
+			Assert.assertEquals("item 3 futures/options mismatched", "O", i3.getFuturesOrOptions());
 			Assert.assertEquals("item 3 expiry month mismatched", new YearMonth(2012, 11), i3.getExpiryMonth());
 			Assert.assertEquals("item 3 strike mismatched", 22400.0, i3.getStrikePrice(), 0.000001);
-			Assert.assertEquals("item 3 call/put mismatched", VanillaDerivativesData.CallPut.CALL, i3.getCallPut());
+			Assert.assertEquals("item 3 call/put mismatched", "C", i3.getCallPut());
 			Assert.assertEquals("item 3 trade timestamp mismatched", new LocalDateTime(2012, 10, 31, 16,14,59), i3.getTradeTimestamp());
 			Assert.assertEquals("item 3 price mismatched", 110.0, i3.getPrice(), 0.000001);
 			Assert.assertEquals("item 3 quantity mismatched", 1.0, i3.getQuantity(), 0.000001);

@@ -130,29 +130,11 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 									expiryMonthDateTime.getMonthOfYear());
 
 							LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
-							
-							// convert the futures/options flag.
-							VanillaDerivativesData.FuturesOptions futOpt = null;
-							if (futuresOrOptions[currentIndex].equals("F"))
-								futOpt=VanillaDerivativesData.FuturesOptions.FUTURES;
-							else if (futuresOrOptions[currentIndex].equals("O"))
-								futOpt=VanillaDerivativesData.FuturesOptions.OPTIONS;
-							else throw new IllegalStateException("unrecognized futuresOrOptions data: "+futuresOrOptions[currentIndex]+" at row "+currentIndex);
-
-							// convert the call/put flag.
-							VanillaDerivativesData.CallPut cp=null;
-							if (callPut[currentIndex]==null || callPut[currentIndex].length()==0)
-								cp=VanillaDerivativesData.CallPut.NA;
-							else if (callPut[currentIndex].equals("C"))
-								cp=VanillaDerivativesData.CallPut.CALL;
-							else if (callPut[currentIndex].equals("P"))
-								cp=VanillaDerivativesData.CallPut.PUT;
-							else throw new IllegalStateException("urecognized callPut data: "+callPut[currentIndex]+" at row "+currentIndex);
 
 							HkDerivativesTR tuple = new HkDerivativesTR(classCode[currentIndex],
-									futOpt, 
+									futuresOrOptions[currentIndex], 
 									expiryMonthObj, strikePrice[currentIndex],
-									cp, 
+									callPut[currentIndex], 
 									tradeDateTime, price[currentIndex],
 									quantity[currentIndex], tradeType[currentIndex]);
 

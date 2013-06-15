@@ -12,15 +12,15 @@ public class UnderlyingFilterTests extends TestCase {
 	@Test
 	public void testUnderlyingFilter() {
 		
-		HkDerivativesTR data1 = new HkDerivativesTR("HSI", VanillaDerivativesData.FuturesOptions.FUTURES,
-				new YearMonth(2012,10), 0.0, VanillaDerivativesData.CallPut.NA,
+		HkDerivativesTR data1 = new HkDerivativesTR("HSI", "F",
+				new YearMonth(2012,10), 0.0, "",
 				LocalDateTime.parse("2012-10-09T10:23:24.000"), 21081.0, 1.0,
 				"001");
 		
 
 
-		HkDerivativesTR data2 = new HkDerivativesTR("HHI", VanillaDerivativesData.FuturesOptions.FUTURES,
-				new YearMonth(2012,11), 0.0, VanillaDerivativesData.CallPut.NA,
+		HkDerivativesTR data2 = new HkDerivativesTR("HHI", "F",
+				new YearMonth(2012,11), 0.0, "",
 				LocalDateTime.parse("2012-10-09T12:23:24.000"), 21081.0, 1.0,
 				"001");
 
