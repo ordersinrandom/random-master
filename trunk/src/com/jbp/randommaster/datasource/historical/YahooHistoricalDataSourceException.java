@@ -8,7 +8,7 @@ public class YahooHistoricalDataSourceException extends HistoricalDataSourceExce
 		super(msg);
 	}
 	
-	public YahooHistoricalDataSourceException(String msg, Exception nested) {
+	public YahooHistoricalDataSourceException(String msg, Throwable nested) {
 		super(msg, nested);
 	}
 	

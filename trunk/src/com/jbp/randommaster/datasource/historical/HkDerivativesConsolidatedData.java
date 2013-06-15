@@ -190,7 +190,7 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
-
+	
 	@Override
 	public int compareTo(HistoricalData o) {
 		return this.timestamp.compareTo(o.getTimestamp());

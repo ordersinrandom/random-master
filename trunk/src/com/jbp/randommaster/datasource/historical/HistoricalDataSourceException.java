@@ -9,7 +9,7 @@ public class HistoricalDataSourceException extends RuntimeException {
 		super(msg);
 	}
 	
-	public HistoricalDataSourceException(String msg, Exception nested) {
+	public HistoricalDataSourceException(String msg, Throwable nested) {
 		super(msg, nested);
 	}	
 

@@ -9,6 +9,5 @@ public interface HistoricalData extends Comparable<HistoricalData>, Serializable
 
 	public LocalDateTime getTimestamp();
 	
-
 	
 }

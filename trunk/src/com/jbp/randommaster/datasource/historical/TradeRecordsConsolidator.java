@@ -1,6 +1,9 @@
 package com.jbp.randommaster.datasource.historical;
 
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 
@@ -26,28 +29,66 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 *            The end time of the consolidation.
 	 * @param interval
 	 *            The interval of each consolidation.
-	 * @param input
+	 * @param inputData
 	 *            The original input data.
 	 * 
 	 * @return An iterable of ConsolidatedTradeRecordsData splitted by time
 	 *         interval.
 	 */
-	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Period interval, Iterable<T2> input) {
+	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Period interval, Iterable<T2> inputData) {
 
+		LinkedList<T1> result=new LinkedList<T1>();
 		
+		LinkedList<T2> currentBuffer=new LinkedList<T2>();
+		LinkedList<T2> nextBuffer = new LinkedList<T2>();
+		
+		Iterator<T2> inputIt = inputData.iterator();
 		
 		LocalDateTime nextStart = start;
 		while (nextStart.compareTo(end) < 0) {
 			LocalDateTime nextEnd = start.plus(interval);
-			if (nextEnd.compareTo(end) > 0)
+			
+			if (nextEnd.compareTo(end) > 0) {
 				nextEnd = end;
+			}
 
-			// TODO: not yet implemented.
+			if (!nextBuffer.isEmpty()) 
+				currentBuffer.addAll(nextBuffer);
+			
+			while (inputIt.hasNext()) {
+				T2 n = inputIt.next();
+				if (n.getTradeTimestamp().compareTo(nextStart)<0)
+					continue; // drop it if the data is before next start (this should happen only on first round)
+				else if (n.getTradeTimestamp().compareTo(nextEnd)<0)
+					currentBuffer.add(n);
+				else {
+					nextBuffer.add(n);
+					break;
+				}
+			}
+			
 
+			T1 currentIntervalResult = null;
+			if (currentBuffer.isEmpty()) {
+				// extrapolate a result if current interval has no data.
+				currentIntervalResult = extrapolate(nextEnd, result);
+			} else {
+				// now current buffer stores the current interval data
+				// and next buffer potentially stores the next interval data.
+				currentIntervalResult = consolidate(nextEnd, currentBuffer);
+				// clear the buffer
+				currentBuffer.clear();
+			}
+			
+			result.add(currentIntervalResult);
+			
 			nextStart = nextEnd;
 		}
+		
+		// TODO: handle the remaining data in the nextBuffer ???
+		
 
-		return null;
+		return result;
 	}
 
 	/**
@@ -127,4 +168,14 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	protected abstract T1 createConsolidatedData(LocalDateTime refTimestamp, Iterable<T2> original, double lastTradedPrice, double maxTradedPrice,
 			double minTradedPrice, double averagedPrice, double tradedVolume);
 
+	
+	/**
+	 * Given a new reference timestamp and previous interval results, extrapolate a new result.
+	 * 
+	 * @param refTimestamp Reference timestamp to be used.
+	 * @param previousIntervalResults Previous results computed.
+	 * @return A new entry of T1 type.
+	 */
+	protected abstract T1 extrapolate(LocalDateTime refTimestamp, Iterable<T1> previousIntervalResults);
+	
 }
