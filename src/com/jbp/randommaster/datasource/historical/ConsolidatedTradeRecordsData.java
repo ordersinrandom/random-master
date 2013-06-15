@@ -1,5 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
+
+
 public interface ConsolidatedTradeRecordsData extends HistoricalData {
 
 	/**
