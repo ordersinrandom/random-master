@@ -4,10 +4,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 
 /**
- * The data tuple that takes an list of HkDerivativesTRTuple and consolidate
- * them into useful data such as traded volume, last/max/min/avg traded prices
- * etc.
- * 
+ * This class summarizes a list of HkDerivativesTR objects into useful data values such as
+ * lastTradedPrice / maxTradedPrice / minTradedPrice / averagedPrice / tradedVolume.
  * 
  */
 public class HkDerivativesConsolidatedData implements VanillaDerivativesData, ConsolidatedTradeRecordsData {
@@ -25,24 +23,6 @@ public class HkDerivativesConsolidatedData implements VanillaDerivativesData, Co
 	private double averagedPrice;
 	private double tradedVolume;
 	private LocalDateTime timestamp;
-
-	/**
-	 * Constructor used internally.
-	 */
-	protected HkDerivativesConsolidatedData(LocalDateTime timestamp) {
-		expiryMonth = null;
-		underlying = null;
-		strikePrice = 0.0;
-		futuresOrOptions = null;
-		callPut = null;
-		lastTradedPrice = 0.0;
-		maxTradedPrice = Double.MIN_VALUE;
-		minTradedPrice = Double.MAX_VALUE;
-		averagedPrice = 0.0;
-		tradedVolume = 0.0;
-		this.timestamp=timestamp;
-
-	}
 
 	/**
 	 * Create a new instance of HkDerivativesConsolidatedTuple with given data.
