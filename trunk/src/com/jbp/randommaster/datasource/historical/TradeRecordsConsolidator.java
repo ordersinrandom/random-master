@@ -123,6 +123,7 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 
 		double tradedVolume = 0.0;
 		double averagedPrice = 0.0;
+		double firstTradedPrice = 0.0;
 		double lastTradedPrice = 0.0;
 		double maxTradedPrice = Double.MIN_VALUE;
 		double minTradedPrice = Double.MAX_VALUE;
@@ -131,6 +132,9 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 
 		for (T2 t : original) {
 
+			if (itemsCount==0)
+				firstTradedPrice = t.getPrice();
+			
 			lastTradedPrice = t.getPrice();
 			if (maxTradedPrice <= t.getPrice())
 				maxTradedPrice = t.getPrice();
@@ -148,7 +152,7 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 		if (itemsCount == 0)
 			return null;
 
-		return createConsolidatedData(refTimestamp, original, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice, tradedVolume);
+		return createConsolidatedData(refTimestamp, original, firstTradedPrice, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice, tradedVolume);
 
 	}
 
@@ -166,6 +170,8 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * @param original
 	 *            The original iterable just in case the new object needs to
 	 *            copy some values from it. Must not empty or null.
+	 * @param firstTradedPrice
+	 * 	          The computed first traded price based on the iterable.
 	 * @param lastTradedPrice
 	 *            The computed last traded price based on the iterable.
 	 * @param maxTradedPrice
@@ -179,7 +185,8 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * 
 	 * @return A new instance of ConsolidatedTradeRecordsData
 	 */
-	protected abstract T1 createConsolidatedData(LocalDateTime refTimestamp, Iterable<T2> original, double lastTradedPrice, double maxTradedPrice,
+	protected abstract T1 createConsolidatedData(LocalDateTime refTimestamp, Iterable<T2> original,
+			double firstTradedPrice, double lastTradedPrice, double maxTradedPrice,
 			double minTradedPrice, double averagedPrice, double tradedVolume);
 
 	
