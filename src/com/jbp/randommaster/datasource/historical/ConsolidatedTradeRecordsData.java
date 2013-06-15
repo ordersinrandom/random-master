@@ -6,6 +6,12 @@ public interface ConsolidatedTradeRecordsData extends HistoricalData {
 
 	/**
 	 * Consolidated field.
+	 * @return The first traded price.
+	 */
+	public double getFirstTradedPrice();
+	
+	/**
+	 * Consolidated field.
 	 * 
 	 * @return The last traded price
 	 */
