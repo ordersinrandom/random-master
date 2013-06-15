@@ -118,13 +118,21 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 		
-		LocalDateTime start = new LocalDateTime(2012,10,31,15, 30, 0);
+		LocalDateTime start = new LocalDateTime(2012,10,31,15, 20, 0);
 		LocalDateTime end = new LocalDateTime(2012,10,31,16, 00, 0);
 		Period interval = new Period(0, 5, 0, 0);
 		Iterable<HkDerivativesConsolidatedData> result=con.consolidateByTimeIntervals(start, end, interval, inputData);
 		
 		
 		HkDerivativesConsolidatedData[] expected = new HkDerivativesConsolidatedData[] {
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,25,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21630.0, 21630.0, 21630.0, 21630.0, 
+						21630.0, 0.0),
+				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,30,0), 
+						new YearMonth(2012,11), "MHI", 0.0, "F", "",
+						21630.0, 21630.0, 21630.0, 21630.0, 
+						21630.0, 0.0),
 				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,35,0), 
 						new YearMonth(2012,11), "MHI", 0.0, "F", "",
 						21630.0, 21630.0, 21630.0, 21630.0, 

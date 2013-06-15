@@ -85,4 +85,29 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 		
 	}
 
+	@Override
+	protected HkDerivativesConsolidatedData backwardExtrapolate(LocalDateTime refTimestamp, Iterable<HkDerivativesConsolidatedData> laterIntervalResults) {
+
+		HkDerivativesConsolidatedData nextItem = null;
+		for (HkDerivativesConsolidatedData d : laterIntervalResults) {
+			nextItem=d;
+			break;
+		}
+		
+		if (nextItem==null)
+			throw new TradeRecordsConsolidatorException("there is no later result to backward extrapolate for the given timestamp: "+refTimestamp);
+		else {
+			return new HkDerivativesConsolidatedData(refTimestamp, nextItem.getExpiryMonth(), 
+					nextItem.getUnderlying(), nextItem.getStrikePrice(),
+					nextItem.getFuturesOrOptions(), 
+					nextItem.getCallPut(), 
+					nextItem.getFirstTradedPrice(),
+					nextItem.getFirstTradedPrice(), // last traded price as first traded price if we are extrapolating backward 
+					nextItem.getMaxTradedPrice(), 
+					nextItem.getMinTradedPrice(), 
+					nextItem.getAveragedPrice(), 
+					0.0);						
+		}
+		
+	}
 }
