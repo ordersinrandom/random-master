@@ -75,7 +75,7 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * @param minTradedPrice The min traded price computed based on the iterable.
 	 * @param averagedPrice The averaged price computed based on the iterable.
 	 * @param tradedVolume The traded volume computed based on the iterable.
-	 * @param transactionsCount The transactions count computed based on the iterable.
+	 * 
 	 * @return A new instance of ConsolidatedTradeRecordsData
 	 */
 	protected abstract T1 createConsolidatedData(
