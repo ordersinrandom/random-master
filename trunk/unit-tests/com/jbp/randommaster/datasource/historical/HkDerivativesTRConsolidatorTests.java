@@ -3,6 +3,7 @@ package com.jbp.randommaster.datasource.historical;
 import java.util.LinkedList;
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 import org.joda.time.YearMonth;
 import org.junit.Assert;
 import org.junit.Test;
@@ -97,5 +98,40 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 	}
 	
 
+
+	@Test
+	public void testConsolidations1() {
 		
+		
+		LinkedList<HkDerivativesTR> inputData=new LinkedList<HkDerivativesTR>();
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,154901,21662,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155201,21663,2,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155301,21659,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155701,21670,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155901,21672,1,001"));
+		
+		
+		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
+		
+		LocalDateTime start = new LocalDateTime(2012,10,31,15, 45, 0);
+		LocalDateTime end = new LocalDateTime(2012,10,31,16, 00, 0);
+		Period interval = new Period(0, 5, 0, 0);
+		Iterable<HkDerivativesConsolidatedData> result=con.consolidateByTimeIntervals(start, end, interval, inputData);
+		
+		for (HkDerivativesConsolidatedData d : result) {
+			System.out.println(d);
+		}
+		
+		/*
+		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, inputData);
+
+		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
+															FuturesOptions.FUTURES, CallPut.NA,
+															21664.0, 21664.0, 21662.0, 
+															21663.0, 4.0);
+		
+		Assert.assertEquals("Result object not matching expected", expected, result);*/
+		
+	}	
+	
 }
