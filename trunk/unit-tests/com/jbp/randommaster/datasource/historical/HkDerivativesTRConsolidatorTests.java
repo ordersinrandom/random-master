@@ -18,12 +18,10 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 	public void testEmptyIterableCase() {
 		LinkedList<HkDerivativesTR> original=new LinkedList<HkDerivativesTR>();
 		LocalDateTime tradeDateTime=new LocalDateTime(2012,11,30, 16,13, 1);
-		//HkDerivativesConsolidatedData result=HkDerivativesConsolidatedData.consolidate(tradeDateTime, tuples);
 		
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, original);
 		
-		//HkDerivativesConsolidatedData result
 		
 		Assert.assertNull("Result is not null even pass in tuples are empty", result);
 	}
@@ -39,7 +37,6 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, tuples);
 		
-		//HkDerivativesConsolidatedData result=HkDerivativesConsolidatedData.consolidate(tradeDateTime, tuples);
 		
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 20000.0, 
 															FuturesOptions.OPTIONS, CallPut.CALL,
@@ -63,8 +60,6 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 		HkDerivativesConsolidatedData result = con.consolidate(tradeDateTime, tuples);
 
-		//HkDerivativesConsolidatedData result=HkDerivativesConsolidatedData.consolidate(tradeDateTime, tuples);
-		
 		HkDerivativesConsolidatedData expected= new HkDerivativesConsolidatedData(tradeDateTime, new YearMonth(2012,11), "MHI", 0.0, 
 															FuturesOptions.FUTURES, CallPut.NA,
 															21664.0, 21664.0, 21662.0, 
@@ -90,7 +85,6 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 			HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
 			con.consolidate(tradeDateTime, tuples);
 			
-			//HkDerivativesConsolidatedData.consolidate(tradeDateTime, tuples);
 			Assert.fail("No exception thrown even the input underlying is mismatched");
 			
 		} catch (Exception e1) {
