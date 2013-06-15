@@ -61,6 +61,11 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 				T2 n = inputIt.next();
 				if (n.getTradeTimestamp().compareTo(nextStart)<0)
 					continue; // drop it if the data is before next start (this should happen only on first round)
+				else if (n.getTradeTimestamp().compareTo(nextEnd)==0 && nextEnd.compareTo(end)==0) {
+					// special handling for closing.
+					// if it is exactly stepped on current end time we will include them both in the current and next buffer
+					currentBuffer.add(n);
+				}
 				else if (n.getTradeTimestamp().compareTo(nextEnd)<0)
 					currentBuffer.add(n);
 				else {

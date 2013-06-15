@@ -106,8 +106,10 @@ public class HkDerivativesTRConsolidatorTests extends TestCase {
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,154901,21662,1,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155201,21663,2,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155301,21659,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155500,21640,3,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155701,21670,1,001"));
 		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,155901,21672,1,001"));
+		inputData.add(HkDerivativesTR.parse("MHI,F,1211,0,,20121031,160000,21699,5,001"));
 		
 		
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
