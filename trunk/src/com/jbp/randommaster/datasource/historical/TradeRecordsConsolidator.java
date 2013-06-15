@@ -1,6 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 
 
 /**
@@ -13,6 +14,22 @@ import org.joda.time.LocalDateTime;
  */
 public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecordsData, T2 extends TradeRecordData> {
 
+	/**
+	 * Consolidate the given input trade records by splitting the start to end time by a given interval.
+
+	 * @param start The start time of the consolidation.
+	 * @param end The end time of the consolidation.
+	 * @param interval The interval of each consolidation.
+	 * @param input The original input data.
+	 * 
+	 * @return An iterable of ConsolidatedTradeRecordsData splitted by time interval.
+	 */
+	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Period interval, Iterable<T2> input) {
+		// TODO: not yet implemented.
+		return null;
+	}
+	
+	
 	/**
 	 * Consolidate the given iterable of TradeRecordData, and return a ConsolidatedTradeRecordsData.
 	 * 
