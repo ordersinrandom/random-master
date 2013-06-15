@@ -46,14 +46,16 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 		
 		LocalDateTime nextStart = start;
 		while (nextStart.compareTo(end) < 0) {
-			LocalDateTime nextEnd = start.plus(interval);
+			LocalDateTime nextEnd = nextStart.plus(interval);
 			
 			if (nextEnd.compareTo(end) > 0) {
 				nextEnd = end;
 			}
 
-			if (!nextBuffer.isEmpty()) 
+			if (!nextBuffer.isEmpty()) {
 				currentBuffer.addAll(nextBuffer);
+				nextBuffer.clear();
+			}
 			
 			while (inputIt.hasNext()) {
 				T2 n = inputIt.next();
@@ -70,8 +72,13 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 
 			T1 currentIntervalResult = null;
 			if (currentBuffer.isEmpty()) {
-				// extrapolate a result if current interval has no data.
-				currentIntervalResult = extrapolate(nextEnd, result);
+				try {
+					// extrapolate a result if current interval has no data.
+					currentIntervalResult = extrapolate(nextEnd, result);
+				} catch (Exception e1) {
+					// if that's an exception (i.e. unable to extrapolate)
+					// we just ignore so that the currentIntervalResult is left as null
+				}
 			} else {
 				// now current buffer stores the current interval data
 				// and next buffer potentially stores the next interval data.
@@ -80,12 +87,19 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 				currentBuffer.clear();
 			}
 			
-			result.add(currentIntervalResult);
+			// if there is a result from this interval
+			if (currentIntervalResult!=null)
+				result.add(currentIntervalResult);
+			
+			// potentially currentIntervalResult can be null if at start early intervals and there are no previous data.
+			// we would need to backward extrapolate the data if we want a proper "plot"
 			
 			nextStart = nextEnd;
 		}
 		
 		// TODO: handle the remaining data in the nextBuffer ???
+		
+		// TODO: handle backward extrapolating the early intervals data.
 		
 
 		return result;
