@@ -23,8 +23,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
+import org.jfree.data.time.Second;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 import org.joda.time.LocalDate;
@@ -38,6 +38,8 @@ import com.jbp.randommaster.datasource.historical.HkDerivativesConsolidatedData;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRConsolidator;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRHDF5Source;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter.TradeType;
 import com.jbp.randommaster.gui.common.date.calendar.JDateChooser;
 
 public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionListener {
@@ -68,10 +70,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		
 		JPanel bottomPanel=new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
-		JButton chooseFileBut=new JButton("Choose HDF5 File");
-		chooseFileBut.setActionCommand("ChooseFile");
-		chooseFileBut.addActionListener(this);
-		bottomPanel.add(chooseFileBut);
+
 		
 		tradingDateChooser=new JDateChooser(false);
 		bottomPanel.add(new JLabel("Trading Date:"));
@@ -89,8 +88,8 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		bottomPanel.add(expiryYearComboBox);
 		bottomPanel.add(expiryMonthComboBox);
 		
-		observationFrequencyField=new JTextField("5", 3); // 5 min by default
-		bottomPanel.add(new JLabel("Freq (Min):"));
+		observationFrequencyField=new JTextField("180", 5); // 180 Seconds by default
+		bottomPanel.add(new JLabel("Freq (Seconds):"));
 		bottomPanel.add(observationFrequencyField);
 
 		JButton loadAndPlotBut=new JButton("Load & Plot");
@@ -99,6 +98,12 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		bottomPanel.add(loadAndPlotBut);
 		
 		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		
+		JButton chooseFileBut=new JButton("Choose HDF5 File");
+		chooseFileBut.setActionCommand("ChooseFile");
+		chooseFileBut.addActionListener(this);
+		topPanel.add(chooseFileBut);
+		
 		chosenFilePathField=new JTextField("", 50);
 		chosenFilePathField.setEditable(false);
 		topPanel.add(new JLabel("Target File:"));
@@ -140,14 +145,6 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 
 	private void loadAndPlot() {
 		
-		/*
-		 * 		HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(
-				inputHDF5Filename,
-				new LocalDate(2012,10,9), 
-				"Futures", 
-				"HSI");
-		 */
-		
 		String inputHDF5Filename = chosenFilePathField.getText();
 		LocalDate tradingDate=LocalDate.fromDateFields(tradingDateChooser.getDate());
 		String futuresOrOptions = futuresOrOptionsComboBox.getItemAt(futuresOrOptionsComboBox.getSelectedIndex());
@@ -158,18 +155,21 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 					Integer.valueOf(expiryMonthComboBox.getItemAt(expiryMonthComboBox.getSelectedIndex())).intValue()
 				);
 		
-		int frequencyMin = Integer.valueOf(observationFrequencyField.getText()).intValue();
+		int frequencySeconds = Integer.valueOf(observationFrequencyField.getText()).intValue();
 		
-		
-		ExpiryMonthFilter<HkDerivativesTR> filter = new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth);
-		
+		// raw data source
 		HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
 				inputHDF5Filename,tradingDate, futuresOrOptions, underlying);
 		
 		// filtered by expiry month
-		FilteredHistoricalDataSource<HkDerivativesTR> filteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
-				originalSrc, filter);
-		
+		FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
+				new FilteredHistoricalDataSource<HkDerivativesTR>(
+				originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth));
+		// filtered by trade type (Normal)
+		FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
+				new FilteredHistoricalDataSource<HkDerivativesTR>(
+				expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));
+				
 		
 		
 		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
@@ -178,12 +178,12 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		LocalDateTime end = new LocalDateTime(
 				tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
 
-		Period interval = new Period(0, frequencyMin, 0, 0);
+		Period interval = new Period(0, 0, frequencySeconds, 0);
 		Iterable<HkDerivativesConsolidatedData> consolidatedResult=con.consolidateByTimeIntervals(
 				start, end, interval, filteredSource.getData());		
 
 		
-		String chartTitle = frequencyMin+" min consolidated "+underlying+" "+futuresOrOptions+" Ticks";
+		String chartTitle = frequencySeconds+" Seconds consolidated "+underlying+" "+futuresOrOptions+" Ticks";
 		//XYSeries plotSeries=new XYSeries(chartTitle);
 		OHLCSeries plotSeries = new OHLCSeries(chartTitle);
 
@@ -192,7 +192,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 			//double val = data.getLastTradedPrice();
 			//plotSeries.add(t, val);
 			plotSeries.add(
-					RegularTimePeriod.createInstance(Minute.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+					RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
 					data.getFirstTradedPrice(),
 					data.getMaxTradedPrice(),
 					data.getMinTradedPrice(),

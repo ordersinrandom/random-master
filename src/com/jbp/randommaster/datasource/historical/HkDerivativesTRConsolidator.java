@@ -77,9 +77,9 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 					lastItem.getCallPut(), 
 					lastItem.getLastTradedPrice(), // first traded price as last traded price if we are extrapolating.
 					lastItem.getLastTradedPrice(), 
-					lastItem.getMaxTradedPrice(), 
-					lastItem.getMinTradedPrice(), 
-					lastItem.getAveragedPrice(), 
+					lastItem.getLastTradedPrice(), 
+					lastItem.getLastTradedPrice(), 
+					lastItem.getLastTradedPrice(), 
 					0.0);			
 		}
 		
@@ -103,9 +103,9 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 					nextItem.getCallPut(), 
 					nextItem.getFirstTradedPrice(),
 					nextItem.getFirstTradedPrice(), // last traded price as first traded price if we are extrapolating backward 
-					nextItem.getMaxTradedPrice(), 
-					nextItem.getMinTradedPrice(), 
-					nextItem.getAveragedPrice(), 
+					nextItem.getFirstTradedPrice(), 
+					nextItem.getFirstTradedPrice(), 
+					nextItem.getFirstTradedPrice(), 
 					0.0);						
 		}
 		
