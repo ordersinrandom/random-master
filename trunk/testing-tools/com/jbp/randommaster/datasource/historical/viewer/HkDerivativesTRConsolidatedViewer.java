@@ -13,8 +13,10 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -56,6 +58,8 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 
 	private JTextField chosenFilePathField;
 	
+	private JButton loadAndPlotBut;
+	
 	private ChartPanel chartPanel;
 	
 	public HkDerivativesTRConsolidatedViewer() {
@@ -92,7 +96,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		bottomPanel.add(new JLabel("Freq (Seconds):"));
 		bottomPanel.add(observationFrequencyField);
 
-		JButton loadAndPlotBut=new JButton("Load & Plot");
+		loadAndPlotBut=new JButton("Load & Plot");
 		loadAndPlotBut.setActionCommand("LoadAndPlot");
 		loadAndPlotBut.addActionListener(this);
 		bottomPanel.add(loadAndPlotBut);
@@ -124,7 +128,58 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 			chooseHdf5File();
 		}
 		else if ("LoadAndPlot".equals(cmd)) {
-			loadAndPlot();
+			
+			// disable the button
+			loadAndPlotBut.setEnabled(false);
+			
+			Thread t=new Thread(new Runnable() {
+				public void run() {
+
+					try {
+						// create the chart object
+						final JFreeChart chart=loadAndPlot();
+						
+						// update the chart panel
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								if (chartPanel==null) {
+									chartPanel = new ChartPanel(chart);
+									getContentPane().add(chartPanel, BorderLayout.CENTER);
+									revalidate();
+								}
+								else {
+									chartPanel.setChart(chart);
+								}
+								
+							}
+						});
+					} catch (final Exception e1) {
+						try {
+							SwingUtilities.invokeAndWait(new Runnable() {
+								public void run() {
+									JOptionPane.showMessageDialog(HkDerivativesTRConsolidatedViewer.this, 
+											"Unable to plot:\n"+e1.getMessage(), 
+											"Error", JOptionPane.ERROR_MESSAGE);
+								}
+							});
+						} catch (Exception e2) {
+							// ignore
+						}
+					} finally {
+						// enable the button.
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								loadAndPlotBut.setEnabled(true);
+							}
+						});
+					}
+					
+				}
+			});
+			
+			t.setDaemon(true);
+			t.start();
+			
 		}
 		
 	}
@@ -143,7 +198,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 
 	}	
 
-	private void loadAndPlot() {
+	private JFreeChart loadAndPlot() {
 		
 		String inputHDF5Filename = chosenFilePathField.getText();
 		LocalDate tradingDate=LocalDate.fromDateFields(tradingDateChooser.getDate());
@@ -211,16 +266,16 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 				true, true, false);
 		*/
 		
-		//JFreeChart chart = ChartFactory.createHighLowChart(chartTitle, "Time", "Price", dataset, true);
-		JFreeChart chart = ChartFactory.createCandlestickChart(chartTitle, "Time", "Traded Price", dataset, true);
+		JFreeChart chart = ChartFactory.createHighLowChart(chartTitle, "Time", "Traded Price", dataset, true);
+		//JFreeChart chart = ChartFactory.createCandlestickChart(chartTitle, "Time", "Traded Price", dataset, true);
 		
-		chart.getPlot().setBackgroundPaint(new GradientPaint(1, 1, Color.yellow.darker().darker(), 
+		chart.getPlot().setBackgroundPaint(new GradientPaint(1, 1, Color.blue.darker().darker().darker(), 
 				1500, 1500, Color.darkGray));
 		
 		XYPlot plot = (XYPlot) chart.getPlot();
 		((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(false);
 		
-		
+		/*
 		if (chartPanel==null) {
 			chartPanel = new ChartPanel(chart);
 			getContentPane().add(chartPanel, BorderLayout.CENTER);
@@ -228,7 +283,9 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		}
 		else {
 			chartPanel.setChart(chart);
-		}
+		}*/
+		
+		return chart;
 		
 		
 	}
@@ -241,6 +298,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		HkDerivativesTRConsolidatedViewer v=new HkDerivativesTRConsolidatedViewer();
 		v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		v.pack();
+		v.setSize(1000,600);
 		v.setVisible(true);
 
 	}
