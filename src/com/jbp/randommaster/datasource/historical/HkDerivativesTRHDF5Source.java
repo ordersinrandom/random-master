@@ -100,6 +100,9 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 				// read the dataset
 				HObject dataset = h5ReadOnlyFile.get(getHDF5LoadPath());
 
+				// the buffer to store the data from the compound ds
+				List<HkDerivativesTR> dataBuf = new LinkedList<HkDerivativesTR>();
+				
 				if (dataset instanceof H5CompoundDS) {
 					H5CompoundDS compDS = (H5CompoundDS) dataset;
 
@@ -121,7 +124,7 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 						int totalLength = classCode.length;
 
-						List<HkDerivativesTR> dataBuf = new LinkedList<HkDerivativesTR>();
+						
 
 						for (int currentIndex = 0; currentIndex < totalLength; currentIndex++) {
 
@@ -143,10 +146,13 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 						}
 
-						dataBufIt = dataBuf.iterator();
 
 					}
 				}
+
+				// in any case we need to create an iterator to avoid null pointer exception.
+				dataBufIt = dataBuf.iterator();
+
 
 			} catch (Exception e1) {
 				throw new HistoricalDataSourceException("Unable to open HDF5 File: " + getHDF5Filename(), e1);
@@ -170,15 +176,12 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 		@Override
 		public boolean hasNext() {
-
 			return dataBufIt.hasNext();
 		}
 
 		@Override
 		public HkDerivativesTR next() {
-
 			return dataBufIt.next();
-
 		}
 
 		@Override
