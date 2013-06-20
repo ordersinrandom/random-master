@@ -227,21 +227,25 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 				
 		
 		
-		HkDerivativesTRConsolidator con = new HkDerivativesTRConsolidator();
+		HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
 		LocalDateTime start = new LocalDateTime(
 				tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 9, 30, 0);
 		LocalDateTime end = new LocalDateTime(
 				tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
 
+		// we consolidated by number of seconds.
 		Period interval = new Period(0, 0, frequencySeconds, 0);
-		Iterable<HkDerivativesConsolidatedData> consolidatedResult=con.consolidateByTimeIntervals(
+		Iterable<HkDerivativesConsolidatedData> consolidatedResult=consolidator.consolidateByTimeIntervals(
 				start, end, interval, filteredSource.getData());		
 
 		
 		String chartTitle = frequencySeconds+" Seconds consolidated "+underlying+" "+futuresOrOptions+" Ticks";
+		
+		// create the plot series
 		//XYSeries plotSeries=new XYSeries(chartTitle);
 		OHLCSeries plotSeries = new OHLCSeries(chartTitle);
 
+		// iterate through the data and add to the plot.
 		for (HkDerivativesConsolidatedData data : consolidatedResult) {
 			//double t = data.getTimestamp().getHourOfDay()*100.0 + data.getTimestamp().getMinuteOfHour();
 			//double val = data.getLastTradedPrice();
