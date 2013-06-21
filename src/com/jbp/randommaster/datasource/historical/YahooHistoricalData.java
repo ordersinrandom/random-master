@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormatter;
  * Encapsulate the Yahoo historical data (open, high, low, close, volume, adjusted close).
  *
  */
-public class YahooHistoricalData implements HistoricalData {
+public class YahooHistoricalData implements ConsolidatedTradeRecordsData {
 
 	private static final long serialVersionUID = 1643322330608553665L;
 	
@@ -150,6 +150,60 @@ public class YahooHistoricalData implements HistoricalData {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getFirstTradedPrice() {
+		return getOpen();
+	}
+
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getLastTradedPrice() {
+		return getClose();
+	}
+
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getTradedVolume() {
+		return getVolume();
+	}
+
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getMaxTradedPrice() {
+		return getHigh();
+	}
+
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getMinTradedPrice() {
+		return getLow();
+	}
+
+
+	/**
+	 * Implementation of the ConsolidatedTradeRecordsData source.
+	 */
+	@Override
+	public double getAveragedPrice() {
+		// approximation
+		return (getHigh()+getLow())/2.0;
 	}	
 	
 }
