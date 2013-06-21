@@ -60,11 +60,14 @@ public class HkDerivativesTRCointegratedSource extends CointegratedTRSource<HkDe
 			// strike is supposed to be the same
 			strikePrice = d.getStrikePrice();
 			
-			
 			firstTradedPrice += (weight*d.getFirstTradedPrice());
 			lastTradedPrice += (weight*d.getLastTradedPrice());
-			maxTradedPrice += (weight*d.getMaxTradedPrice());
-			minTradedPrice += (weight*d.getMinTradedPrice());
+			
+			// if weight is positive, we use the original, or we use the opposite otherwise.
+			maxTradedPrice += (weight>=0? weight*d.getMaxTradedPrice() : weight * d.getMinTradedPrice());
+			minTradedPrice += (weight>=0? weight*d.getMinTradedPrice() : weight * d.getMaxTradedPrice());
+			
+			// these are just approximations.
 			averagedPrice += (weight*d.getAveragedPrice());
 			tradedVolume += (weight*d.getTradedVolume());
 			
