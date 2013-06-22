@@ -107,10 +107,7 @@ public class HkDerivativesTRFile2HDF5 {
 						log.info("HDF5 File ("+outputHDF5Filename+")data written and closed");
 					} catch (FileNotFoundException e1) {
 						log.warn("unable to find input file: "+inputFile.getAbsolutePath()+". HDF5 file not generated");
-					} catch (IOException e2) {
-						log.warn("caught IOException: "+e2);
-					}
-					
+					} 
 				}
 			}
 			
