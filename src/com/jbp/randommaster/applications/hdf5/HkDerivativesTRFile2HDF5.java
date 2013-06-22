@@ -92,9 +92,8 @@ public class HkDerivativesTRFile2HDF5 {
 					
 					File inputFile=en.getValue();
 					
-					try {
-						// now read the source file
-						HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(inputFile.getAbsolutePath());
+					// now read the source file
+					try (HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(inputFile.getAbsolutePath())) {
 
 						log.info("Loading data from "+inputFile.getAbsolutePath());
 						
@@ -108,6 +107,8 @@ public class HkDerivativesTRFile2HDF5 {
 						log.info("HDF5 File ("+outputHDF5Filename+")data written and closed");
 					} catch (FileNotFoundException e1) {
 						log.warn("unable to find input file: "+inputFile.getAbsolutePath()+". HDF5 file not generated");
+					} catch (IOException e2) {
+						log.warn("caught IOException: "+e2);
 					}
 					
 				}
