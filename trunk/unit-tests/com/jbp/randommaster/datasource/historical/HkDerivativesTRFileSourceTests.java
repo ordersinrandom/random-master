@@ -26,6 +26,7 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 		File tempFile=null;
 		try {
 			tempFile=File.createTempFile("HkexTRFileSourceTests", null);
+			tempFile.deleteOnExit();
 			FileWriter fw=new FileWriter(tempFile);
 			fw.write(buf.toString());
 			fw.close();
@@ -83,15 +84,7 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 			
 		} catch (Exception e1) {
 			Assert.fail("unable to getData(), exception msg = "+e1.getMessage());
-		} finally {
-			if (tempFile!=null) {
-				try {
-					tempFile.delete();
-				} catch (Exception e1) {
-					Assert.fail("unable to delete temp file during the unit test: "+e1.getMessage());
-				}
-			}
-		}
+		} 
 		
 	}
 	
