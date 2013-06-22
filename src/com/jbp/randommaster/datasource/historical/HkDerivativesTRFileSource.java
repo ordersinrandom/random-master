@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -19,7 +16,7 @@ import org.joda.time.LocalDateTime;
  * Encapsulate the trade record data loading from a single HKEX TR file.
  *
  */
-public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivativesTR>, AutoCloseable {
+public class HkDerivativesTRFileSource extends AutoCloseableHistoricalDataSource<HkDerivativesTR> {
 
 	static Logger log=Logger.getLogger(HkDerivativesTRFileSource.class);	
 	
@@ -28,8 +25,6 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	private String classCode;
 	private String futuresOrOptions;
 	
-	// holding list of iterators to ensure it will be cleaned up finally.
-	private List<InputFileIterator> finalCleanUpList;
 	
 	/**
 	 * Create an instance of HkexTRFileSource.
@@ -48,7 +43,6 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		this.endRange=endRange;
 		this.classCode=classCode;
 		
-		finalCleanUpList=new ArrayList<InputFileIterator>(10);
 	}
 	
 
@@ -76,30 +70,13 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		this(inputFile, null, null, classCode, futuresOrOptions);
 	}
 	
-
-	
 	@Override
-	public Iterable<HkDerivativesTR> getData() {
-		
-		return new Iterable<HkDerivativesTR>() {
-
-			@Override
-			public Iterator<HkDerivativesTR> iterator() {
-				try {
-					// return the iterator that truly runs through the input file line by line.
-					InputFileIterator it= new InputFileIterator();
-					
-					// save down the iterator to ensure it will be in the final clean up
-					finalCleanUpList.add(it);
-					
-					return it;
-					
-				} catch (Exception e1) {
-					throw new HistoricalDataSourceException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
-				}
-			}
-		};
-		
+	protected AutoCloseableIterator<HkDerivativesTR> getDataIterator() {
+		try {
+			return new InputFileIterator();
+		} catch (FileNotFoundException e1) {
+			throw new HistoricalDataSourceException("Input file not found", e1);
+		}
 	}
 
 	public LocalDateTime getStartRange() {
@@ -119,33 +96,12 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	}
 	
 	
-	/**
-	 * Remove the iterator from final clean up list.
-	 */
-	private void disposeIterator(InputFileIterator it) {
-		finalCleanUpList.remove(it);
-	}
-
-	@Override
-	public void close() throws IOException {
-		for (InputFileIterator it : finalCleanUpList) {
-			it.closeFileReader();
-		}
-		finalCleanUpList.clear();
-	}
-	
-	/**
-	 * Helper function to unit test to ensure the clean up is working fine.
-	 */
-	public boolean requiresCleanUp() {
-		return !finalCleanUpList.isEmpty();
-	}
 	
 	/**
 	 * Internal helper iterator class that actually carries out the file reading and parsing.
 	 *
 	 */
-	private class InputFileIterator implements Iterator<HkDerivativesTR> {
+	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
 
 		private FileReader fileReader;
 		private BufferedReader bufReader;
@@ -192,9 +148,21 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRFileSource");
 		}
 		
-		public void closeFileReader() throws IOException {
-			fileReader.close();
+		@Override
+		public void close() {
+			try {
+				fileReader.close();
+			} catch (Exception e1) {
+				throw new HistoricalDataSourceException("Unable to close the input file reader", e1);
+			} finally {
+				fileReader=null;
+			}
 		}
+		
+		@Override
+		public boolean isClosed() {
+			return fileReader==null;
+		}				
 		
 		/**
 		 * Helper function to fetch one line from the file.
@@ -209,12 +177,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 				} finally {
 					// close if nothing can be read when we are required to read something.
 					if (oneLine==null) {
-						try {
-							closeFileReader();
-						} finally {
-							// call the parent class to remove this iterator from final cleanup.
-							disposeIterator(this);
-						}
+						close();
 					}
 				}
 			}
@@ -268,8 +231,12 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 				else return null;
 			}
 			else return null;
-		}		
+		}
+
+
 	}
+
+
 
 
 
