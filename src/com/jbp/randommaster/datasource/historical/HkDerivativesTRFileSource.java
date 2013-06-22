@@ -29,7 +29,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	private String futuresOrOptions;
 	
 	// holding list of iterators to ensure it will be cleaned up finally.
-	private List<InputFileIterator> finalCleanupList;
+	private List<InputFileIterator> finalCleanUpList;
 	
 	/**
 	 * Create an instance of HkexTRFileSource.
@@ -48,7 +48,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		this.endRange=endRange;
 		this.classCode=classCode;
 		
-		finalCleanupList=new ArrayList<InputFileIterator>(10);
+		finalCleanUpList=new ArrayList<InputFileIterator>(10);
 	}
 	
 
@@ -90,7 +90,7 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 					InputFileIterator it= new InputFileIterator();
 					
 					// save down the iterator to ensure it will be in the final clean up
-					finalCleanupList.add(it);
+					finalCleanUpList.add(it);
 					
 					return it;
 					
@@ -123,16 +123,23 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	 * Remove the iterator from final clean up list.
 	 */
 	private void disposeIterator(InputFileIterator it) {
-		finalCleanupList.remove(it);
+		finalCleanUpList.remove(it);
 	}
 
 	@Override
 	public void close() throws IOException {
-		for (InputFileIterator it : finalCleanupList) {
+		for (InputFileIterator it : finalCleanUpList) {
 			it.closeFileReader();
 		}
-		finalCleanupList.clear();
-	}	
+		finalCleanUpList.clear();
+	}
+	
+	/**
+	 * Helper function to unit test to ensure the clean up is working fine.
+	 */
+	public boolean requiresCleanUp() {
+		return !finalCleanUpList.isEmpty();
+	}
 	
 	/**
 	 * Internal helper iterator class that actually carries out the file reading and parsing.
