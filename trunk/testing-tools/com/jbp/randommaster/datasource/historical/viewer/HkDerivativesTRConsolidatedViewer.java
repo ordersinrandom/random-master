@@ -77,8 +77,6 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		
 		JPanel bottomPanel=new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
-
-		
 		tradingDateChooser=new JDateChooser(false);
 		bottomPanel.add(new JLabel("Trading Date:"));
 		bottomPanel.add(tradingDateChooser);

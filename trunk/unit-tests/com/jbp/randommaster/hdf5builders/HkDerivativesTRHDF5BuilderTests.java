@@ -88,21 +88,22 @@ public class HkDerivativesTRHDF5BuilderTests extends TestCase {
 		
 		String tempFilename = tempUnzippedFile.getAbsolutePath();
 		
-		// now read the source file
-		HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(tempFilename);
 		
-		Iterable<HkDerivativesTR> loadedData=src.getData();
 		
-		HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(testingOutputH5File);
-		builder.createOrOpen();
-		builder.createCompoundDatasetsForTRData(loadedData);
-		builder.closeFile();
-			
-
 		
 		// read the result and check it
 		H5File h5ReadOnlyFile=null;
-		try {
+		try (HkDerivativesTRFileSource src = new HkDerivativesTRFileSource(tempFilename)) {
+
+			// now read the source file
+			Iterable<HkDerivativesTR> loadedData=src.getData();
+			
+			HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(testingOutputH5File);
+			builder.createOrOpen();
+			builder.createCompoundDatasetsForTRData(loadedData);
+			builder.closeFile();
+
+			
 			FileFormat format=FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
 			h5ReadOnlyFile=(H5File) format.createInstance(testingOutputH5File, FileFormat.READ);
 			

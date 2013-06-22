@@ -32,13 +32,14 @@ public class HkDerivativesTRFileSourceTests extends TestCase {
 			
 			String tempFilename=tempFile.getAbsolutePath();
 			
-			HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFilename);
-			
-			Iterable<HkDerivativesTR> data=src.getData();
-			
 			List<HkDerivativesTR> r = new LinkedList<HkDerivativesTR>();
-			for (HkDerivativesTR d : data)
-				r.add(d);
+
+			try (HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFilename)) {
+				Iterable<HkDerivativesTR> data=src.getData();
+				for (HkDerivativesTR d : data)
+					r.add(d);
+			}
+			
 			Assert.assertEquals("Not exactly 3 items", 3, r.size());
 
 			HkDerivativesTR i1=r.get(0);

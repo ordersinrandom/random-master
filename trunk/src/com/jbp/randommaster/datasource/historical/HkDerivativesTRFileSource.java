@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -17,7 +19,7 @@ import org.joda.time.LocalDateTime;
  * Encapsulate the trade record data loading from a single HKEX TR file.
  *
  */
-public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivativesTR> {
+public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivativesTR>, AutoCloseable {
 
 	static Logger log=Logger.getLogger(HkDerivativesTRFileSource.class);	
 	
@@ -25,6 +27,9 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	private LocalDateTime startRange, endRange;
 	private String classCode;
 	private String futuresOrOptions;
+	
+	// holding list of iterators to ensure it will be cleaned up finally.
+	private List<InputFileIterator> finalCleanupList;
 	
 	/**
 	 * Create an instance of HkexTRFileSource.
@@ -42,6 +47,8 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 		this.startRange=startRange;
 		this.endRange=endRange;
 		this.classCode=classCode;
+		
+		finalCleanupList=new ArrayList<InputFileIterator>(10);
 	}
 	
 
@@ -80,7 +87,13 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 			public Iterator<HkDerivativesTR> iterator() {
 				try {
 					// return the iterator that truly runs through the input file line by line.
-					return new InputFileIterator();
+					InputFileIterator it= new InputFileIterator();
+					
+					// save down the iterator to ensure it will be in the final clean up
+					finalCleanupList.add(it);
+					
+					return it;
+					
 				} catch (Exception e1) {
 					throw new HistoricalDataSourceException("Unable to create iterator for getData() call in HkexTRFileSource("+inputFile+")", e1);
 				}
@@ -104,7 +117,22 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 	public String getFuturesOrOptions() {
 		return futuresOrOptions;
 	}
+	
+	
+	/**
+	 * Remove the iterator from final clean up list.
+	 */
+	private void disposeIterator(InputFileIterator it) {
+		finalCleanupList.remove(it);
+	}
 
+	@Override
+	public void close() throws IOException {
+		for (InputFileIterator it : finalCleanupList) {
+			it.closeFileReader();
+		}
+		finalCleanupList.clear();
+	}	
 	
 	/**
 	 * Internal helper iterator class that actually carries out the file reading and parsing.
@@ -157,6 +185,10 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRFileSource");
 		}
 		
+		public void closeFileReader() throws IOException {
+			fileReader.close();
+		}
+		
 		/**
 		 * Helper function to fetch one line from the file.
 		 */
@@ -171,31 +203,17 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 					// close if nothing can be read when we are required to read something.
 					if (oneLine==null) {
 						try {
-							fileReader.close();
-						} catch (Exception e1) {
-							log.warn("Unable to close the FileReader for "+inputFile, e1);
+							closeFileReader();
+						} finally {
+							// call the parent class to remove this iterator from final cleanup.
+							disposeIterator(this);
 						}
 					}
 				}
 			}
 		}
 		
-		/**
-		 * Although not guaranteed we still better to have this in case some code break out from a loop of this iterator.
-		 */
-		protected void finalize() throws Throwable {
-			if (fileReader!=null) {
-				try {
-					fileReader.close();
-				} catch (Exception e1) {
-					// ignore.
-				} finally {
-					super.finalize();
-				}
-			}
-		}
-		
-		
+
 		/**
 		 * Parse one row of input file.
 		 * @param l One line in the input file
@@ -245,5 +263,10 @@ public class HkDerivativesTRFileSource implements HistoricalDataSource<HkDerivat
 			else return null;
 		}		
 	}
+
+
+
+
+
 		
 }
