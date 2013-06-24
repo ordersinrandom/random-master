@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.joda.time.LocalDate;
+import org.joda.time.YearMonth;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -11,6 +13,107 @@ import junit.framework.TestCase;
 
 public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 
+	@Test
+	public void testFilteredHistoricalDataSourceCleanUp() {
+		
+		String sp = System.getProperty("file.separator");
+		String inputHDF5Filename = System.getProperty("user.dir")+sp+"testing-data"+sp+"201210_01_TR_Parsed.h5";
+		
+		
+		// try full looping
+		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, new LocalDate(2012,10,9), "Futures", "HSI");
+				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
+				) {
+			int rowCount = 0;
+			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
+				if (rowCount>0 && rowCount%10000==0) {
+					Assert.assertEquals("Inside loop not requires cleanup. FilteredHistoricalDataSource is in error state.", true, src.requiresCleanUp());
+					Assert.assertEquals("Inside loop not requires cleanup. HkDerivativesTRHDF5Source is in error state.", true, originalSrc.requiresCleanUp());
+				}			
+				rowCount++;
+			}
+			
+			Assert.assertEquals("Outside loop requires cleanup. FilteredHistoricalDataSource is in error state.", false, src.requiresCleanUp());
+			Assert.assertEquals("Outside loop requires cleanup. HkDerivativesTRHDF5Source is in error state.", false, originalSrc.requiresCleanUp());
+		}
+		
+		
+		// try breaking loop
+		HkDerivativesTRHDF5Source s1=null;
+		FilteredHistoricalDataSource<HkDerivativesTR> s2=null;
+		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, new LocalDate(2012,10,9), "Futures", "HSI");
+				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
+				) {
+			// save down the final testing pointer.
+			s1=originalSrc;
+			s2=src;
+			
+			int rowCount = 0;
+			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
+				if (rowCount>0 && rowCount%10000==0) {
+					Assert.assertEquals("Inside loop not requires cleanup. FilteredHistoricalDataSource is in error state.", true, src.requiresCleanUp());
+					Assert.assertEquals("Inside loop not requires cleanup. HkDerivativesTRHDF5Source is in error state.", true, originalSrc.requiresCleanUp());
+				}			
+				
+				if (rowCount>15000)
+					break;
+				
+				rowCount++;
+			}
+			
+			Assert.assertEquals("Outside loop not requires cleanup. FilteredHistoricalDataSource is in error state.", true, src.requiresCleanUp());
+			Assert.assertEquals("Outside loop not requires cleanup. HkDerivativesTRHDF5Source is in error state.", true, originalSrc.requiresCleanUp());
+		}
+
+		Assert.assertEquals("Outside try requires cleanup. FilteredHistoricalDataSource is in error state.", false, s2.requiresCleanUp());
+		Assert.assertEquals("Outside try requires cleanup. HkDerivativesTRHDF5Source is in error state.", false, s1.requiresCleanUp());
+		
+		
+	}
+	
+	@Test
+	public void testHkDerivativesTRHDF5SourceCleanUp() {
+		
+		String sp = System.getProperty("file.separator");
+		String inputHDF5Filename = System.getProperty("user.dir")+sp+"testing-data"+sp+"201210_01_TR_Parsed.h5";
+
+		
+		// try normal looping
+		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,new LocalDate(2012,10,9), "Futures", "HSI")) {
+			int rowCount = 0;
+			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
+				if (rowCount>0 && rowCount%10000==0) {
+					Assert.assertEquals("Inside loop not requires cleanup. it is in error state.", true, src.requiresCleanUp());
+				}
+				rowCount++;
+			}
+			Assert.assertEquals("Outside for loop requires cleanup. It is in error state.", false, src.requiresCleanUp());
+		}
+
+		// try breaking 
+		HkDerivativesTRHDF5Source s1=null;
+		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,new LocalDate(2012,10,9), "Futures", "HSI")) {
+			int rowCount = 0;
+			s1=src;
+			
+			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
+				if (rowCount>0 && rowCount%10000==0) {
+					Assert.assertEquals("Inside loop not requires cleanup. it is in error state.", true, src.requiresCleanUp());
+				}
+				
+				// break out from looping
+				if (rowCount>15000)
+					break;
+
+				rowCount++;
+			}
+			Assert.assertEquals("Outside for loop requires cleanup. It is in error state.", true, src.requiresCleanUp());
+		}
+		Assert.assertEquals("Outside try block requires cleanup. It is in error state.", false, s1.requiresCleanUp());
+		
+	}
+	
+	
 	@Test
 	public void testHkDerivativesTRFileSourceCleanUp() throws IOException {
 		StringBuilder buf=new StringBuilder(1000);
@@ -26,11 +129,26 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 		fw.write(buf.toString());
 		fw.close();
 		
-		int breakAtIndex = 3;
-		int currentIndex = 0;
+		
+		// try no breaking from the loop
+		try (HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFile.getAbsolutePath())) {
+			Iterable<HkDerivativesTR> data=src.getData();
+
+			for (@SuppressWarnings("unused") HkDerivativesTR d : data) {
+				Assert.assertEquals("Inside loop not requires cleanup. it is in error state.", true, src.requiresCleanUp());
+				
+			}
+			
+			Assert.assertEquals("No loop breaking but requires cleanup. it is in error state.", false, src.requiresCleanUp());
+		}				
+		
 
 		// try sudden break out from the loop
+		int breakAtIndex = 3;
+		int currentIndex = 0;
+		AutoCloseableHistoricalDataSource<HkDerivativesTR> s1=null;
 		try (AutoCloseableHistoricalDataSource<HkDerivativesTR> src=new HkDerivativesTRFileSource(tempFile.getAbsolutePath())) {
+			s1=src;
 			Iterable<HkDerivativesTR> data=src.getData();
 
 			for (@SuppressWarnings("unused") HkDerivativesTR d : data) {
@@ -45,18 +163,10 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 			
 			Assert.assertEquals("Loop breaking not requires cleanup. it is in error state.", true, src.requiresCleanUp());
 		}
+		Assert.assertEquals("Outside try block requiers cleanup. it is in error state.", false, s1.requiresCleanUp());
 		
-		// try no breaking from the loop
-		try (HkDerivativesTRFileSource src=new HkDerivativesTRFileSource(tempFile.getAbsolutePath())) {
-			Iterable<HkDerivativesTR> data=src.getData();
+		
 
-			for (@SuppressWarnings("unused") HkDerivativesTR d : data) {
-				Assert.assertEquals("Inside loop not requires cleanup. it is in error state.", true, src.requiresCleanUp());
-				
-			}
-			
-			Assert.assertEquals("No loop breaking but requires cleanup. it is in error state.", false, src.requiresCleanUp());
-		}		
 		
 	}	
 	

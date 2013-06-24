@@ -21,7 +21,7 @@ import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
  * Data source to load Hk Derivatives TR data from HDF5.
  *
  */
-public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivativesTR> {
+public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource<HkDerivativesTR> {
 
 	static Logger log = Logger.getLogger(HkDerivativesTRHDF5Source.class);
 
@@ -62,29 +62,19 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 		return instrumentType;
 	}
 
+	/**
+	 * Implementation of AutoCloseableHistoricalDataSource.
+	 */
 	@Override
-	public Iterable<HkDerivativesTR> getData() {
-
-		return new Iterable<HkDerivativesTR>() {
-
-			@Override
-			public Iterator<HkDerivativesTR> iterator() {
-				try {
-					return new InputFileIterator();
-				} catch (Exception e1) {
-					throw new HistoricalDataSourceException(
-							"Unable to create iterator for getData() call in HkDerivativesTRHDF5Source(" + hdf5Filename
-									+ ")", e1);
-				}
-			}
-		};
-
+	protected AutoCloseableIterator<HkDerivativesTR> getDataIterator() {
+		return new InputFileIterator();
 	}
+	
 
 	/**
 	 * Helper class to implement the iterator of the HDF5 data.
 	 */
-	private class InputFileIterator implements Iterator<HkDerivativesTR> {
+	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
 
 		private H5File h5ReadOnlyFile;
 
@@ -93,6 +83,8 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 		@SuppressWarnings("rawtypes")
 		public InputFileIterator() {
 
+			// TODO: change this HDF5 Source to really use iterator pattern.
+			
 			try {
 				FileFormat format = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
 				h5ReadOnlyFile = (H5File) format.createInstance(getHDF5Filename(), FileFormat.READ);
@@ -156,27 +148,17 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 
 			} catch (Exception e1) {
 				throw new HistoricalDataSourceException("Unable to open HDF5 File: " + getHDF5Filename(), e1);
-			} finally {
-				closeHDF5File();
-			}
+			} 
 
-		}
-
-		private void closeHDF5File() {
-			if (h5ReadOnlyFile != null) {
-				try {
-					h5ReadOnlyFile.close();
-				} catch (Exception e2) {
-					log.warn("Unable to close the HDF5 File: " + getHDF5Filename(), e2);
-				} finally {
-					h5ReadOnlyFile = null;
-				}
-			}
 		}
 
 		@Override
 		public boolean hasNext() {
-			return dataBufIt.hasNext();
+			boolean result = dataBufIt.hasNext();
+			// do this to follow the same convention of the looping.
+			if (result==false)
+				close();
+			return result;
 		}
 
 		@Override
@@ -189,19 +171,27 @@ public class HkDerivativesTRHDF5Source implements HistoricalDataSource<HkDerivat
 			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRHDF5Source");
 		}
 
-		/**
-		 * Implement this to "hopefully" handle the case if some code break the iterator from a for loop
-		 */
-		protected void finalize() throws Throwable {
-			try {
-				closeHDF5File();
-			} catch (Exception e1) {
-				// ignore
-			} finally {
-				super.finalize();
-			}
+
+		@Override
+		public boolean isClosed() {
+			return h5ReadOnlyFile==null;
+		}
+
+		@Override
+		public void close() {
+			if (h5ReadOnlyFile != null) {
+				try {
+					h5ReadOnlyFile.close();
+				} catch (Exception e2) {
+					log.warn("Unable to close the HDF5 File: " + getHDF5Filename(), e2);
+				} finally {
+					h5ReadOnlyFile = null;
+				}
+			}			
 		}
 		
 	}
+
+
 
 }

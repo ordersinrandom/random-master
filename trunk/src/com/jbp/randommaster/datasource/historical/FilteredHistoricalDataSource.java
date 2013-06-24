@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @param <T> The HistoricalData type.
  */
-public class FilteredHistoricalDataSource<T extends HistoricalData> implements HistoricalDataSource<T> {
+public class FilteredHistoricalDataSource<T extends HistoricalData> extends AutoCloseableHistoricalDataSource<T>  {
 
 	protected HistoricalDataSource<T> source;
 	protected HistoricalDataFilter<T> filter;
@@ -39,17 +39,16 @@ public class FilteredHistoricalDataSource<T extends HistoricalData> implements H
 		return filter;
 	}
 
-	@Override
-	public Iterable<T> getData() {
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return new FilteredIterator();
-			}
-		};
-	}
 
-	private class FilteredIterator implements Iterator<T> {
+	/**
+	 * Implementation of AutoCloseableHistoricalDataSource.
+	 */
+	@Override
+	protected AutoCloseableIterator<T> getDataIterator() {
+		return new FilteredIterator();
+	}	
+	
+	private class FilteredIterator implements AutoCloseableIterator<T> {
 
 		private Iterator<T> nestedIt;
 		private List<T> buffer; // stores only valid entry (i.e. passed the filter)
@@ -61,6 +60,9 @@ public class FilteredHistoricalDataSource<T extends HistoricalData> implements H
 
 		@Override
 		public boolean hasNext() {
+			if (nestedIt==null)
+				return false;
+			
 			// if there is still a buffered item, we have "next"
 			if (!buffer.isEmpty())
 				return true;
@@ -73,11 +75,18 @@ public class FilteredHistoricalDataSource<T extends HistoricalData> implements H
 					buffer.add(data);
 			}
 
-			return !buffer.isEmpty();
+			boolean result = !buffer.isEmpty();
+			if (!result) 
+				close();
+			
+			return result;
 		}
 
 		@Override
 		public T next() {
+			if (nestedIt==null)
+				return null;
+			
 			if (!buffer.isEmpty())
 				return buffer.remove(0);
 			else
@@ -89,6 +98,28 @@ public class FilteredHistoricalDataSource<T extends HistoricalData> implements H
 			throw new UnsupportedOperationException("remove() is not supported for FilteredHistoricalDataSource");
 		}
 
+		/**
+		 * Implementation of AutoCloseableIterator.
+		 */
+		@Override
+		public boolean isClosed() {
+			return nestedIt==null;
+		}
+
+		/**
+		 * Implementation of AutoCloseableIterator.
+		 */
+		@Override
+		public void close() {
+			if (nestedIt instanceof AutoCloseableIterator<?>) {
+				AutoCloseableIterator<?> i = (AutoCloseableIterator<?>) nestedIt;
+				if (!i.isClosed())
+					i.close();
+			}
+			nestedIt=null;
+		}
+
 	}
+
 
 }
