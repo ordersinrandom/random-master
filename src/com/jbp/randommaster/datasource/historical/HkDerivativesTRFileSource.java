@@ -70,6 +70,9 @@ public class HkDerivativesTRFileSource extends AutoCloseableHistoricalDataSource
 		this(inputFile, null, null, classCode, futuresOrOptions);
 	}
 	
+	/**
+	 * Implementation of AutoCloseableHistoricalDataSource.
+	 */
 	@Override
 	protected AutoCloseableIterator<HkDerivativesTR> getDataIterator() {
 		try {
@@ -148,17 +151,25 @@ public class HkDerivativesTRFileSource extends AutoCloseableHistoricalDataSource
 			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRFileSource");
 		}
 		
+		/**
+		 * Implementation of AutoCloseableIterator
+		 */
 		@Override
 		public void close() {
-			try {
-				fileReader.close();
-			} catch (Exception e1) {
-				throw new HistoricalDataSourceException("Unable to close the input file reader", e1);
-			} finally {
-				fileReader=null;
+			if (fileReader!=null) {
+				try {
+					fileReader.close();
+				} catch (Exception e1) {
+					throw new HistoricalDataSourceException("Unable to close the input file reader", e1);
+				} finally {
+					fileReader=null;
+				}
 			}
 		}
 		
+		/**
+		 * Implementation of AutoCloseableIterator
+		 */
 		@Override
 		public boolean isClosed() {
 			return fileReader==null;
