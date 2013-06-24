@@ -9,6 +9,10 @@ import org.joda.time.YearMonth;
  */
 public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDerivativesConsolidatedData, HkDerivativesTR> {
 
+	/**
+	 * Given a series of HkDerivativesTR data, and superclass computed fields such as first/last/max/min/average/tradedVolume,
+	 * build an HkDerivativesConsolidatedData object.
+	 */
 	@Override
 	protected HkDerivativesConsolidatedData createConsolidatedData(LocalDateTime refTimestamp, Iterable<HkDerivativesTR> original,
 			double firstTradedPrice, double lastTradedPrice, double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume) {
@@ -58,6 +62,9 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 		return result;
 	}
 
+	/**
+	 * Extrapolate forward in time by given previous intervals data, and the new reference timestamp.
+	 */
 	@Override
 	protected HkDerivativesConsolidatedData extrapolate(LocalDateTime refTimestamp, Iterable<HkDerivativesConsolidatedData> previousIntervalResults) {
 		// get the last item
@@ -85,6 +92,9 @@ public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDeri
 		
 	}
 
+	/**
+	 * Extrapolate backward in time given a series of "later interval" output from the super class and an earlier reference timestamp.
+	 */
 	@Override
 	protected HkDerivativesConsolidatedData backwardExtrapolate(LocalDateTime refTimestamp, Iterable<HkDerivativesConsolidatedData> laterIntervalResults) {
 

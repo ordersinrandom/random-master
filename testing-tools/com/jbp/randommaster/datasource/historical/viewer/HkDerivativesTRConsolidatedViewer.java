@@ -275,32 +275,36 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 	 */
 	private HistoricalDataSource<? extends ConsolidatedTradeRecordsData> getDataSource(
 			String inputHDF5Filename, LocalDate tradingDate, String futuresOrOptions, String underlying, YearMonth expiryMonth, int frequencySeconds) {
-		// raw data source
-		HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
-				inputHDF5Filename,tradingDate, futuresOrOptions, underlying);
 		
-		// filtered by expiry month
-		FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
-				new FilteredHistoricalDataSource<HkDerivativesTR>(
-				originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth));
-		// filtered by trade type (Normal)
-		FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
-				new FilteredHistoricalDataSource<HkDerivativesTR>(
-				expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));
+		TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = null;
 		
+		try (
+			// raw data source
+			HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
+					inputHDF5Filename,tradingDate, futuresOrOptions, underlying);
+			
+			// filtered by expiry month
+			FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
+					new FilteredHistoricalDataSource<HkDerivativesTR>(
+					originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth));
+			// filtered by trade type (Normal)
+			FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
+					new FilteredHistoricalDataSource<HkDerivativesTR>(
+					expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));
+		) {
 		
-		HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-		LocalDateTime start = new LocalDateTime(
-				tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 9, 30, 0);
-		LocalDateTime end = new LocalDateTime(
-				tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
-
-		// we consolidated by number of seconds.
-		Period interval = new Period(0, 0, frequencySeconds, 0);
-		
-		TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc =
-				new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
-							consolidator, filteredSource, start, end, interval);
+			HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
+			LocalDateTime start = new LocalDateTime(
+					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 9, 30, 0);
+			LocalDateTime end = new LocalDateTime(
+					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
+	
+			// we consolidated by number of seconds.
+			Period interval = new Period(0, 0, frequencySeconds, 0);
+			
+			consolidatedSrc = new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
+								consolidator, filteredSource, start, end, interval);
+		}
 		
 		return consolidatedSrc;
 	}
