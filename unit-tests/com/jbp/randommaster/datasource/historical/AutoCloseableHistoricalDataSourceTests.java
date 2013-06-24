@@ -163,10 +163,7 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 			
 			Assert.assertEquals("Loop breaking not requires cleanup. it is in error state.", true, src.requiresCleanUp());
 		}
-		Assert.assertEquals("Outside try block requiers cleanup. it is in error state.", false, s1.requiresCleanUp());
-		
-		
-
+		Assert.assertEquals("Outside try block requires cleanup. it is in error state.", false, s1.requiresCleanUp());
 		
 	}	
 	
