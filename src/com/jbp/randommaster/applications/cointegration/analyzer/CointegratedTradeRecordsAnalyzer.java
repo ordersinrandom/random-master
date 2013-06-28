@@ -90,12 +90,12 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		
 		// prepare the popup menu on the components table
 		final JPopupMenu popupMenu = new JPopupMenu();
-		JMenuItem addComponentItem = popupMenu.add(new JMenuItem("Add New Component"));
-		addComponentItem.addActionListener(this);
-		addComponentItem.setActionCommand("AddNewComponent");
-		JMenuItem removeComponentItem = popupMenu.add(new JMenuItem("Remove Component"));
-		removeComponentItem.addActionListener(this);
-		removeComponentItem.setActionCommand("RemoveComponent");
+		JMenuItem addLegMenuItem = popupMenu.add(new JMenuItem("Add Leg"));
+		addLegMenuItem.addActionListener(this);
+		addLegMenuItem.setActionCommand("AddLeg");
+		JMenuItem removeLegMenuItem = popupMenu.add(new JMenuItem("Remove Leg"));
+		removeLegMenuItem.addActionListener(this);
+		removeLegMenuItem.setActionCommand("RemoveLeg");
 		
 		Component c=bottomPanel.add(new JScrollPane(componentsTable));
 		// register the mouse listener of the scroll pane instead of the table.
@@ -126,10 +126,10 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		if ("SelectFile".equals(e.getActionCommand())) {
 			selectFile();
 		}
-		else if ("AddNewComponent".equals(e.getActionCommand())) {
+		else if ("AddLeg".equals(e.getActionCommand())) {
 			
 		}
-		else if ("RemoveComponent".equals(e.getActionCommand())) {
+		else if ("RemoveLeg".equals(e.getActionCommand())) {
 			
 		}
 		else if ("LoadAndPlot".equals(e.getActionCommand())) {
