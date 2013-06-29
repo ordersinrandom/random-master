@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -194,6 +195,9 @@ public class AddLegDialog extends JDialog implements ActionListener {
 		try {
 			weight = Double.parseDouble(weightStr);
 		} catch (Exception e1) {
+			
+			JOptionPane.showMessageDialog(this, "Invalid Weight Input: "+weightStr, "Invalid Input", JOptionPane.ERROR_MESSAGE);
+			
 			return false;
 		}
 		
