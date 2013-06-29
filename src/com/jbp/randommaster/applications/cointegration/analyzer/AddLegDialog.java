@@ -33,10 +33,7 @@ public class AddLegDialog extends JDialog implements ActionListener {
 	private JComboBox<String> futuresOptionsBox;
 	
 	private boolean validInput;
-	private double weight;
-	private String underlying;
-	private YearMonth expiry;
-	private String futuresOrOptions;
+	private Leg newLeg;
 	
 	public AddLegDialog(Frame owner) {
 		super(owner, "Add Leg", true);
@@ -192,6 +189,7 @@ public class AddLegDialog extends JDialog implements ActionListener {
 	
 	private boolean readInputDetails() {
 		String weightStr = weightField.getText();
+		double weight = 0.0;
 		try {
 			weight = Double.parseDouble(weightStr);
 		} catch (Exception e1) {
@@ -201,35 +199,28 @@ public class AddLegDialog extends JDialog implements ActionListener {
 			return false;
 		}
 		
-		underlying = underlyingBox.getItemAt(underlyingBox.getSelectedIndex());
+		String underlying = underlyingBox.getItemAt(underlyingBox.getSelectedIndex());
 		
 		String yearStr = yearBox.getItemAt(yearBox.getSelectedIndex());
 		String monthStr = monthBox.getItemAt(monthBox.getSelectedIndex());
-		expiry = new YearMonth(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
+		YearMonth expiry = new YearMonth(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
 		
-		futuresOrOptions = futuresOptionsBox.getItemAt(futuresOptionsBox.getSelectedIndex());
+		String futuresOrOptions = futuresOptionsBox.getItemAt(futuresOptionsBox.getSelectedIndex());
+		
+		newLeg = new Leg();
+		newLeg.setExpiry(expiry);
+		newLeg.setFuturesOrOptions(futuresOrOptions);
+		newLeg.setUnderlying(underlying);
+		newLeg.setWeight(weight);
 		
 		return true;
 	}
-
+	
 	public boolean isValidInput() {
 		return validInput;
 	}
 
-	public double getWeight() {
-		return weight;
+	public Leg getNewLeg() {
+		return newLeg;
 	}
-
-	public String getUnderlying() {
-		return underlying;
-	}
-
-	public YearMonth getExpiry() {
-		return expiry;
-	}
-
-	public String getFuturesOrOptions() {
-		return futuresOrOptions;
-	}
-	
 }

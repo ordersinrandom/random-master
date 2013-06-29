@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -21,13 +24,16 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableCellEditor;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
+import org.joda.time.format.DateTimeFormat;
 
 import com.jbp.randommaster.gui.common.date.calendar.JDateChooser;
+import com.jbp.randommaster.gui.common.table.block.AbstractBlock;
 import com.jbp.randommaster.gui.common.table.block.BlockTableModel;
 
 public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionListener {
@@ -38,6 +44,10 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 	private JDateChooser tradingDateChooser;	
 	
 	private ChartPanel chartPanel;
+	
+	
+	private JTable legsTable;
+	private JPopupMenu popupMenu;	
 
 	public CointegratedTradeRecordsAnalyzer() {
 		super("Cointegrated Trade Records Analyzer");
@@ -86,10 +96,10 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		tableModel.setColumnNames(new String[] { "Weight", "Underlying", "Expiry", "Futures/Options" } , true);
 		
 		// create the table showing basket components
-		JTable componentsTable = new JTable(tableModel);
+		legsTable = new JTable(tableModel);
 		
 		// prepare the popup menu on the components table
-		final JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu = new JPopupMenu();
 		JMenuItem addLegMenuItem = popupMenu.add(new JMenuItem("Add Leg"));
 		addLegMenuItem.addActionListener(this);
 		addLegMenuItem.setActionCommand("AddLeg");
@@ -97,16 +107,12 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		removeLegMenuItem.addActionListener(this);
 		removeLegMenuItem.setActionCommand("RemoveLeg");
 		
-		Component c=bottomPanel.add(new JScrollPane(componentsTable));
-		// register the mouse listener of the scroll pane instead of the table.
-		c.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) { maybeShowPopup(e); }
-			public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
-			private void maybeShowPopup(MouseEvent e) {
-				if (e.isPopupTrigger()) 
-					popupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
+		PopupMenuInvoker popupInvoker = new PopupMenuInvoker();
+		
+		Component c=bottomPanel.add(new JScrollPane(legsTable));
+		// register the mouse listener of the scroll pane and the table!
+		c.addMouseListener(popupInvoker);
+		legsTable.addMouseListener(popupInvoker);
 		
 		
 		// vertical split pane
@@ -120,6 +126,15 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 
 	}
 	
+	private class PopupMenuInvoker extends MouseAdapter {
+		public void mousePressed(MouseEvent e) { maybeShowPopup(e); }
+		public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
+		private void maybeShowPopup(MouseEvent e) {
+			if (e.isPopupTrigger()) 
+				popupMenu.show(e.getComponent(), e.getX(), e.getY());
+		}		
+	}
+	
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -129,16 +144,34 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		else if ("AddLeg".equals(e.getActionCommand())) {
 			AddLegDialog d = new AddLegDialog(this);
 			if (d.isValidInput()) {
-				
+				Leg newLeg = d.getNewLeg();
+				LegTableBlock b=new LegTableBlock(newLeg);
+				((BlockTableModel) legsTable.getModel()).addBlock(b);
 			}
 			
 		}
 		else if ("RemoveLeg".equals(e.getActionCommand())) {
-			
+			int r = legsTable.getSelectedRow();
+			LegTableBlock b=(LegTableBlock) ((BlockTableModel) legsTable.getModel()).findBlock(r);
+			if (b!=null) 
+				((BlockTableModel) legsTable.getModel()).removeBlock(b);
 		}
 		else if ("LoadAndPlot".equals(e.getActionCommand())) {
 			
 		}
+	}
+	
+	/**
+	 * Get all legs in the table.
+	 */
+	private Iterable<Leg> getAllLegs() {
+		List<Leg> result=new LinkedList<Leg>();
+		BlockTableModel tableModel = (BlockTableModel) legsTable.getModel();
+		for (@SuppressWarnings("rawtypes") Iterator it=tableModel.getBlocks();it.hasNext();) { 
+			LegTableBlock b = (LegTableBlock) it.next();
+			result.add(b.getLeg());
+		}
+		return result;
 	}
 	
 	
@@ -156,6 +189,77 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		}		
 	}
 	
+	/**
+	 * The table item representing one leg.
+	 */
+	private static class LegTableBlock extends AbstractBlock {
+		
+		private Leg leg;
+		
+		public LegTableBlock(Leg l) {
+			leg=l;
+		}
+		
+		public Leg getLeg() {
+			return leg;
+		}
+
+		@Override
+		public int getWidth() {
+			return 4;
+		}
+
+		@Override
+		public int getHeight() {
+			return 1;
+		}
+
+		@Override
+		public Object getValueAt(int x, int y) {
+			if (y==0) {
+				switch (x) {
+				case 0:
+					return leg.getWeight();
+				case 1:
+					return leg.getUnderlying();
+				case 2:
+					return leg.getExpiry().toString(DateTimeFormat.forPattern("yyyy-MM"));
+				case 3:
+					return leg.getFuturesOrOptions();
+				default:
+					return "";
+				}
+			}
+			else return "";
+		}
+		
+		/**
+		 * Set the value in this block. Empty default implementation.
+		 */
+		public void setValueAt(Object v, int x, int y) {
+			// empty implementation
+		}
+
+		/**
+		 * Check if the block data is editable at (x,y) relative to block upper
+		 * left corner.
+		 * 
+		 * @return false by default, subclass to override.
+		 */
+		public boolean isEditableAt(int x, int y) {
+			return false;
+		}
+
+		/**
+		 * Get the cell editor at (x,y) relative to block upper left corner.
+		 * 
+		 * @return Default implementation returns null.
+		 */
+		public TableCellEditor getCellEditorAt(int x, int y) {
+			return null;
+		}
+		
+	}
 	
 	
 	
