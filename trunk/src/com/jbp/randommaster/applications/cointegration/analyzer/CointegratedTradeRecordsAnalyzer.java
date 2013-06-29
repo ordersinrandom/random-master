@@ -127,6 +127,10 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 			selectFile();
 		}
 		else if ("AddLeg".equals(e.getActionCommand())) {
+			AddLegDialog d = new AddLegDialog(this);
+			if (d.isValidInput()) {
+				
+			}
 			
 		}
 		else if ("RemoveLeg".equals(e.getActionCommand())) {
