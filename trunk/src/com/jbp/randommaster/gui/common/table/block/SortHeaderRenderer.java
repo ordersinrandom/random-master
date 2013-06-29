@@ -12,33 +12,39 @@ import javax.swing.table.*;
  * @author plchung
  * 
  */
-public class SortHeaderRenderer extends DefaultTableCellRenderer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7950893296504716036L;
+public class SortHeaderRenderer implements TableCellRenderer {
 
 	private Icon nonSortedIcon;
 	private Icon ascendingIcon;
 	private Icon descendingIcon;
+	
+	private TableCellRenderer original;
 
-	public SortHeaderRenderer() {
+	public SortHeaderRenderer(TableCellRenderer original) {
 		this(new SortArrowIcon(SortArrowIcon.NONE), new SortArrowIcon(
 				SortArrowIcon.ASCENDING), new SortArrowIcon(
-				SortArrowIcon.DECENDING));
+				SortArrowIcon.DECENDING), original);
 	}
 
-	public SortHeaderRenderer(Icon nonSorted, Icon ascending, Icon descending) {
-		setHorizontalTextPosition(LEFT);
-		setHorizontalAlignment(CENTER);
+	public SortHeaderRenderer(Icon nonSorted, Icon ascending, Icon descending, TableCellRenderer original) {
+
 		this.nonSortedIcon = nonSorted;
 		this.ascendingIcon = ascending;
 		this.descendingIcon = descending;
+		
+		this.original = original;
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int col) {
+		
+		Component result = original.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+		
 		if (table.getModel() instanceof BlockTableModel) {
+			
+			//result.setHorizontalTextPosition(SwingConstants.LEFT);
+			//result.setHorizontalAlignment(CENTER);
+			
 			int index = -2;
 			boolean ascending = true;
 			BlockTableModel tm = (BlockTableModel) table.getModel();
@@ -53,18 +59,27 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer {
 			if (table != null) {
 				JTableHeader header = table.getTableHeader();
 				if (header != null) {
-					setForeground(header.getForeground());
-					setBackground(header.getBackground());
-					setFont(header.getFont());
+					result.setForeground(header.getForeground());
+					result.setBackground(header.getBackground());
+					result.setFont(header.getFont());
 				}
 			}
 			Icon icon = ascending ? ascendingIcon : descendingIcon;
-			setIcon(index == modelIndex ? icon : nonSortedIcon);
-			setText((value == null) ? "" : value.toString());
-			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-			return this;
-		} else
-			return super.getTableCellRendererComponent(table, value,
-					isSelected, hasFocus, row, col);
+			
+			
+			
+			if (result instanceof JLabel) {
+				JLabel l = (JLabel) result;
+				l.setHorizontalTextPosition(SwingConstants.LEFT);
+				l.setHorizontalAlignment(SwingConstants.CENTER);			
+				l.setIcon(index == modelIndex ? icon : nonSortedIcon);
+				l.setText((value == null) ? "" : value.toString());
+			}
+			
+
+			return result;
+		} 
+
+		return result;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 import com.jbp.randommaster.gui.common.table.block.BlockSorter;
 import com.jbp.randommaster.gui.common.table.block.BlockTableModel;
@@ -53,7 +54,10 @@ public class SortHeaderUtil {
 			}
 		}
 
-		table.getTableHeader().setDefaultRenderer(new SortHeaderRenderer());
+		//table.getTableHeader().setDefaultRenderer(new SortHeaderRenderer());
+		TableCellRenderer original = table.getTableHeader().getDefaultRenderer();
+		table.getTableHeader().setDefaultRenderer(new SortHeaderRenderer(original));
+		
 
 	}
 

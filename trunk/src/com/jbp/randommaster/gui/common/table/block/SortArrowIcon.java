@@ -30,8 +30,8 @@ public class SortArrowIcon implements Icon {
   public void paintIcon(Component c, Graphics g, int x, int y)
   {
     Color bg = c.getBackground();
-    Color light = bg.brighter().brighter();
-    Color shade = bg.darker();
+    Color light = bg.brighter();
+    Color shade = bg.darker().darker().darker();
   
     int w = width;
     int h = height;
