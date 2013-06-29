@@ -7,9 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -25,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -34,7 +37,10 @@ import org.joda.time.format.DateTimeFormat;
 
 import com.jbp.randommaster.gui.common.date.calendar.JDateChooser;
 import com.jbp.randommaster.gui.common.table.block.AbstractBlock;
+import com.jbp.randommaster.gui.common.table.block.BlockSorter;
 import com.jbp.randommaster.gui.common.table.block.BlockTableModel;
+import com.jbp.randommaster.gui.common.table.block.DoubleSorter;
+import com.jbp.randommaster.gui.common.table.util.SortHeaderUtil;
 
 public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionListener {
 
@@ -98,6 +104,11 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		// create the table showing basket components
 		legsTable = new JTable(tableModel);
 		
+		Map<BlockSorter, int[]> sorterColumnsMap = new HashMap<BlockSorter, int[]>();
+		sorterColumnsMap.put(new DoubleSorter(), new int[] { 0 });
+		SortHeaderUtil.setupHeader(legsTable, tableModel, sorterColumnsMap, null);
+		
+		
 		// prepare the popup menu on the components table
 		popupMenu = new JPopupMenu();
 		JMenuItem addLegMenuItem = popupMenu.add(new JMenuItem("Add Leg"));
@@ -113,6 +124,7 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		// register the mouse listener of the scroll pane and the table!
 		c.addMouseListener(popupInvoker);
 		legsTable.addMouseListener(popupInvoker);
+		
 		
 		
 		// vertical split pane
