@@ -40,6 +40,7 @@ import com.jbp.randommaster.gui.common.table.block.AbstractBlock;
 import com.jbp.randommaster.gui.common.table.block.BlockSorter;
 import com.jbp.randommaster.gui.common.table.block.BlockTableModel;
 import com.jbp.randommaster.gui.common.table.block.DoubleSorter;
+import com.jbp.randommaster.gui.common.table.block.StringSorter;
 import com.jbp.randommaster.gui.common.table.util.SortHeaderUtil;
 
 public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionListener {
@@ -98,18 +99,20 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		// panel below the split pane.
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		
-		BlockTableModel tableModel = new BlockTableModel();
-		tableModel.setColumnNames(new String[] { "Weight", "Underlying", "Expiry", "Futures/Options" } , true);
 		
 		// create the table showing basket components
+		BlockTableModel tableModel = new BlockTableModel();
+		tableModel.setColumnNames(new String[] { "Weight", "Underlying", "Expiry", "Futures/Options" } , true);
 		legsTable = new JTable(tableModel);
 		
+		// setup the table sorting
 		Map<BlockSorter, int[]> sorterColumnsMap = new HashMap<BlockSorter, int[]>();
-		sorterColumnsMap.put(new DoubleSorter(), new int[] { 0 });
+		sorterColumnsMap.put(new DoubleSorter(), new int[] { 0 }); // sorting weight
+		sorterColumnsMap.put(new StringSorter(), new int[] { 1 }); // sorting string
 		SortHeaderUtil.setupHeader(legsTable, tableModel, sorterColumnsMap, null);
 		
 		
-		// prepare the popup menu on the components table
+		// prepare the popup menu on the legs table
 		popupMenu = new JPopupMenu();
 		JMenuItem addLegMenuItem = popupMenu.add(new JMenuItem("Add Leg"));
 		addLegMenuItem.addActionListener(this);
@@ -138,6 +141,10 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 
 	}
 	
+	/**
+	 * Helper class to bring up the popup menu of the legs table.
+	 *
+	 */
 	private class PopupMenuInvoker extends MouseAdapter {
 		public void mousePressed(MouseEvent e) { maybeShowPopup(e); }
 		public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
