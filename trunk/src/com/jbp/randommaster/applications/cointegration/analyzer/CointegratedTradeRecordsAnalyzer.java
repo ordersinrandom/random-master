@@ -1,8 +1,10 @@
 package com.jbp.randommaster.applications.cointegration.analyzer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -12,6 +14,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -32,9 +37,28 @@ import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.RegularTimePeriod;
+import org.jfree.data.time.Second;
+import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
+import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 
+import com.jbp.randommaster.datasource.historical.ConsolidatedTradeRecordsData;
+import com.jbp.randommaster.datasource.historical.ExpiryMonthFilter;
+import com.jbp.randommaster.datasource.historical.FilteredHistoricalDataSource;
+import com.jbp.randommaster.datasource.historical.HkDerivativesConsolidatedData;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRConsolidator;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRHDF5Source;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter;
+import com.jbp.randommaster.datasource.historical.TimeIntervalConsolidatedTRSource;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter.TradeType;
 import com.jbp.randommaster.gui.common.date.calendar.JDateChooser;
 import com.jbp.randommaster.gui.common.table.block.AbstractBlock;
 import com.jbp.randommaster.gui.common.table.block.BlockSorter;
@@ -49,6 +73,7 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 	
 	private JTextField chosenFileDisplayField;
 	private JDateChooser tradingDateChooser;	
+	private JTextField frequencyField;
 	
 	private ChartPanel chartPanel;
 	
@@ -85,6 +110,11 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		loadAndPlotButton.setActionCommand("LoadAndPlot");
 		loadAndPlotButton.addActionListener(this);
 		northPanel.add(loadAndPlotButton);
+		
+		frequencyField = new JTextField("180", 5);
+		northPanel.add(new JLabel("Frequency(s):"));
+		northPanel.add(frequencyField);
+		
 		
 		// create a dummy chart plotting area
 		
@@ -176,9 +206,139 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 				((BlockTableModel) legsTable.getModel()).removeBlock(b);
 		}
 		else if ("LoadAndPlot".equals(e.getActionCommand())) {
-			
+			loadAndPlot();
 		}
 	}
+	
+	private void loadAndPlot() {
+		
+		String inputFilename = chosenFileDisplayField.getText();
+		
+		int frequencySeconds = Integer.valueOf(frequencyField.getText()).intValue();
+		// we consolidated by number of seconds.
+		Period interval = new Period(0, 0, frequencySeconds, 0);
+		
+		
+		LocalDate tradeDate = LocalDate.fromDateFields(tradingDateChooser.getDate());
+		LocalDateTime start = new LocalDateTime(
+				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 9, 15, 0);
+		LocalDateTime end = new LocalDateTime(
+				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 16, 15, 0);
+		
+		
+		String chartTitle = frequencySeconds+" Seconds Consolidated Trade Records";
+		
+		// create the plot series
+		OHLCSeries plotSeries = new OHLCSeries(chartTitle);
+		
+		Map<LocalDateTime, HkDerivativesConsolidatedData> combinedDataList = new TreeMap<LocalDateTime, HkDerivativesConsolidatedData>(); 
+		
+		for (Leg leg: getAllLegs()) {
+			
+			double weight = leg.getWeight();
+
+			YearMonth expiryMonth = leg.getExpiry();
+			String underlying = leg.getUnderlying();
+			String futuresOrOptions = leg.getFuturesOrOptions();
+			
+			try (
+					// raw data source
+					HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
+							inputFilename,tradeDate, futuresOrOptions, underlying);
+					
+					// filtered by expiry month
+					FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
+							new FilteredHistoricalDataSource<HkDerivativesTR>(
+							originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth));
+					// filtered by trade type (Normal)
+					FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
+							new FilteredHistoricalDataSource<HkDerivativesTR>(
+							expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal)); 
+					) {
+				
+				HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
+		
+				
+				// consolidated source.
+				TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc 
+					= new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
+							consolidator, filteredSource, start, end, interval);				
+				
+				// iterate through the data and combine them
+				for (HkDerivativesConsolidatedData data : consolidatedSrc.getData()) {
+					
+					double newFirstTradedPrice = data.getFirstTradedPrice()*weight;
+					double newLastTradedPrice = data.getLastTradedPrice()*weight;
+					double newMaxTradedPrice = weight>=0? data.getMaxTradedPrice()*weight : data.getMinTradedPrice()*weight;
+					double newMinTradedPrice = weight>=0? data.getMinTradedPrice()*weight : data.getMaxTradedPrice()*weight;
+					double newAveragedPrice = data.getAveragedPrice()*weight;
+					double newTradedVolume = data.getTradedVolume()*weight;
+					
+					if (!combinedDataList.containsKey(data.getTimestamp())) {
+						
+						HkDerivativesConsolidatedData newData = 
+								new HkDerivativesConsolidatedData(data.getTimestamp(), 
+										data.getExpiryMonth(), data.getUnderlying(), 
+										data.getStrikePrice(), data.getFuturesOrOptions(), data.getCallPut(),
+										newFirstTradedPrice, 
+										newLastTradedPrice,
+										newMaxTradedPrice, 
+										newMinTradedPrice, 
+										newAveragedPrice, 
+										newTradedVolume);
+						
+						combinedDataList.put(data.getTimestamp(), newData);
+					}
+					else {
+						HkDerivativesConsolidatedData oldData = combinedDataList.get(data.getTimestamp());
+
+						HkDerivativesConsolidatedData newData = 
+								new HkDerivativesConsolidatedData(data.getTimestamp(), 
+										data.getExpiryMonth(), data.getUnderlying(), 
+										data.getStrikePrice(), data.getFuturesOrOptions(), data.getCallPut(),
+										oldData.getFirstTradedPrice()+newFirstTradedPrice, 
+										oldData.getLastTradedPrice()+newLastTradedPrice,
+										oldData.getMaxTradedPrice()+newMaxTradedPrice, 
+										oldData.getMinTradedPrice()+newMinTradedPrice, 
+										oldData.getAveragedPrice()+newAveragedPrice, 
+										oldData.getTradedVolume()+newTradedVolume);
+						
+						combinedDataList.put(data.getTimestamp(), newData);
+						
+					}
+				}
+				
+			
+			}
+		}
+		
+		// now plot the combinedDataList
+		for (HkDerivativesConsolidatedData data: combinedDataList.values()) {
+			
+			plotSeries.add(
+					RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+					data.getFirstTradedPrice(),
+					data.getMaxTradedPrice(),
+					data.getMinTradedPrice(),
+					data.getLastTradedPrice());			
+			
+		}
+		
+		OHLCSeriesCollection dataset = new OHLCSeriesCollection();
+		dataset.addSeries(plotSeries);
+		JFreeChart chart = ChartFactory.createHighLowChart(chartTitle, "Time", "Combined Trade Records", dataset, true);		
+		chart.getPlot().setBackgroundPaint(new GradientPaint(1, 1, new Color(255,0,255).darker().darker().darker(), 
+				1500, 1500, Color.darkGray));
+		
+		XYPlot plot = (XYPlot) chart.getPlot();
+		((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(false);
+		
+		
+		chartPanel.setChart(chart);
+		
+		
+	}
+	
 	
 	/**
 	 * Get all legs in the table.
