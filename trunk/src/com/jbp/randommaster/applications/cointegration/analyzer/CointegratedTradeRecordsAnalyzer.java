@@ -23,6 +23,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -309,6 +310,9 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 				}
 				
 			
+			} catch (Exception e1) {
+				
+				JOptionPane.showMessageDialog(this, "Unable to load data: "+e1.getMessage(), "Unable to load data", JOptionPane.ERROR_MESSAGE);				
 			}
 		}
 		
