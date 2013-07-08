@@ -39,23 +39,16 @@ public class HkDerivativesTRCointegratedSource extends CointegratedTRSource<HkDe
 			
 			if (expiryMonth==null)
 				expiryMonth = d.getExpiryMonth();
-			else if (!expiryMonth.equals(d.getExpiryMonth()))
-				throw new IllegalArgumentException("expiryMonth mismatched: "+expiryMonth+", and "+d.getExpiryMonth()+", for input "+d);
 			
 			if (underlying==null)
-				underlying = d.getUnderlying();
-			else if (!underlying.equals(d.getUnderlying()))
-				throw new IllegalArgumentException("underlying mismatched: "+underlying+", and "+d.getUnderlying()+", for input "+d);
+				underlying = weight+" "+d.getUnderlying();
+			else underlying = underlying + " " + weight + " "+d.getUnderlying();
 			
 			if (futuresOrOptions==null)
 				futuresOrOptions = d.getFuturesOrOptions();
-			else if (!futuresOrOptions.equals(d.getFuturesOrOptions()))
-				throw new IllegalArgumentException("futuresOrOptions mismatched: "+futuresOrOptions+", and "+d.getFuturesOrOptions()+", for input "+d);
 			
 			if (callPut==null)
 				callPut = d.getCallPut();
-			else if (!callPut.equals(d.getCallPut()))
-				throw new IllegalArgumentException("callPut mismatched: "+callPut+", and "+d.getCallPut()+", for input "+d);
 			
 			// strike is supposed to be the same
 			strikePrice = d.getStrikePrice();

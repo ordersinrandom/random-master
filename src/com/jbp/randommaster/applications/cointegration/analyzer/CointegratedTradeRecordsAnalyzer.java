@@ -15,8 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -33,7 +31,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -50,11 +47,12 @@ import org.joda.time.Period;
 import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 
-import com.jbp.randommaster.datasource.historical.ConsolidatedTradeRecordsData;
+import com.jbp.randommaster.datasource.historical.CointegratedTRSource;
 import com.jbp.randommaster.datasource.historical.ExpiryMonthFilter;
 import com.jbp.randommaster.datasource.historical.FilteredHistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.HkDerivativesConsolidatedData;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRCointegratedSource;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRConsolidator;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRHDF5Source;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter;
@@ -227,12 +225,8 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 16, 15, 0);
 		
 		
-		String chartTitle = frequencySeconds+" Seconds Consolidated Trade Records";
 		
-		// create the plot series
-		OHLCSeries plotSeries = new OHLCSeries(chartTitle);
-		
-		Map<LocalDateTime, HkDerivativesConsolidatedData> combinedDataList = new TreeMap<LocalDateTime, HkDerivativesConsolidatedData>(); 
+		CointegratedTRSource<HkDerivativesConsolidatedData> cointegratedSrc = new HkDerivativesTRCointegratedSource();
 		
 		for (Leg leg: getAllLegs()) {
 			
@@ -257,57 +251,15 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 							expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal)); 
 					) {
 				
-				HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
 		
-				
 				// consolidated source.
 				TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc 
 					= new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
-							consolidator, filteredSource, start, end, interval);				
+							new HkDerivativesTRConsolidator(), filteredSource, start, end, interval);		
 				
-				// iterate through the data and combine them
-				for (HkDerivativesConsolidatedData data : consolidatedSrc.getData()) {
-					
-					double newFirstTradedPrice = data.getFirstTradedPrice()*weight;
-					double newLastTradedPrice = data.getLastTradedPrice()*weight;
-					double newMaxTradedPrice = weight>=0? data.getMaxTradedPrice()*weight : data.getMinTradedPrice()*weight;
-					double newMinTradedPrice = weight>=0? data.getMinTradedPrice()*weight : data.getMaxTradedPrice()*weight;
-					double newAveragedPrice = data.getAveragedPrice()*weight;
-					double newTradedVolume = data.getTradedVolume()*weight;
-					
-					if (!combinedDataList.containsKey(data.getTimestamp())) {
-						
-						HkDerivativesConsolidatedData newData = 
-								new HkDerivativesConsolidatedData(data.getTimestamp(), 
-										data.getExpiryMonth(), data.getUnderlying(), 
-										data.getStrikePrice(), data.getFuturesOrOptions(), data.getCallPut(),
-										newFirstTradedPrice, 
-										newLastTradedPrice,
-										newMaxTradedPrice, 
-										newMinTradedPrice, 
-										newAveragedPrice, 
-										newTradedVolume);
-						
-						combinedDataList.put(data.getTimestamp(), newData);
-					}
-					else {
-						HkDerivativesConsolidatedData oldData = combinedDataList.get(data.getTimestamp());
 
-						HkDerivativesConsolidatedData newData = 
-								new HkDerivativesConsolidatedData(data.getTimestamp(), 
-										data.getExpiryMonth(), data.getUnderlying(), 
-										data.getStrikePrice(), data.getFuturesOrOptions(), data.getCallPut(),
-										oldData.getFirstTradedPrice()+newFirstTradedPrice, 
-										oldData.getLastTradedPrice()+newLastTradedPrice,
-										oldData.getMaxTradedPrice()+newMaxTradedPrice, 
-										oldData.getMinTradedPrice()+newMinTradedPrice, 
-										oldData.getAveragedPrice()+newAveragedPrice, 
-										oldData.getTradedVolume()+newTradedVolume);
-						
-						combinedDataList.put(data.getTimestamp(), newData);
-						
-					}
-				}
+				cointegratedSrc.addSource(consolidatedSrc, weight);
+				
 				
 			
 			} catch (Exception e1) {
@@ -316,8 +268,15 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 			}
 		}
 		
+		
+		String chartTitle = frequencySeconds+" Seconds Consolidated Trade Records";
+		
+		// create the plot series
+		OHLCSeries plotSeries = new OHLCSeries(chartTitle);
+		
+		
 		// now plot the combinedDataList
-		for (HkDerivativesConsolidatedData data: combinedDataList.values()) {
+		for (HkDerivativesConsolidatedData data: cointegratedSrc.getData()) {
 			
 			plotSeries.add(
 					RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
