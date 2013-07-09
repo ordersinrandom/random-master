@@ -12,6 +12,14 @@ public class Leg {
 	public Leg() {
 		
 	}
+	
+	public Leg(double weight, String underlying, YearMonth expiry, String futuresOrOptions) {
+		this.weight=weight;
+		this.underlying=underlying;
+		this.expiry=expiry;
+		this.futuresOrOptions=futuresOrOptions;
+	}
+	
 
 	public double getWeight() {
 		return weight;

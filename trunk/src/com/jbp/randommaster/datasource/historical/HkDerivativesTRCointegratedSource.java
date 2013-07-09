@@ -41,8 +41,8 @@ public class HkDerivativesTRCointegratedSource extends CointegratedTRSource<HkDe
 				expiryMonth = d.getExpiryMonth();
 			
 			if (underlying==null)
-				underlying = weight+" "+d.getUnderlying();
-			else underlying = underlying + " " + weight + " "+d.getUnderlying();
+				underlying = weight+"*"+d.getUnderlying();
+			else underlying = underlying + " " + weight + "*"+d.getUnderlying();
 			
 			if (futuresOrOptions==null)
 				futuresOrOptions = d.getFuturesOrOptions();
