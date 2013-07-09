@@ -43,3 +43,18 @@ for (i in 1:reps) {
 
 plot.ts(A)
 plot.ts(B)
+
+
+# example on finding the confidence from the test stat
+
+# define the function
+fn_zero_root <- function (df, prob, cval) pchisq(cval, df) - prob
+
+# solve the degree of freedom for chi square
+r0_90_cval = jo@cval[3,1]
+r1.df <- uniroot(fn_zero_root, c(0, r0_90_cval), tol = 0.001, prob = 90/100, cval= r0_90_cval)$root
+
+# compute confidence from test stat
+r0_test_stat = jo@teststat[3]
+pchisq(r0_test_stat, r1.df)
+
