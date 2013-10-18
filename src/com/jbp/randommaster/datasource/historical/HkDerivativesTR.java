@@ -272,7 +272,7 @@ public class HkDerivativesTR implements VanillaDerivativesData, FuturesData, Tra
 
 	/**
 	 * Implementation of the Comparable<HistoricalData> interface.
-	 * @return A simple comparising based on timestamp.
+	 * @return A simple comparison based on timestamp.
 	 */
 	@Override
 	public int compareTo(HistoricalData o) {
