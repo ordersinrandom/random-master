@@ -1,18 +1,11 @@
 package com.jbp.randommaster.applications.hkex.trfile;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Map;
-import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
-import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
-import com.jbp.randommaster.utils.ZipUtils;
 
 /**
  * 
@@ -20,11 +13,11 @@ import com.jbp.randommaster.utils.ZipUtils;
  * save to another output folder.
  * 
  */
-public class HkDerivativesTRFile2HDF5 {
+public class HkDerivativesTRFile2HDF5 extends HkDerivativesTRZipFilesProcessor {
 	
 	static Logger log = Logger.getLogger(HkDerivativesTRFile2HDF5.class);
 
-	private File inputFolder, outputFolder;
+	private File outputFolder;
 	
 	/**
 	 * Create an instance of HkDerivativesTRFile2HDF5.
@@ -33,15 +26,45 @@ public class HkDerivativesTRFile2HDF5 {
 	 */
 	public HkDerivativesTRFile2HDF5(File inputFolder, File outputFolder) {
 		
-		this.inputFolder=inputFolder;
+		super(inputFolder);
+		
 		this.outputFolder=outputFolder;
 
 	}
-	
+
 	/**
-	 * Unzip the input files and then generate the HDF5 files one by one.
-	 * Note that if the same HDF5 filename exists it will skip that particular zip entry.
+	 * Implements base class abstract method to create HDF5 file entry.
+	 * 
+	 * @param srcZipFile The original input zip file.
+	 * @param zipEntryKey The entry key within the source zip file.
+	 * @param loadedData The TR record loaded from the csv file of that entry.
 	 */
+	@Override 
+	protected void processHkDerivativesTRInput(File srcZipFile, String zipEntryKey, Iterable<HkDerivativesTR> loadedData) {
+		
+		String sp = System.getProperty("file.separator");
+		
+		String outputHDF5Filename=outputFolder.getAbsolutePath()+sp+zipEntryKey+".hdf5";
+		
+		File outputHDF5File=new File(outputHDF5Filename);
+		if (outputHDF5File.exists()) {
+			log.warn("Target output file "+outputHDF5Filename+" already exists. SKIPPED");
+			return;
+		}
+		
+		(new File(outputHDF5File.getParent())).mkdirs();
+		
+		log.info("building HDF5 File: "+outputHDF5Filename);
+		HkDerivativesTRHDF5Builder builder = new HkDerivativesTRHDF5Builder(outputHDF5Filename);
+		builder.createOrOpen();
+		builder.createCompoundDatasetsForTRData(loadedData);
+		builder.closeFile();
+		log.info("HDF5 File ("+outputHDF5Filename+")data written and closed");
+		
+		
+	}
+
+	/* OLD code to be removed.
 	public void processFiles() {
 
 		File[] allZipFiles = inputFolder.listFiles(new FileFilter() {
@@ -115,11 +138,7 @@ public class HkDerivativesTRFile2HDF5 {
 			
 		}
 		
-	}
-	
-	
-
-	
+	}*/
 	
 	
 	
