@@ -20,6 +20,8 @@ public class TestDB1 {
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException, UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 		
+		
+		
 		/*
 		if (args.length!=2) {
 			System.out.println("Please input username and password as command line arguments");
