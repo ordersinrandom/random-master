@@ -34,7 +34,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.YearMonth;
 
-import com.jbp.randommaster.datasource.historical.ConsolidatedTradeRecordsData;
+import com.jbp.randommaster.datasource.historical.TimeConsolidatedTradeRecord;
 import com.jbp.randommaster.datasource.historical.ExpiryMonthFilter;
 import com.jbp.randommaster.datasource.historical.FilteredHistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
@@ -213,7 +213,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		
 		int frequencySeconds = Integer.valueOf(observationFrequencyField.getText()).intValue();
 		
-		HistoricalDataSource<? extends ConsolidatedTradeRecordsData> consolidatedSrc = getDataSource(
+		HistoricalDataSource<? extends TimeConsolidatedTradeRecord> consolidatedSrc = getDataSource(
 				inputHDF5Filename, tradingDate, futuresOrOptions, underlying, expiryMonth, frequencySeconds);		
 		
 		String chartTitle = frequencySeconds+" Seconds consolidated "+underlying+" "+futuresOrOptions+" Ticks";
@@ -224,7 +224,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		
 		
 		// iterate through the data and add to the plot.
-		for (ConsolidatedTradeRecordsData data : consolidatedSrc.getData()) {
+		for (TimeConsolidatedTradeRecord data : consolidatedSrc.getData()) {
 			//double t = data.getTimestamp().getHourOfDay()*100.0 + data.getTimestamp().getMinuteOfHour();
 			//double val = data.getLastTradedPrice();
 			//plotSeries.add(t, val);
@@ -273,7 +273,7 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 	/**
 	 * Helper function to create the consolidated trade records data source object
 	 */
-	private HistoricalDataSource<? extends ConsolidatedTradeRecordsData> getDataSource(
+	private HistoricalDataSource<? extends TimeConsolidatedTradeRecord> getDataSource(
 			String inputHDF5Filename, LocalDate tradingDate, String futuresOrOptions, String underlying, YearMonth expiryMonth, int frequencySeconds) {
 		
 		TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = null;

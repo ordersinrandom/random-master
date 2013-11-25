@@ -7,7 +7,7 @@ import org.joda.time.YearMonth;
  * Trade Records consolidator implementation that consolidates HkDerivativesTR objects into a single HkDerivativesConsolidatedData.
  *
  */
-public class HkDerivativesTRConsolidator extends TradeRecordsConsolidator<HkDerivativesConsolidatedData, HkDerivativesTR> {
+public class HkDerivativesTRConsolidator extends TimeBasedTRConsolidator<HkDerivativesConsolidatedData, HkDerivativesTR> {
 
 	/**
 	 * Given a series of HkDerivativesTR data, and superclass computed fields such as first/last/max/min/average/tradedVolume,

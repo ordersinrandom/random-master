@@ -8,7 +8,7 @@ import org.joda.time.YearMonth;
  * lastTradedPrice / maxTradedPrice / minTradedPrice / averagedPrice / tradedVolume.
  * 
  */
-public class HkDerivativesConsolidatedData implements VanillaDerivativesData, FuturesData, ConsolidatedTradeRecordsData {
+public class HkDerivativesConsolidatedData implements VanillaDerivativesData, FuturesData, TimeConsolidatedTradeRecord {
 
 	private static final long serialVersionUID = -8174697719234067519L;
 

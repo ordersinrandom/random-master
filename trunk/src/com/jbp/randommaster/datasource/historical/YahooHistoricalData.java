@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormatter;
  * Encapsulate the Yahoo historical data (open, high, low, close, volume, adjusted close).
  *
  */
-public class YahooHistoricalData implements ConsolidatedTradeRecordsData {
+public class YahooHistoricalData implements TimeConsolidatedTradeRecord {
 
 	private static final long serialVersionUID = 1643322330608553665L;
 	

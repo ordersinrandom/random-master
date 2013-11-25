@@ -9,14 +9,14 @@ import org.joda.time.Period;
 /**
  * 
  * Abstract class implementation of the function to consolidated an iterable of
- * TradeRecordData to ConsolidatedTradeRecordsData.
+ * TradeRecordData to TimeConsolidatedTradeRecord.
  * 
  * @param <T1>
  *            The result object type.
  * @param <T2>
  *            The input object type.
  */
-public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecordsData, T2 extends TradeRecordData> {
+public abstract class TimeBasedTRConsolidator<T1 extends TimeConsolidatedTradeRecord, T2 extends TradeRecordData> {
 
 	/**
 	 * Consolidate the given input trade records by splitting the start to end
@@ -36,19 +36,19 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 */
 	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Period interval, Iterable<T2> inputData) {
 
-		LinkedList<T1> result=new LinkedList<T1>();
-		
-		LinkedList<T2> currentBuffer=new LinkedList<T2>();
+		LinkedList<T1> result = new LinkedList<T1>();
+
+		LinkedList<T2> currentBuffer = new LinkedList<T2>();
 		LinkedList<T2> nextBuffer = new LinkedList<T2>();
-		
+
 		Iterator<T2> inputIt = inputData.iterator();
-		
+
 		LinkedList<LocalDateTime> backwardExtrapolateList = new LinkedList<LocalDateTime>();
-		
+
 		LocalDateTime nextStart = start;
 		while (nextStart.compareTo(end) < 0) {
 			LocalDateTime nextEnd = nextStart.plus(interval);
-			
+
 			if (nextEnd.compareTo(end) > 0) {
 				nextEnd = end;
 			}
@@ -56,35 +56,35 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 			// add the data in nextBuffer to currentBuffer and remove it
 			// whenever it is applicable to current period.
 			if (!nextBuffer.isEmpty()) {
-				for (Iterator<T2> it=nextBuffer.iterator();it.hasNext();) {
+				for (Iterator<T2> it = nextBuffer.iterator(); it.hasNext();) {
 					T2 n = it.next();
 					// must be within the current timestamp.
-					if (n.getTradeTimestamp().compareTo(nextStart)>=0 
-							&& ((n.getTradeTimestamp().compareTo(nextEnd)==0 && nextEnd.compareTo(end)==0)
-							|| n.getTradeTimestamp().compareTo(nextEnd)<0)) {
+					if (n.getTradeTimestamp().compareTo(nextStart) >= 0
+							&& ((n.getTradeTimestamp().compareTo(nextEnd) == 0 && nextEnd.compareTo(end) == 0) || n.getTradeTimestamp().compareTo(
+									nextEnd) < 0)) {
 						currentBuffer.add(n);
 						it.remove();
 					}
 				}
 			}
-			
+
 			while (inputIt.hasNext()) {
 				T2 n = inputIt.next();
-				if (n.getTradeTimestamp().compareTo(nextStart)<0)
-					continue; // drop it if the data is before next start (this should happen only on first round)
-				else if (n.getTradeTimestamp().compareTo(nextEnd)<0 
-						|| (n.getTradeTimestamp().compareTo(nextEnd)==0 && nextEnd.compareTo(end)==0)) {
+				if (n.getTradeTimestamp().compareTo(nextStart) < 0)
+					continue; // drop it if the data is before next start (this
+								// should happen only on first round)
+				else if (n.getTradeTimestamp().compareTo(nextEnd) < 0
+						|| (n.getTradeTimestamp().compareTo(nextEnd) == 0 && nextEnd.compareTo(end) == 0)) {
 					// either it is within current period
 					// OR special handling for closing.
-					// if it is exactly stepped on current end time we will include them both in the current and next buffer
+					// if it is exactly stepped on current end time we will
+					// include them both in the current and next buffer
 					currentBuffer.add(n);
-				}
-				else {
+				} else {
 					nextBuffer.add(n);
 					break;
 				}
 			}
-			
 
 			T1 currentIntervalResult = null;
 			if (currentBuffer.isEmpty()) {
@@ -93,7 +93,8 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 					currentIntervalResult = extrapolate(nextEnd, result);
 				} catch (Exception e1) {
 					// if that's an exception (i.e. unable to extrapolate)
-					// we just ignore so that the currentIntervalResult is left as null
+					// we just ignore so that the currentIntervalResult is left
+					// as null
 				}
 			} else {
 				// now current buffer stores the current interval data
@@ -102,25 +103,27 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 				// clear the buffer
 				currentBuffer.clear();
 			}
-			
+
 			// if there is a result from this interval
-			if (currentIntervalResult!=null)
+			if (currentIntervalResult != null)
 				result.add(currentIntervalResult);
 			else {
-				// potentially currentIntervalResult can be null if at start early intervals and there are no previous data.
-				// we would need to backward extrapolate the data if we want a proper "plot"
+				// potentially currentIntervalResult can be null if at start
+				// early intervals and there are no previous data.
+				// we would need to backward extrapolate the data if we want a
+				// proper "plot"
 				backwardExtrapolateList.add(nextEnd);
 			}
-			
+
 			nextStart = nextEnd;
 		}
-		
+
 		// TODO: handle the remaining data in the nextBuffer ???
-		
+
 		// handle backward extrapolating the early intervals data.
-		for (Iterator<LocalDateTime> it=backwardExtrapolateList.descendingIterator();it.hasNext();) {
+		for (Iterator<LocalDateTime> it = backwardExtrapolateList.descendingIterator(); it.hasNext();) {
 			LocalDateTime t = it.next();
-			T1 exResult=backwardExtrapolate(t, result);
+			T1 exResult = backwardExtrapolate(t, result);
 			result.add(0, exResult);
 		}
 
@@ -154,9 +157,9 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 
 		for (T2 t : original) {
 
-			if (itemsCount==0)
+			if (itemsCount == 0)
 				firstTradedPrice = t.getPrice();
-			
+
 			lastTradedPrice = t.getPrice();
 			if (maxTradedPrice <= t.getPrice())
 				maxTradedPrice = t.getPrice();
@@ -174,7 +177,8 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 		if (itemsCount == 0)
 			return null;
 
-		return createConsolidatedData(refTimestamp, original, firstTradedPrice, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice, tradedVolume);
+		return createConsolidatedData(refTimestamp, original, firstTradedPrice, lastTradedPrice, maxTradedPrice, minTradedPrice, averagedPrice,
+				tradedVolume);
 
 	}
 
@@ -193,7 +197,7 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 *            The original iterable just in case the new object needs to
 	 *            copy some values from it. Must not empty or null.
 	 * @param firstTradedPrice
-	 * 	          The computed first traded price based on the iterable.
+	 *            The computed first traded price based on the iterable.
 	 * @param lastTradedPrice
 	 *            The computed last traded price based on the iterable.
 	 * @param maxTradedPrice
@@ -207,27 +211,31 @@ public abstract class TradeRecordsConsolidator<T1 extends ConsolidatedTradeRecor
 	 * 
 	 * @return A new instance of ConsolidatedTradeRecordsData
 	 */
-	protected abstract T1 createConsolidatedData(LocalDateTime refTimestamp, Iterable<T2> original,
-			double firstTradedPrice, double lastTradedPrice, double maxTradedPrice,
-			double minTradedPrice, double averagedPrice, double tradedVolume);
+	protected abstract T1 createConsolidatedData(LocalDateTime refTimestamp, Iterable<T2> original, double firstTradedPrice, double lastTradedPrice,
+			double maxTradedPrice, double minTradedPrice, double averagedPrice, double tradedVolume);
 
-	
 	/**
-	 * Given a new reference timestamp and previous interval results, extrapolate a new result.
+	 * Given a new reference timestamp and previous interval results,
+	 * extrapolate a new result.
 	 * 
-	 * @param refTimestamp Reference timestamp to be used.
-	 * @param previousIntervalResults Previous results computed.
+	 * @param refTimestamp
+	 *            Reference timestamp to be used.
+	 * @param previousIntervalResults
+	 *            Previous results computed.
 	 * @return A new entry of T1 type.
 	 */
 	protected abstract T1 extrapolate(LocalDateTime refTimestamp, Iterable<T1> previousIntervalResults);
-	
+
 	/**
-	 * Given a new reference timestamp and later interval results, extrapolate a new result in backward direction.
+	 * Given a new reference timestamp and later interval results, extrapolate a
+	 * new result in backward direction.
 	 * 
-	 * @param refTimestamp Reference timestamp to be used.
-	 * @param laterIntervalResults The results after this given timestamp.
+	 * @param refTimestamp
+	 *            Reference timestamp to be used.
+	 * @param laterIntervalResults
+	 *            The results after this given timestamp.
 	 * @return A new entry of T1 type.
 	 */
 	protected abstract T1 backwardExtrapolate(LocalDateTime refTimestamp, Iterable<T1> laterIntervalResults);
-	
+
 }

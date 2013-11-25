@@ -1,8 +1,12 @@
 package com.jbp.randommaster.datasource.historical;
 
 
-
-public interface ConsolidatedTradeRecordsData extends HistoricalData {
+/**
+ * 
+ * ConsolidatedTradeRecord represents a period of trade records that are grouped together by a given time period.
+ *
+ */
+public interface TimeConsolidatedTradeRecord extends HistoricalData {
 
 	/**
 	 * Consolidated field.

@@ -153,7 +153,7 @@ public class CointegratedTRSourceTests extends TestCase {
 
 		// first count the items.
 		int count = 0;
-		for (Iterator<? extends ConsolidatedTradeRecordsData> it = cointegratedSrc.getData().iterator(); it.hasNext();) {
+		for (Iterator<? extends TimeConsolidatedTradeRecord> it = cointegratedSrc.getData().iterator(); it.hasNext();) {
 			it.next();
 			count++;
 		}
