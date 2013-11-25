@@ -47,7 +47,7 @@ public class TimeIntervalConsolidatedTRSourceTests extends TestCase {
 		LocalDateTime start = new LocalDateTime(2012,10,31,15, 20, 0);
 		LocalDateTime end = new LocalDateTime(2012,10,31,16, 00, 0);
 		Period interval = new Period(0, 5, 0, 0);
-		HistoricalDataSource<? extends ConsolidatedTradeRecordsData> consolidatedSrc
+		HistoricalDataSource<? extends TimeConsolidatedTradeRecord> consolidatedSrc
 			= new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(con, src, start, end, interval);
 
 		
@@ -88,7 +88,7 @@ public class TimeIntervalConsolidatedTRSourceTests extends TestCase {
 		
 		// first count the items.
 		int count = 0;
-		for (Iterator<? extends ConsolidatedTradeRecordsData> it = consolidatedSrc.getData().iterator(); it.hasNext();) {
+		for (Iterator<? extends TimeConsolidatedTradeRecord> it = consolidatedSrc.getData().iterator(); it.hasNext();) {
 			it.next();
 			count++;
 		}
@@ -97,7 +97,7 @@ public class TimeIntervalConsolidatedTRSourceTests extends TestCase {
 		
 		if (count==expected.length) {
 			int index=0;
-			for (ConsolidatedTradeRecordsData d : consolidatedSrc.getData()) {
+			for (TimeConsolidatedTradeRecord d : consolidatedSrc.getData()) {
 				Assert.assertEquals("Item "+index+" mismatched", expected[index], d);
 				index++;
 			}

@@ -15,7 +15,7 @@ import org.javatuples.Pair;
  *
  * @param <T> The consolidated trade records data type. It has to be the same for input and output types.
  */
-public abstract class CointegratedTRSource<T extends ConsolidatedTradeRecordsData> implements HistoricalDataSource<T> {
+public abstract class CointegratedTRSource<T extends TimeConsolidatedTradeRecord> implements HistoricalDataSource<T> {
 
 	/**
 	 * All sources. List of sources to weight pairs.
