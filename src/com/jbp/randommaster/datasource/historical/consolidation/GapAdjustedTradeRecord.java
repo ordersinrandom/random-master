@@ -15,27 +15,35 @@ public class GapAdjustedTradeRecord implements TimeConsolidatedTradeRecord {
 	private static final long serialVersionUID = 6248095149428052529L;
 
 	private double gapAdjustment;
-	private TimeConsolidatedTradeRecord originalRecord;
+	private LocalDateTime timestamp;
+	private double firstTradedPrice;
+	private double lastTradedPrice;
+	private double maxTradedPrice;
+	private double minTradedPrice;
+	private double avgPrice;
+	private double tradedVolume;
 
 	public GapAdjustedTradeRecord(double gapAdjustment, TimeConsolidatedTradeRecord original) {
 		if (original == null)
 			throw new IllegalArgumentException("Original input trade record cannot be null");
 
 		this.gapAdjustment = gapAdjustment;
-		this.originalRecord = original;
+		this.timestamp = original.getTimestamp();
+		this.firstTradedPrice = original.getFirstTradedPrice() + gapAdjustment;
+		this.lastTradedPrice = original.getLastTradedPrice() + gapAdjustment;
+		this.maxTradedPrice = original.getMaxTradedPrice() + gapAdjustment;
+		this.minTradedPrice = original.getMinTradedPrice() + gapAdjustment;
+		this.avgPrice = original.getAveragedPrice() + gapAdjustment;
+		this.tradedVolume = original.getTradedVolume();
 	}
 
 	public double getGapAdjustment() {
 		return gapAdjustment;
 	}
 
-	public TimeConsolidatedTradeRecord getOriginalRecord() {
-		return originalRecord;
-	}
-
 	@Override
 	public LocalDateTime getTimestamp() {
-		return originalRecord.getTimestamp();
+		return timestamp;
 	}
 
 	@Override
@@ -45,32 +53,32 @@ public class GapAdjustedTradeRecord implements TimeConsolidatedTradeRecord {
 
 	@Override
 	public double getFirstTradedPrice() {
-		return originalRecord.getFirstTradedPrice() + gapAdjustment;
+		return firstTradedPrice;
 	}
 
 	@Override
 	public double getLastTradedPrice() {
-		return originalRecord.getLastTradedPrice() + gapAdjustment;
+		return lastTradedPrice;
 	}
 
 	@Override
 	public double getTradedVolume() {
-		return originalRecord.getTradedVolume();
+		return tradedVolume;
 	}
 
 	@Override
 	public double getMaxTradedPrice() {
-		return originalRecord.getMaxTradedPrice() + gapAdjustment;
+		return maxTradedPrice;
 	}
 
 	@Override
 	public double getMinTradedPrice() {
-		return originalRecord.getMinTradedPrice() + gapAdjustment;
+		return minTradedPrice;
 	}
 
 	@Override
 	public double getAveragedPrice() {
-		return originalRecord.getAveragedPrice() + gapAdjustment;
+		return avgPrice;
 	}
 
 }
