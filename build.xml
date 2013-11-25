@@ -5,6 +5,7 @@
     <property name="unit-test-src" location="unit-tests"/>
 	<property name="testing-tools-src" location="testing-tools"/>
 	<property name="draft-src" location="draft-src"/>
+	<property name="gui-lib-src" location="gui-lib-src"/>
     <property name="build" location="bin"/>
     <property name="lib" location="lib"/>
 
@@ -33,6 +34,7 @@ ant unit-test        Run unit tests
             <src path="${unit-test-src}"/>
         	<src path="${testing-tools-src}"/>
         	<src path="${draft-src}"/>
+        	<src path="${gui-lib-src}"/>
             <classpath>
                 <fileset dir="${lib}"/>
             </classpath>
