@@ -1,4 +1,4 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,6 +10,9 @@ import org.joda.time.Period;
 import org.joda.time.YearMonth;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
+import com.jbp.randommaster.datasource.historical.HkDerivativesTRFileSource;
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesTRConsolidator;
 import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;

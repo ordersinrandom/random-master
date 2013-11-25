@@ -1,4 +1,4 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
