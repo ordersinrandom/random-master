@@ -1,4 +1,4 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import java.util.LinkedList;
 
@@ -8,6 +8,7 @@ import org.joda.time.YearMonth;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesTRConsolidator;
 
