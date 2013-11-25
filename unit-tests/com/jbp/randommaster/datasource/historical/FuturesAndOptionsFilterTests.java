@@ -4,6 +4,9 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.filters.FuturesFilter;
+import com.jbp.randommaster.datasource.historical.filters.OptionsFilter;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

@@ -1,7 +1,11 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
+
+import com.jbp.randommaster.datasource.historical.FuturesData;
+import com.jbp.randommaster.datasource.historical.HistoricalData;
+import com.jbp.randommaster.datasource.historical.VanillaDerivativesData;
 
 /**
  * This class summarizes a list of HkDerivativesTR objects into useful data values such as

@@ -1,7 +1,9 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
+
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 
 /**
  * Trade Records consolidator implementation that consolidates HkDerivativesTR objects into a single HkDerivativesConsolidatedData.

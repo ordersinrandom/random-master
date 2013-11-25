@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
+import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;
+import com.jbp.randommaster.datasource.historical.consolidation.TimeIntervalConsolidatedTRSource;
+
 /**
  * 
  * A data source implementation that takes a number of <code>TimeIntervalConsolidatedTRSource</code>

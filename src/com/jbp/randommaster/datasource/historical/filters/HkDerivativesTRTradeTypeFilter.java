@@ -1,6 +1,8 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.filters;
 
 import java.util.HashSet;
+
+import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 
 /**
  * An implementation of HkDerivativesTR data filter that filters by the Trade Type field.

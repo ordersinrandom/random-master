@@ -1,8 +1,13 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.filters;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.jbp.randommaster.datasource.historical.AutoCloseableHistoricalDataSource;
+import com.jbp.randommaster.datasource.historical.AutoCloseableIterator;
+import com.jbp.randommaster.datasource.historical.HistoricalData;
+import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
 
 /**
  * 

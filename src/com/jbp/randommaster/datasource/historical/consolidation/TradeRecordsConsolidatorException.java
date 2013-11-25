@@ -1,4 +1,4 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 public class TradeRecordsConsolidatorException extends RuntimeException {
 

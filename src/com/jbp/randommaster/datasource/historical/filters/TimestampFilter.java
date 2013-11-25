@@ -1,6 +1,8 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.filters;
 
 import org.joda.time.LocalDateTime;
+
+import com.jbp.randommaster.datasource.historical.HistoricalData;
 
 /**
  * 

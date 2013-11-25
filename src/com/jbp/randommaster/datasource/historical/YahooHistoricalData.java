@@ -4,6 +4,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;
+
 /**
  * Encapsulate the Yahoo historical data (open, high, low, close, volume, adjusted close).
  *

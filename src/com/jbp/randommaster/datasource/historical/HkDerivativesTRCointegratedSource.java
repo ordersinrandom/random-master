@@ -4,6 +4,8 @@ import org.javatuples.Pair;
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 
+import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
+
 /**
  * An implementation of CointegratedTRSource on HkDerivativesConsolidatedData
  *
