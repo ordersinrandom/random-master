@@ -5,6 +5,9 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.filters.ExpiryMonthFilter;
+import com.jbp.randommaster.datasource.historical.filters.FilteredHistoricalDataSource;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

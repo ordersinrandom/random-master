@@ -1,4 +1,6 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.filters;
+
+import com.jbp.randommaster.datasource.historical.HistoricalData;
 
 public interface HistoricalDataFilter<T extends HistoricalData> {
 

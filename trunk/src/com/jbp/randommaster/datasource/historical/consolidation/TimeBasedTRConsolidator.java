@@ -1,10 +1,12 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
+
+import com.jbp.randommaster.datasource.historical.TradeRecordData;
 
 /**
  * 

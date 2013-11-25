@@ -10,6 +10,11 @@ import org.joda.time.Period;
 import org.joda.time.YearMonth;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
+import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesTRConsolidator;
+import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;
+import com.jbp.randommaster.datasource.historical.consolidation.TimeIntervalConsolidatedTRSource;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

@@ -4,7 +4,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 import org.junit.Test;
 
-import com.jbp.randommaster.datasource.historical.HkDerivativesTRTradeTypeFilter.TradeType;
+import com.jbp.randommaster.datasource.historical.filters.HkDerivativesTRTradeTypeFilter;
+import com.jbp.randommaster.datasource.historical.filters.HkDerivativesTRTradeTypeFilter.TradeType;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

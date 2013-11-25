@@ -1,4 +1,6 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.consolidation;
+
+import com.jbp.randommaster.datasource.historical.HistoricalData;
 
 
 /**

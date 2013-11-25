@@ -1,6 +1,8 @@
-package com.jbp.randommaster.datasource.historical;
+package com.jbp.randommaster.datasource.historical.filters;
 
 import org.joda.time.YearMonth;
+
+import com.jbp.randommaster.datasource.historical.DerivativesData;
 
 /**
  * A data filter that would accept the historical data object depending on its expiry month.

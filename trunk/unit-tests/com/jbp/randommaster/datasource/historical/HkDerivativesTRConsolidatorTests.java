@@ -8,6 +8,9 @@ import org.joda.time.YearMonth;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
+import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesTRConsolidator;
+
 import junit.framework.TestCase;
 
 public class HkDerivativesTRConsolidatorTests extends TestCase {
