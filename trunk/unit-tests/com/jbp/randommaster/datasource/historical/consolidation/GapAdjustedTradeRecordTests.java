@@ -31,9 +31,12 @@ public class GapAdjustedTradeRecordTests extends TestCase {
 				underlying, strike, futuresOptions, callPut, firstTradedPrice, lastTradedPrice, maxTradedPrice, minTradedPrice, 
 				averagedPrice, tradedVolume);
 
-		double gap = 200.0;
+		double gap = 200;
 		
-		GapAdjustedTradeRecord ga = new GapAdjustedTradeRecord(gap, data);
+		AccruedGapsTracker tracker = new AccruedGapsTracker();
+		tracker.adjust(gap);
+		
+		GapAdjustedTradeRecord<HkDerivativesConsolidatedData> ga = new GapAdjustedTradeRecord<>(data, tracker);
 		
 		double delta = 0.00000001;
 		Assert.assertEquals("Traded Volume mismatched", tradedVolume, ga.getTradedVolume(), delta);
@@ -42,6 +45,17 @@ public class GapAdjustedTradeRecordTests extends TestCase {
 		Assert.assertEquals("Max traded price mismatched", maxTradedPrice + gap, ga.getMaxTradedPrice(), delta);
 		Assert.assertEquals("Min traded price mismatched", minTradedPrice + gap, ga.getMinTradedPrice(), delta);
 		Assert.assertEquals("Averaged Price mismatched", averagedPrice + gap, ga.getAveragedPrice(), delta);
+		
+		double gap2 = -150;
+		
+		tracker.adjust(gap2);
+		
+		Assert.assertEquals("Traded Volume mismatched", tradedVolume, ga.getTradedVolume(), delta);
+		Assert.assertEquals("First Traded Price mismatced", firstTradedPrice + gap + gap2, ga.getFirstTradedPrice(), delta);
+		Assert.assertEquals("Last traded price mismatched", lastTradedPrice + gap + gap2, ga.getLastTradedPrice(), delta);
+		Assert.assertEquals("Max traded price mismatched", maxTradedPrice + gap + gap2, ga.getMaxTradedPrice(), delta);
+		Assert.assertEquals("Min traded price mismatched", minTradedPrice + gap + gap2, ga.getMinTradedPrice(), delta);
+		Assert.assertEquals("Averaged Price mismatched", averagedPrice + gap + gap2, ga.getAveragedPrice(), delta);
 		
 	}
 
