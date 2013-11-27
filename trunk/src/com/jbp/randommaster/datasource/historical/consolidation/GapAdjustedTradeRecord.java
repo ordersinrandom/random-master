@@ -27,6 +27,9 @@ public class GapAdjustedTradeRecord<T extends TimeConsolidatedTradeRecord> imple
 		return original;
 	}
 	
+	public double getGapAdjustment() {
+		return tracker.getAccrued();
+	}
 	
 	@Override
 	public LocalDateTime getTimestamp() {
