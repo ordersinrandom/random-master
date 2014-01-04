@@ -51,5 +51,5 @@ public interface TimeConsolidatedTradeRecord extends HistoricalData {
 	 */
 	public double getAveragedPrice();
 
-
+	
 }
