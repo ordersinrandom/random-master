@@ -27,48 +27,43 @@ public class HkDerivativesTRFile2JDBC extends HkDerivativesTRZipFilesProcessor {
 	static Logger log = Logger.getLogger(HkDerivativesTRFile2JDBC.class);
 
 	private MasterDatabaseConnections connectionSrc;
-	
+
 	private int numberOfRowsUpdated;
 
 	public HkDerivativesTRFile2JDBC(File inputFolder, MasterDatabaseConnections connectionSrc) {
 		super(inputFolder);
 		this.connectionSrc = connectionSrc;
-		numberOfRowsUpdated=0;
+		numberOfRowsUpdated = 0;
 	}
 
 	@Override
 	protected void processHkDerivativesTRInput(File srcZipFile, String zipEntryKey, Iterable<HkDerivativesTR> loadedData) {
+
+		log.info("Processing source file: "+srcZipFile.getAbsolutePath());
 		
-		String sql="Insert into hkextrsource(entryhash,underlying,futuresoptions,expirymonth,strike,callput,tradetimestamp,price,quantity,tradetype) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		
-/*
-CREATE TABLE hkextrsource
-(
-  entryhash character varying(30) NOT NULL,
-  underlying character varying(10) NOT NULL,
-  futuresoptions character varying(1) NOT NULL,
-  expirymonth timestamp without time zone NOT NULL,
-  strike numeric,
-  callput character varying(1),
-  tradetimestamp timestamp without time zone NOT NULL,
-  price numeric,
-  quantity numeric,
-  tradetype character varying(4),
-		
- */
-		
-		
-		try (Connection conn=connectionSrc.getConnection();
-				PreparedStatement st=conn.prepareStatement(sql);) {
-			
+		String sql = "Insert into hkextrsource(entryhash,underlying,futuresoptions,expirymonth,strike,callput,tradetimestamp,price,quantity,tradetype,source) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+
+		/*
+		 * CREATE TABLE hkextrsource ( entryhash character varying(30) NOT NULL,
+		 * underlying character varying(10) NOT NULL, futuresoptions character
+		 * varying(1) NOT NULL, expirymonth timestamp without time zone NOT
+		 * NULL, strike numeric, callput character varying(1), tradetimestamp
+		 * timestamp without time zone NOT NULL, price numeric, quantity
+		 * numeric, tradetype character varying(4),
+		 */
+
+		try (Connection conn = connectionSrc.getConnection(); PreparedStatement st = conn.prepareStatement(sql);) {
+
+			conn.setAutoCommit(true);
+
 			for (HkDerivativesTR tr : loadedData) {
-			
-				byte[] hash=MessageDigest.getInstance("SHA1").digest(UUID.randomUUID().toString().getBytes("ISO-8859-1"));
-				String key=Base64.encodeBase64String(hash);
-				
+
+				byte[] hash = MessageDigest.getInstance("SHA1").digest(UUID.randomUUID().toString().getBytes("ISO-8859-1"));
+				String key = Base64.encodeBase64String(hash);
+
 				st.setString(1, key);
 				st.setString(2, tr.getUnderlying());
-				st.setString(3,  tr.getFuturesOrOptions());
+				st.setString(3, tr.getFuturesOrOptions());
 				st.setTimestamp(4, new Timestamp(tr.getExpiryMonth().toLocalDate(1).toDate().getTime()));
 				st.setDouble(5, tr.getStrikePrice());
 				st.setString(6, tr.getCallPut());
@@ -76,11 +71,16 @@ CREATE TABLE hkextrsource
 				st.setDouble(8, tr.getPrice());
 				st.setDouble(9, tr.getQuantity());
 				st.setString(10, tr.getTradeType());
+				st.setString(11, srcZipFile.getName());
 
 				int row = st.executeUpdate();
 				numberOfRowsUpdated += row;
+
+				if (numberOfRowsUpdated % 2000 == 0) {
+					log.info("CSV File: " + srcZipFile.getName() + " number of rows inserted: " + numberOfRowsUpdated);
+				}
 			}
-			
+
 		} catch (SQLException sqle) {
 			log.fatal("SQL Exception. Unable to update database", sqle);
 		} catch (NoSuchAlgorithmException e) {
@@ -89,16 +89,39 @@ CREATE TABLE hkextrsource
 			log.fatal("Unable to convert UUID bytes to ISO-8859-1 string format", e);
 		}
 
+		log.info("Source file: "+srcZipFile.getAbsolutePath()+" inserted into database");
 	}
-	
-	
+
 	public int getRowsUpdated() {
 		return numberOfRowsUpdated;
 	}
-	
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		try {
+			String inputZipFilesFolderName = args[0];
+			String configFilePath = args[1];
+	
+			log.info("Input zip files folder: " + inputZipFilesFolderName);
+			log.info("configFilePath: "+configFilePath);
+			
+	
+			File inputFolder = new File(inputZipFilesFolderName);
+	
+			if (!inputFolder.isDirectory())
+				throw new IllegalArgumentException("Input folder is not a directory");
+	
+			
+			MasterDatabaseConnections conn = new MasterDatabaseConnections(configFilePath);
+			
+			HkDerivativesTRFile2JDBC app = new HkDerivativesTRFile2JDBC(inputFolder,  conn);
+			app.processFiles();
+			
+			log.info("all files processed");
+			
+		} catch (Exception e) {
+			log.fatal("Unable to connect to database", e);
+		}
+
 
 	}
 
