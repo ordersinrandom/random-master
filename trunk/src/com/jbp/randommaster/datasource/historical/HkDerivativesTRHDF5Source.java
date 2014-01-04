@@ -34,7 +34,7 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 	private String[] hdf5Filenames;
 	private LocalDate tradeDate;
 	private String instrumentType;
-	private String instrumentName;
+	private String underlyingName;
 
 	/**
 	 * Create an instance of HkDerivativesTRHDF5Source.
@@ -42,23 +42,26 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 	 * @param hdf5Filename The source hdf5 file.
 	 * @param tradeDate The trade date of the data to be loaded.
 	 * @param instrumentType The instrument type such as "Futures" or "Options" etc
-	 * @param instrumentName The instrument name such as HSI or HHI etc
+	 * @param underlyingName The underlying name such as HSI or HHI etc
 	 */
-	public HkDerivativesTRHDF5Source(String hdf5Filename, LocalDate tradeDate, String instrumentType, String instrumentName) {
+	public HkDerivativesTRHDF5Source(String hdf5Filename, LocalDate tradeDate, String instrumentType, String underlyingName) {
 		this.hdf5Filenames = new String[] { hdf5Filename };
 		this.tradeDate = tradeDate;
 		this.instrumentType = instrumentType;
-		this.instrumentName = instrumentName;
+		this.underlyingName = underlyingName;
 	}
 	
-	public HkDerivativesTRHDF5Source(String hdf5Filename, String instrumentType, String instrumentName) {
-		this(hdf5Filename, null, instrumentType, instrumentName);
-	}
-	
-	public HkDerivativesTRHDF5Source(String[] hdf5Filenames, String instrumentType, String instrumentName) {
+	/**
+	 * Create an instance of HkDerivativesTRHDF5Source by an array of sorted hdf5 files.
+	 * 
+	 * @param hdf5Filenames An array of hdf5 files. Note that we assume the files are sorted by the trade timestamp and there is no overlapping of time between two files.
+	 * @param instrumentType The instrument type that we are loading.
+	 * @param underlyingName The underlying name such as HSI or HHI.
+	 */
+	public HkDerivativesTRHDF5Source(String[] hdf5Filenames, String instrumentType, String underlyingName) {
 		this.hdf5Filenames = hdf5Filenames;
 		this.instrumentType = instrumentType;
-		this.instrumentName = instrumentName;
+		this.underlyingName = underlyingName;
 		this.tradeDate = null;
 	}
 	
@@ -76,21 +79,18 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 	
 	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
 
-		/*
-		private H5File h5ReadOnlyFile;
-		private Iterator<HkDerivativesTR> nestedIterator;
-		*/
-		
 		private Map<String, H5File> filesMap;
+		// use array here to improve the performance. should be exactly matching the size of the parent class hdf5Filenames array
 		@SuppressWarnings("rawtypes")
-		private Iterator[] iteratorsMap;
+		private Iterator[] iteratorsMap; 
+		
+		// to keep track of the current file that we are loading.
 		private int currentFileIndex;
 		
 		public InputFileIterator() {
 
 			filesMap = new HashMap<>();
 			iteratorsMap = new Iterator[hdf5Filenames.length];
-			//currentFileIndex = hdf5Filenames.length-1;
 			currentFileIndex = 0;
 			
 			for (int i=0;i< hdf5Filenames.length;i++) {
@@ -104,21 +104,26 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 					List<String> allDatasetsPaths = null;
 					
 					if (tradeDate==null) {
-						String instrumentGroupPath = instrumentType + "/" + instrumentName;
+						String instrumentGroupPath = instrumentType + "/" + underlyingName;
 						HObject obj = h5ReadOnlyFile.get(instrumentGroupPath);
 						if (obj instanceof H5Group) {
 							H5Group instrumentGroup = (H5Group) obj;
-							allDatasetsPaths = getAllLeaves(h5ReadOnlyFile, instrumentGroup);
+							List<String> paths = getAllLeafNodePaths(h5ReadOnlyFile, instrumentGroup);
+							allDatasetsPaths = new LinkedList<>();
+							for (String p : paths) {
+								if (p.endsWith(HkDerivativesTRHDF5Builder.DEFAULT_DATASET_NAME))
+									allDatasetsPaths.add(p);
+							}
 						}
 						else throw new HistoricalDataSourceException("Unable to find the subgroup of "+instrumentGroupPath+" for HDF5 File: "+h5ReadOnlyFile.getAbsolutePath());
 					}
 					else {
 						allDatasetsPaths=new LinkedList<>();
-						allDatasetsPaths.add(instrumentType + "/" + instrumentName + "/" + tradeDate.toString("yyyy/MM/dd") + "/"
+						allDatasetsPaths.add(instrumentType + "/" + underlyingName + "/" + tradeDate.toString("yyyy/MM/dd") + "/"
 								+ HkDerivativesTRHDF5Builder.DEFAULT_DATASET_NAME);
 					}
 	
-					// construct the iterable.
+					// construct the iterable for each single file. (Note that this YieldUtils spawns a thread and a queue to handle its internal logic)
 					Iterable<HkDerivativesTR> trIterable = YieldUtils.toIterable(new HkDerivativesTRYielder(h5ReadOnlyFile, allDatasetsPaths));
 					Iterator<HkDerivativesTR> nestedIterator = trIterable.iterator();
 					
@@ -204,14 +209,13 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 					log.warn("Unable to close the HDF5 File: " + filename, e2);
 				} finally {
 					filesMap.remove(filename);
-					//iteratorsMap.remove(filename);
 				}
 			}				
 		}
 		
 		
 		// helper function to get the leaves Dataset for daily tick data.
-		private List<String> getAllLeaves(H5File h5ReadOnlyFile, H5Group g) throws Exception {
+		private List<String> getAllLeafNodePaths(H5File h5ReadOnlyFile, H5Group g) throws Exception {
 			
 			List<HObject> members = g.getMemberList();
 			List<String> nestedPaths = new LinkedList<>();
@@ -235,7 +239,7 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 			
 			for (String p : nestedPaths) {
 				H5Group subgroup = (H5Group) h5ReadOnlyFile.get(p);
-				List<String> r = getAllLeaves(h5ReadOnlyFile, subgroup);
+				List<String> r = getAllLeafNodePaths(h5ReadOnlyFile, subgroup);
 				result.addAll(r);
 			}
 			
@@ -244,6 +248,12 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 		}		
 	}
 	
+	/**
+	 * 
+	 * HkDerivativesTRYielder is the actual yield iterator implementation that reads from a given HDF5 file
+	 * and return the HkDerivativesTR object.
+	 *
+	 */
 	private class HkDerivativesTRYielder implements Generator<HkDerivativesTR> {
 
 		private H5File h5ReadOnlyFile;
@@ -314,125 +324,5 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 	
 	}
 	
-	
-	
-
-	/*
-	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
-
-		private H5File h5ReadOnlyFile;
-
-		private Iterator<HkDerivativesTR> dataBufIt;
-
-		@SuppressWarnings("rawtypes")
-		public InputFileIterator() {
-
-			// TODO: change this HDF5 Source to really use iterator pattern.
-			
-			try {
-				FileFormat format = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-				h5ReadOnlyFile = (H5File) format.createInstance(getHDF5Filename(), FileFormat.READ);
-
-				// read the dataset
-				HObject dataset = h5ReadOnlyFile.get(getHDF5LoadPath());
-
-				// the buffer to store the data from the compound ds
-				List<HkDerivativesTR> dataBuf = new LinkedList<HkDerivativesTR>();
-				
-				if (dataset instanceof H5CompoundDS) {
-					H5CompoundDS compDS = (H5CompoundDS) dataset;
-
-					Object data = compDS.getData();
-					if (data instanceof Vector) {
-						Vector dataVector = (Vector) data;
-						if (dataVector.size() != 9)
-							throw new IllegalStateException("input file doesn't have exactly 9 columns");
-
-						String[] classCode = (String[]) dataVector.get(0);
-						String[] futuresOrOptions = (String[]) dataVector.get(1);
-						long[] expiryMonth = (long[]) dataVector.get(2);
-						double[] strikePrice = (double[]) dataVector.get(3);
-						String[] callPut = (String[]) dataVector.get(4);
-						long[] timestamp = (long[]) dataVector.get(5);
-						double[] price = (double[]) dataVector.get(6);
-						double[] quantity = (double[]) dataVector.get(7);
-						String[] tradeType = (String[]) dataVector.get(8);
-
-						int totalLength = classCode.length;
-
-						
-
-						for (int currentIndex = 0; currentIndex < totalLength; currentIndex++) {
-
-							LocalDateTime expiryMonthDateTime = new LocalDateTime(expiryMonth[currentIndex]);
-							YearMonth expiryMonthObj = new YearMonth(expiryMonthDateTime.getYear(),
-									expiryMonthDateTime.getMonthOfYear());
-
-							LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
-
-							HkDerivativesTR tuple = new HkDerivativesTR(classCode[currentIndex],
-									futuresOrOptions[currentIndex], 
-									expiryMonthObj, strikePrice[currentIndex],
-									callPut[currentIndex], 
-									tradeDateTime, price[currentIndex],
-									quantity[currentIndex], tradeType[currentIndex]);
-
-							dataBuf.add(tuple);
-						}
-
-
-					}
-				}
-
-				// in any case we need to create an iterator to avoid null pointer exception.
-				dataBufIt = dataBuf.iterator();
-
-			} catch (Exception e1) {
-				throw new HistoricalDataSourceException("Unable to open HDF5 File: " + getHDF5Filename(), e1);
-			} 
-
-		}
-
-		@Override
-		public boolean hasNext() {
-			boolean result = dataBufIt.hasNext();
-			// do this to follow the same convention of the looping.
-			if (result==false)
-				close();
-			return result;
-		}
-
-		@Override
-		public HkDerivativesTR next() {
-			return dataBufIt.next();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRHDF5Source");
-		}
-
-
-		@Override
-		public boolean isClosed() {
-			return h5ReadOnlyFile==null;
-		}
-
-		@Override
-		public void close() {
-			if (h5ReadOnlyFile != null) {
-				try {
-					h5ReadOnlyFile.close();
-				} catch (Exception e2) {
-					log.warn("Unable to close the HDF5 File: " + getHDF5Filename(), e2);
-				} finally {
-					h5ReadOnlyFile = null;
-				}
-			}			
-		}
-		
-	}*/
-
-
 
 }
