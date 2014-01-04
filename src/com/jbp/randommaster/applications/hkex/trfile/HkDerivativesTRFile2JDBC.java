@@ -39,18 +39,25 @@ public class HkDerivativesTRFile2JDBC extends HkDerivativesTRZipFilesProcessor {
 	@Override
 	protected void processHkDerivativesTRInput(File srcZipFile, String zipEntryKey, Iterable<HkDerivativesTR> loadedData) {
 
+		// not yet implemented.
+		/*
+create table price5min(
+instrumentcode varchar(10) not null, 
+recordtimestamp timestamp without time zone not null,
+open numeric not null, 
+high numeric not null, 
+low numeric not null, 
+close numeric not null, 
+average numeric not null, 
+primary key(instrumentcode, recordtimestamp)
+);
+		 */
+		
+		
+		
 		log.info("Processing source file: "+srcZipFile.getAbsolutePath());
 		
 		String sql = "Insert into hkextrsource(entryhash,underlying,futuresoptions,expirymonth,strike,callput,tradetimestamp,price,quantity,tradetype,source) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
-
-		/*
-		 * CREATE TABLE hkextrsource ( entryhash character varying(30) NOT NULL,
-		 * underlying character varying(10) NOT NULL, futuresoptions character
-		 * varying(1) NOT NULL, expirymonth timestamp without time zone NOT
-		 * NULL, strike numeric, callput character varying(1), tradetimestamp
-		 * timestamp without time zone NOT NULL, price numeric, quantity
-		 * numeric, tradetype character varying(4),
-		 */
 
 		try (Connection conn = connectionSrc.getConnection(); PreparedStatement st = conn.prepareStatement(sql);) {
 
