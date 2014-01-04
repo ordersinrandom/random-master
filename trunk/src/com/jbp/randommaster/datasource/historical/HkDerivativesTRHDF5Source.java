@@ -133,9 +133,7 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 									tradeDateTime, price[currentIndex],
 									quantity[currentIndex], tradeType[currentIndex]);
 
-							//dataBuf.add(new HkDerivativesTRData(tuple));
 							dataBuf.add(tuple);
-
 						}
 
 
@@ -144,7 +142,6 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 
 				// in any case we need to create an iterator to avoid null pointer exception.
 				dataBufIt = dataBuf.iterator();
-
 
 			} catch (Exception e1) {
 				throw new HistoricalDataSourceException("Unable to open HDF5 File: " + getHDF5Filename(), e1);
