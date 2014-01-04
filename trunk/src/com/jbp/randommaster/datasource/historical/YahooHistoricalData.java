@@ -206,6 +206,8 @@ public class YahooHistoricalData implements TimeConsolidatedTradeRecord {
 	public double getAveragedPrice() {
 		// approximation
 		return (getHigh()+getLow())/2.0;
-	}	
+	}
+	
+	
 	
 }
