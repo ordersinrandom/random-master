@@ -63,6 +63,25 @@ public class HkDerivativesTRFile2HDF5 extends HkDerivativesTRZipFilesProcessor {
 		
 		
 	}
+	
+	
+	public static void main(String[] args) {
+		String inputZipFilesFolderName = args[0];
+		String outputFolderName = args[1];
+
+		log.info("Input zip files folder: " + inputZipFilesFolderName);
+		log.info("Output folder: " + outputFolderName);
+
+		File inputFolder = new File(inputZipFilesFolderName);
+		File outputFolder = new File(outputFolderName);
+
+		if (!inputFolder.isDirectory() || !outputFolder.isDirectory())
+			throw new IllegalArgumentException("Input folders or output folders are not directories");
+
+		HkDerivativesTRFile2HDF5 app=new HkDerivativesTRFile2HDF5(inputFolder, outputFolder);
+		app.processFiles();
+
+	}	
 
 	/* OLD code to be removed.
 	public void processFiles() {
@@ -141,23 +160,6 @@ public class HkDerivativesTRFile2HDF5 extends HkDerivativesTRZipFilesProcessor {
 	}*/
 	
 	
-	
-	public static void main(String[] args) {
-		String inputZipFilesFolderName = args[0];
-		String outputFolderName = args[1];
 
-		log.info("Input zip files folder: " + inputZipFilesFolderName);
-		log.info("Output folder: " + outputFolderName);
-
-		File inputFolder = new File(inputZipFilesFolderName);
-		File outputFolder = new File(outputFolderName);
-
-		if (!inputFolder.isDirectory() || !outputFolder.isDirectory())
-			throw new IllegalArgumentException("Input folders or output folders are not directories");
-
-		HkDerivativesTRFile2HDF5 app=new HkDerivativesTRFile2HDF5(inputFolder, outputFolder);
-		app.processFiles();
-
-	}
 
 }
