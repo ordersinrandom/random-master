@@ -28,10 +28,14 @@ public class TestCreate1 {
 		
 		int count=480; // 1 day ticks
 
+		/*
 		Datatype[] memberDatatypes = {
 			     new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, -1),
 			     new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, -1) };		
-		
+		*/
+		Datatype[] memberDatatypes = {
+				new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, -1),
+				new H5Datatype(H5Datatype.CLASS_FLOAT, 8, H5Datatype.NATIVE, -1) };
 		
 		H5Group g=(H5Group) h5File.get("/TestGroup");
 
@@ -55,9 +59,10 @@ public class TestCreate1 {
 			testDS.init();
 			
 			double[] time=new double [count];
+			//Date[] time = new Date[count];
 			double[] val = new double [count];
 			val[0]=50;
-			time[0]=0;
+			time[0]=0.1;
 			
 			double mu=0.12;
 			double sigma=0.2;
@@ -66,6 +71,8 @@ public class TestCreate1 {
 			Random rand=new Random();
 			for (int i=1;i<count;i++) {
 				time[i]=time[i-1]+dt;
+				
+				
 				val[i]=val[i-1]*Math.exp((mu-0.5*sigma*sigma)*dt + sigma * rand.nextGaussian() * Math.sqrt(dt)); 
 			}
 			//System.out.println("data generated");
