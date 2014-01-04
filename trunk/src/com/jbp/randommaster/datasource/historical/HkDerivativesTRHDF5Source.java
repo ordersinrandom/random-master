@@ -9,12 +9,16 @@ import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5CompoundDS;
 import ncsa.hdf.object.h5.H5File;
+import ncsa.hdf.object.h5.H5Group;
 
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.YearMonth;
 
+import com.google.code.jyield.Generator;
+import com.google.code.jyield.YieldUtils;
+import com.google.code.jyield.Yieldable;
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 
 /**
@@ -44,18 +48,13 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 		this.instrumentType = instrumentType;
 		this.instrumentName = instrumentName;
 	}
-
-	public String getHDF5LoadPath() {
-		return instrumentType + "/" + instrumentName + "/" + tradeDate.toString("yyyy/MM/dd") + "/"
-				+ HkDerivativesTRHDF5Builder.DEFAULT_DATASET_NAME;
+	
+	public HkDerivativesTRHDF5Source(String hdf5Filename, String instrumentType, String instrumentName) {
+		this(hdf5Filename, null, instrumentType, instrumentName);
 	}
-
+	
 	public String getHDF5Filename() {
 		return hdf5Filename;
-	}
-
-	public LocalDate getTradeDate() {
-		return tradeDate;
 	}
 
 	public String getInstrumentType() {
@@ -70,10 +69,189 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 		return new InputFileIterator();
 	}
 	
+	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
 
-	/**
-	 * Helper class to implement the iterator of the HDF5 data.
-	 */
+		private H5File h5ReadOnlyFile;
+		private Iterator<HkDerivativesTR> nestedIterator;
+		
+		public InputFileIterator() {
+
+			try {
+				FileFormat format = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
+				h5ReadOnlyFile = (H5File) format.createInstance(getHDF5Filename(), FileFormat.READ);
+				
+				List<String> allDatasetsPaths = null;
+				
+				if (tradeDate==null) {
+					String instrumentGroupPath = instrumentType + "/" + instrumentName;
+					HObject obj = h5ReadOnlyFile.get(instrumentGroupPath);
+					if (obj instanceof H5Group) {
+						H5Group instrumentGroup = (H5Group) obj;
+						allDatasetsPaths = getAllLeaves(instrumentGroup);
+					}
+					else throw new HistoricalDataSourceException("Unable to find the subgroup of "+instrumentGroupPath+" for HDF5 File: "+h5ReadOnlyFile.getAbsolutePath());
+				}
+				else {
+					allDatasetsPaths=new LinkedList<>();
+					allDatasetsPaths.add(instrumentType + "/" + instrumentName + "/" + tradeDate.toString("yyyy/MM/dd") + "/"
+							+ HkDerivativesTRHDF5Builder.DEFAULT_DATASET_NAME);
+				}
+
+				// construct the iterable.
+				Iterable<HkDerivativesTR> trIterable = YieldUtils.toIterable(new HkDerivativesTRYielder(h5ReadOnlyFile, allDatasetsPaths));
+				nestedIterator = trIterable.iterator();
+				
+			} catch (Exception e1) {
+				throw new HistoricalDataSourceException("Unable to open HDF5 File: " + getHDF5Filename(), e1);
+			} 
+		}
+		
+		
+		@Override
+		public boolean hasNext() {
+			boolean result = nestedIterator.hasNext();
+			// do this to follow the same convention of the looping.
+			if (result==false)
+				close();
+			return result;
+		}
+
+		@Override
+		public HkDerivativesTR next() {
+			return nestedIterator.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove() is not supported for HkDerivativesTRHDF5Source");
+		}
+
+		@Override
+		public boolean isClosed() {
+			return h5ReadOnlyFile==null;
+		}
+
+		@Override
+		public void close() {
+			if (h5ReadOnlyFile != null) {
+				try {
+					h5ReadOnlyFile.close();
+				} catch (Exception e2) {
+					log.warn("Unable to close the HDF5 File: " + getHDF5Filename(), e2);
+				} finally {
+					h5ReadOnlyFile = null;
+				}
+			}				
+		}
+		
+		// helper function to get the leaves Dataset for daily tick data.
+		private List<String> getAllLeaves(H5Group g) throws Exception {
+			
+			List<HObject> members = g.getMemberList();
+			List<String> nestedPaths = new LinkedList<>();
+			List<String> terminals = new LinkedList<>();
+			
+			if (members!=null) {
+				for (HObject obj : members) {
+					if (obj instanceof H5Group) {
+						nestedPaths.add(((H5Group) obj).getFullName());
+					}
+					else {
+						terminals.add(obj.getFullName());
+					}
+				}
+			}
+			
+			List<String> result=new LinkedList<>();
+			if (!terminals.isEmpty()) {
+				result.addAll(terminals);
+			}
+			
+			for (String p : nestedPaths) {
+				H5Group subgroup = (H5Group) h5ReadOnlyFile.get(p);
+				List<String> r = getAllLeaves(subgroup);
+				result.addAll(r);
+			}
+			
+			return result;
+			
+		}		
+	}
+	
+	private class HkDerivativesTRYielder implements Generator<HkDerivativesTR> {
+
+		private H5File h5ReadOnlyFile;
+		private Iterable<String> allDatasetsPaths;
+		
+		public HkDerivativesTRYielder(H5File h5ReadOnlyFile, Iterable<String> allDatasetsPaths) {
+			this.h5ReadOnlyFile=h5ReadOnlyFile;
+			this.allDatasetsPaths=allDatasetsPaths;
+		}
+		
+		@Override
+		public void generate(Yieldable<HkDerivativesTR> yieldable) {
+			try {
+				// one loop is one day of data
+				for (String path : allDatasetsPaths) {
+					
+					// read the dataset for one day
+					HObject dataset = h5ReadOnlyFile.get(path);
+	
+					if (dataset instanceof H5CompoundDS) {
+						H5CompoundDS compDS = (H5CompoundDS) dataset;
+	
+						Object data = compDS.getData();
+						if (data instanceof Vector) {
+							@SuppressWarnings("rawtypes")
+							Vector dataVector = (Vector) data;
+							if (dataVector.size() != 9)
+								throw new IllegalStateException("input file doesn't have exactly 9 columns");
+	
+							String[] classCode = (String[]) dataVector.get(0);
+							String[] futuresOrOptions = (String[]) dataVector.get(1);
+							long[] expiryMonth = (long[]) dataVector.get(2);
+							double[] strikePrice = (double[]) dataVector.get(3);
+							String[] callPut = (String[]) dataVector.get(4);
+							long[] timestamp = (long[]) dataVector.get(5);
+							double[] price = (double[]) dataVector.get(6);
+							double[] quantity = (double[]) dataVector.get(7);
+							String[] tradeType = (String[]) dataVector.get(8);
+	
+							int totalLength = classCode.length;
+	
+							for (int currentIndex = 0; currentIndex < totalLength; currentIndex++) {
+	
+								LocalDateTime expiryMonthDateTime = new LocalDateTime(expiryMonth[currentIndex]);
+								YearMonth expiryMonthObj = new YearMonth(expiryMonthDateTime.getYear(),
+										expiryMonthDateTime.getMonthOfYear());
+	
+								LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentIndex]);
+	
+								HkDerivativesTR tuple = new HkDerivativesTR(classCode[currentIndex],
+										futuresOrOptions[currentIndex], 
+										expiryMonthObj, strikePrice[currentIndex],
+										callPut[currentIndex], 
+										tradeDateTime, price[currentIndex],
+										quantity[currentIndex], tradeType[currentIndex]);
+								
+								yieldable.yield(tuple);
+							}
+						}
+					}				
+					
+					
+				}
+			} catch (Exception e1) {
+				throw new RuntimeException("Caught exception when yield iterating HDF5 file: "+h5ReadOnlyFile.getName(), e1);
+			}
+		}
+	
+	}
+	
+	
+	
+
+	/*
 	private class InputFileIterator implements AutoCloseableIterator<HkDerivativesTR> {
 
 		private H5File h5ReadOnlyFile;
@@ -187,7 +365,7 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 			}			
 		}
 		
-	}
+	}*/
 
 
 

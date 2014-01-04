@@ -13,6 +13,7 @@ set cp=%cp%;.\lib\httpclient-4.2.3.jar
 set cp=%cp%;.\lib\httpclient-cache-4.2.3.jar
 set cp=%cp%;.\lib\httpcore-4.2.2.jar
 set cp=%cp%;.\lib\httpmime-4.2.3.jar
+set cp=%cp%;.\lib\java-yield-1.0-SNAPSHOT.jar
 set cp=%cp%;.\lib\javatuples-1.2.jar
 set cp=%cp%;.\lib\jcommon-1.0.17.jar
 set cp=%cp%;.\lib\jfreechart-1.0.14.jar
