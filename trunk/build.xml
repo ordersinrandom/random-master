@@ -40,6 +40,9 @@ ant unit-test        Run unit tests
             <classpath>
                 <fileset dir="${lib}"/>
             </classpath>
+
+             <compilerarg value="-Xlint:deprecation"/>
+
         </javac>
     </target>
 

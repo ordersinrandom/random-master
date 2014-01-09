@@ -52,6 +52,9 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 			
 			HkDerivativesTRHDF5Source2JDBC app = new HkDerivativesTRHDF5Source2JDBC(inputFolder,  conn);
 			
+			
+			// not yet implemented
+			
 			log.info("all files processed");
 			
 		} catch (Exception e) {
