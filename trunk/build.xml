@@ -8,6 +8,7 @@
 	<property name="gui-lib-src" location="gui-lib-src"/>
     <property name="build" location="bin"/>
     <property name="lib" location="lib"/>
+    <property name="dist" location="dist"/>
 
 
     <target name="print-usage">
@@ -16,6 +17,7 @@ Usage:
 
 ant clean            Clean all previous build
 ant compile          Compile the project
+ant jar              Create jar file
 ant unit-test        Run unit tests
         </echo>
     </target>
@@ -60,6 +62,10 @@ ant unit-test        Run unit tests
                 </fileset>
             </batchtest>
         </junit>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${dist}/random-master.jar" basedir="${build}"/>
     </target>
 	
 
