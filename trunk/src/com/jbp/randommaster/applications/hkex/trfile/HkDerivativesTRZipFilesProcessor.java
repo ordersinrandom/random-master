@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
@@ -27,37 +28,61 @@ public abstract class HkDerivativesTRZipFilesProcessor {
 		return inputFolder;
 	}
 	
+	
+	private boolean isZip(File f) { 
+		return f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".zip");
+	}
+	
+	private boolean isGZip(File f) {
+		return f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".gz");
+	}
+	
+	
 	/**
 	 * Unzip the input files and then processes each entry one by one.
 	 */
 	public void processFiles() {
 
-		File[] allZipFiles = inputFolder.listFiles(new FileFilter() {
+		File[] allCompressedFiles = inputFolder.listFiles(new FileFilter() {
 			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getAbsolutePath().toLowerCase().endsWith(".zip");
+			public boolean accept(File givenFile) {
+				return isZip(givenFile) || isGZip(givenFile);
 			}
 		});
 
 		// loop through all the files and process it.
-		for (File srcZipFile : allZipFiles) {
-			log.info("Processing "+srcZipFile.getAbsolutePath());
+		for (File compressedFile : allCompressedFiles) {
+			log.info("Processing "+compressedFile.getAbsolutePath());
 			
 			Map<String, File> tempUnzippedFiles = null;
 			ZipFile zip=null;
 			try {
-				log.info("Unzipping "+srcZipFile.getAbsolutePath());
-				// open the zip file
-				zip =new ZipFile(srcZipFile);
-				tempUnzippedFiles=ZipUtils.unzipToTempFiles(zip, "DerivativesTRFile2HDF5_temp_", true);
-				log.info("Unzip "+srcZipFile.getAbsolutePath()+" finished");
+				log.info("Unzipping "+compressedFile.getAbsolutePath());
+				if (isZip(compressedFile)) {
+					// open the zip file
+					zip =new ZipFile(compressedFile);
+					tempUnzippedFiles=ZipUtils.unzipToTempFiles(zip, "DerivativesTRFile2HDF5_temp_", true);
+					log.info("Unzip "+compressedFile.getAbsolutePath()+" finished");
+				}
+				else if (isGZip(compressedFile)) {
+					zip = null; // make sure it doesn't close something not in this loop
+					tempUnzippedFiles=new TreeMap<>();
+					File tempFile = ZipUtils.gunzipToTempFile(compressedFile, "DerivativesTRFile2HDF5_temp_", true);
+					log.info("GUnzipped "+compressedFile.getAbsolutePath()+" finished");
+					// remove the ".gz" at the end to make it consistent with zip output.
+					String gzipFilename = compressedFile.getName();
+					if (gzipFilename.toLowerCase().endsWith(".gz"))
+						gzipFilename = gzipFilename.substring(0, gzipFilename.length()-3);
+					tempUnzippedFiles.put(gzipFilename, tempFile);
+				}
 			} catch (IOException e1) {
-				log.warn("Unable to unzip the file "+srcZipFile.getAbsolutePath()+". SKIPPED", e1);
+				log.warn("Unable to unzip the file "+compressedFile.getAbsolutePath()+". SKIPPED", e1);
 			} finally {
 				try {
-					zip.close();
+					if (zip!=null)
+						zip.close();
 				} catch (Exception e1) {
-					log.warn("Unable to close the zip file: "+srcZipFile.getAbsolutePath(), e1);
+					log.warn("Unable to close the zip file: "+compressedFile.getAbsolutePath(), e1);
 				}
 			}
 			
@@ -75,7 +100,7 @@ public abstract class HkDerivativesTRZipFilesProcessor {
 						Iterable<HkDerivativesTR> loadedData=src.getData();
 						
 						// invoke subclass to handle this
-						processHkDerivativesTRInput(srcZipFile, en.getKey(), loadedData);
+						processHkDerivativesTRInput(compressedFile, en.getKey(), loadedData);
 						
 						
 					} catch (FileNotFoundException fnf) {
@@ -84,7 +109,7 @@ public abstract class HkDerivativesTRZipFilesProcessor {
 				}
 			}
 			
-			log.info("Zip file processing finished: "+srcZipFile.getAbsolutePath());
+			log.info("File processing finished: "+compressedFile.getAbsolutePath());
 			
 		}
 		
