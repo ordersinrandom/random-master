@@ -1,17 +1,19 @@
 package com.jbp.randommaster.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * Utilities for zip files
+ * Utilities for zip and gzip files.
  *
  */
 public class ZipUtils {
@@ -31,7 +33,7 @@ public class ZipUtils {
 		if (tempFilePrefix!=null)
 			prefixToBeUsed=tempFilePrefix;
 		
-		Map<String, File> result=new TreeMap<String, File>();
+		Map<String, File> result=new TreeMap<>();
 		
 		for (Enumeration<? extends ZipEntry> en=zipFile.entries();en.hasMoreElements();) {
 			ZipEntry entry=en.nextElement();
@@ -63,5 +65,45 @@ public class ZipUtils {
 		
 		return result;
 	}	
+	
+	/**
+	 * Helper function to decompress a gzipped file.
+	 * 
+	 * @param gzippedFile
+	 *            The source gz file
+	 * @param tempFilePrefix
+	 *            The temp filename prefix
+	 * @param deleteOnExit
+	 *            Whether it is deleted on exit.
+	 * @return The unzipped temp file object
+	 * @throws IOException
+	 *             if any error.
+	 */
+	public static File gunzipToTempFile(File gzippedFile, String tempFilePrefix, boolean deleteOnExit) throws IOException {
+
+		String prefixToBeUsed = "randommaster_unzip_temp_";
+		if (tempFilePrefix != null)
+			prefixToBeUsed = tempFilePrefix;
+
+		File tempUnzippedFile = File.createTempFile(prefixToBeUsed, null);
+		String tempFilename = tempUnzippedFile.getAbsolutePath();
+
+		try (FileInputStream fin = new FileInputStream(gzippedFile);
+				GZIPInputStream gin = new GZIPInputStream(fin);
+				FileOutputStream outs = new FileOutputStream(tempFilename);) {
+
+			byte[] buf = new byte[1024 * 100]; // 100mb buffer
+
+			int readCount = -1;
+			while ((readCount = gin.read(buf)) != -1) {
+				outs.write(buf, 0, readCount);
+			}
+
+			outs.flush();
+		}
+
+		return tempUnzippedFile;
+	}	
+
 	
 }
