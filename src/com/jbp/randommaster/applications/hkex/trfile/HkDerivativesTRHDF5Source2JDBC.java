@@ -102,10 +102,12 @@ public class HkDerivativesTRHDF5Source2JDBC {
 				YearMonth spotMonth = en.getKey();
 				File inputHDF5File = en.getValue();
 				
+				String dataSourceName = inputHDF5File.getName();
+				
 				if (hasExistingDataForThisFile(inputHDF5File, stat)) {
-					log.warn("Dropping existing data for "+inputHDF5File.getName());
+					log.warn("Dropping existing data for "+dataSourceName);
 					dropExistingDataForThisFile(inputHDF5File, stat);
-					log.warn("Existing data for "+inputHDF5File.getName()+" removed");
+					log.warn("Existing data for "+dataSourceName+" removed");
 				}
 			
 
@@ -117,7 +119,7 @@ public class HkDerivativesTRHDF5Source2JDBC {
 
 					String instrName = underlying+"c0";
 					
-					log.info("Inserting data for "+instrName+" from file "+inputHDF5Filename);
+					log.info("Inserting data for "+instrName+" from "+dataSourceName);
 					int rowsCount=0;
 					
 					try (
@@ -177,7 +179,7 @@ public class HkDerivativesTRHDF5Source2JDBC {
 
 					}
 					// the input HDF5File should be closed by this point
-					log.info("Finished inserting data ("+rowsCount+") for "+instrName+" from file "+inputHDF5Filename);
+					log.info("Finished inserting data ("+rowsCount+") for "+instrName+" from "+dataSourceName);
 				}
 
 			}
