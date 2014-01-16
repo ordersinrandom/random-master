@@ -2,12 +2,16 @@ package com.jbp.randommaster.applications.hkex.trfile;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.YearMonth;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.jbp.randommaster.database.MasterDatabaseConnections;
 import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
@@ -37,23 +41,63 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 	public HkDerivativesTRHDF5Source2JDBC(File[] allHDF5Files, MasterDatabaseConnections connectionSrc) {
 		this.connectionSrc = connectionSrc;
 		this.allHDF5Files = allHDF5Files;
+		
+		TreeMap<YearMonth, File> spotMonth2HDF5 = new TreeMap<>();
+		
+		for (File inputHDF5File : allHDF5Files) {
+			String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
+			YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+			spotMonth2HDF5.put(spotMonth, inputHDF5File);
+		}
+		
+		DateTimeFormatter df=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+		
+		for (Map.Entry<YearMonth, File> en : spotMonth2HDF5.entrySet()) {
+			YearMonth spotMonth = en.getKey();
+			File inputHDF5File = en.getValue();
+			
+			HistoricalDataSource<? extends TimeConsolidatedTradeRecord> src = getDataSource(inputHDF5File, "Futures", "HSI", spotMonth, 5*60);
+			
+			// iterate through the data for this month
+			for (TimeConsolidatedTradeRecord data : src.getData()) {
+				/*
+				plotSeries.add(
+						RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+						data.getFirstTradedPrice(),
+						data.getMaxTradedPrice(),
+						data.getMinTradedPrice(),
+						data.getLastTradedPrice());
+				 		*/
+				
+				
+				System.out.println(data.getTimestamp().toString(df)+" - last = "+data.getLastTradedPrice()+", vol = "+data.getTradedVolume());
+				
+			}			
+			
+		}
+		
+		
 	}
 
 
 	private HistoricalDataSource<? extends TimeConsolidatedTradeRecord> getDataSource(
-			String inputHDF5Filename, LocalDate tradingDate, String futuresOrOptions, String underlying, YearMonth expiryMonth, int frequencySeconds) {
+			File inputHDF5File, String futuresOrOptions, String underlying, YearMonth spotMonth, int frequencySeconds) {
+		
+		String inputHDF5Filename = inputHDF5File.getAbsolutePath();
+		LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
+		LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
 		
 		TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = null;
 		
 		try (
 			// raw data source
 			HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
-					inputHDF5Filename, tradingDate, futuresOrOptions, underlying);
+					new String[] { inputHDF5Filename }, futuresOrOptions, underlying);
 			
 			// filtered by expiry month
 			FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
 					new FilteredHistoricalDataSource<HkDerivativesTR>(
-					originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(expiryMonth));
+					originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
 				
 			// filtered by trade type (Normal)
 			FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
@@ -62,11 +106,9 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 		) {
 		
 			HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-			LocalDateTime start = new LocalDateTime(
-					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 9, 30, 0);
-			LocalDateTime end = new LocalDateTime(
-					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
-	
+			LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 9, 30, 0);
+			LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 16, 15, 0);
+
 			// we consolidated by number of seconds.
 			Period interval = new Period(0, 0, frequencySeconds, 0);
 			
