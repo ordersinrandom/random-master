@@ -40,6 +40,8 @@ public class MasterDatabaseConnections {
 		this.connectionString = connStr;
 		this.user = user;
 		this.password = password;
+		
+		log.info("user: "+user);
 
 	}
 	
