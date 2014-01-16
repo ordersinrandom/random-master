@@ -77,7 +77,7 @@ public class HkDerivativesTRConsolidator extends TimeBasedTRConsolidator<HkDeriv
 		
 
 		if (lastItem==null) {
-			throw new TradeRecordsConsolidatorException("there is no previous result to extrapolate for the given timestamp: "+refTimestamp);
+			throw new ExtrapolateException("there is no previous result to extrapolate for the given timestamp: "+refTimestamp);
 		}
 		else {
 			return new HkDerivativesConsolidatedData(refTimestamp, lastItem.getExpiryMonth(), 
@@ -107,7 +107,7 @@ public class HkDerivativesTRConsolidator extends TimeBasedTRConsolidator<HkDeriv
 		}
 		
 		if (nextItem==null)
-			throw new TradeRecordsConsolidatorException("there is no later result to backward extrapolate for the given timestamp: "+refTimestamp);
+			throw new ExtrapolateException("there is no later result to backward extrapolate for the given timestamp: "+refTimestamp);
 		else {
 			return new HkDerivativesConsolidatedData(refTimestamp, nextItem.getExpiryMonth(), 
 					nextItem.getUnderlying(), nextItem.getStrikePrice(),
