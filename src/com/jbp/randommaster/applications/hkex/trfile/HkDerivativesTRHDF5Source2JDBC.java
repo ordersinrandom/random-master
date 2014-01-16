@@ -2,6 +2,13 @@ package com.jbp.randommaster.applications.hkex.trfile;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -11,10 +18,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.jbp.randommaster.database.MasterDatabaseConnections;
-import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTRHDF5Source;
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
@@ -28,110 +33,173 @@ import com.jbp.randommaster.datasource.historical.filters.HkDerivativesTRTradeTy
 
 /**
  * 
- * HkDerivativesTRHDF5Source2JDBC takes HDF5 files and consolidate them as interval records and save to database.
- *
+ * HkDerivativesTRHDF5Source2JDBC takes HDF5 files and consolidate them as
+ * interval records and save to database.
+ * 
  */
-public class HkDerivativesTRHDF5Source2JDBC  {
+public class HkDerivativesTRHDF5Source2JDBC {
 
 	static Logger log = Logger.getLogger(HkDerivativesTRHDF5Source2JDBC.class);
 
 	private MasterDatabaseConnections connectionSrc;
 	private File[] allHDF5Files;
+	private int intervalMinutes;
+	private List<String> underlyingsList;
 
-	public HkDerivativesTRHDF5Source2JDBC(File[] allHDF5Files, MasterDatabaseConnections connectionSrc) {
+	public HkDerivativesTRHDF5Source2JDBC(File[] allHDF5Files, MasterDatabaseConnections connectionSrc, int intervalMinutes) {
 		this.connectionSrc = connectionSrc;
 		this.allHDF5Files = allHDF5Files;
+		this.intervalMinutes = intervalMinutes;
+
+		underlyingsList = new ArrayList<>();
+		underlyingsList.add("HSI");
+		underlyingsList.add("HHI");
+		underlyingsList.add("MHI");
+		underlyingsList.add("MCH");
+	}
+	
+	private boolean hasExistingDataForThisFile(File inputHDF5File, Statement stat) throws SQLException {
+		int counter = -1;
+		try (ResultSet rs = stat.executeQuery("select count(*) from price5min where datasource='" + inputHDF5File.getName() + "'");) {
+			while (rs.next()) {
+				counter = rs.getInt(0);
+			}
+		}
 		
+		return counter > 0;
+	}
+	
+	private void dropExistingDataForThisFile(File inputHDF5File, Statement stat) throws SQLException {
+		stat.executeUpdate("delete from price5min where datasource='" + inputHDF5File.getName() + "'");
+	}
+	
+
+	public void processAllHDF5Files() throws SQLException {
+
+		// sort the input file by the month (using filename)
 		TreeMap<YearMonth, File> spotMonth2HDF5 = new TreeMap<>();
-		
 		for (File inputHDF5File : allHDF5Files) {
 			String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
 			YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
 			spotMonth2HDF5.put(spotMonth, inputHDF5File);
 		}
-		
-		DateTimeFormatter df=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-		
-		for (Map.Entry<YearMonth, File> en : spotMonth2HDF5.entrySet()) {
-			YearMonth spotMonth = en.getKey();
-			File inputHDF5File = en.getValue();
-			
-			HistoricalDataSource<? extends TimeConsolidatedTradeRecord> src = getDataSource(inputHDF5File, "Futures", "HSI", spotMonth, 5*60);
-			
-			// iterate through the data for this month
-			for (TimeConsolidatedTradeRecord data : src.getData()) {
-				/*
-				plotSeries.add(
-						RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
-						data.getFirstTradedPrice(),
-						data.getMaxTradedPrice(),
-						data.getMinTradedPrice(),
-						data.getLastTradedPrice());
-				 		*/
-				
-				
-				System.out.println(data.getTimestamp().toString(df)+" - last = "+data.getLastTradedPrice()+", vol = "+data.getTradedVolume());
-				
-			}			
-			
-		}
-		
-		
-	}
 
+		int frequencySeconds = intervalMinutes * 60;
 
-	private HistoricalDataSource<? extends TimeConsolidatedTradeRecord> getDataSource(
-			File inputHDF5File, String futuresOrOptions, String underlying, YearMonth spotMonth, int frequencySeconds) {
-		
-		String inputHDF5Filename = inputHDF5File.getAbsolutePath();
-		LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
-		LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
-		
-		TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = null;
-		
-		try (
-			// raw data source
-			HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(
-					new String[] { inputHDF5Filename }, futuresOrOptions, underlying);
+		String futuresOrOptions = "Futures";
+
+		Connection conn = null;
+		Statement stat = null;
+		PreparedStatement pstat = null;
+		try  {
+			conn = connectionSrc.getConnection();
+			conn.setAutoCommit(true);
+			stat = conn.createStatement();
+			pstat = conn.prepareStatement("insert into price5min values(?,?,?,?,?,?,?,?,?)");
 			
-			// filtered by expiry month
-			FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = 
-					new FilteredHistoricalDataSource<HkDerivativesTR>(
-					originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
+			
+			for (Map.Entry<YearMonth, File> en : spotMonth2HDF5.entrySet()) {
+				YearMonth spotMonth = en.getKey();
+				File inputHDF5File = en.getValue();
 				
-			// filtered by trade type (Normal)
-			FilteredHistoricalDataSource<HkDerivativesTR> filteredSource =
-					new FilteredHistoricalDataSource<HkDerivativesTR>(
-					expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));
-		) {
-		
-			HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-			LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 9, 30, 0);
-			LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 16, 15, 0);
-
-			// we consolidated by number of seconds.
-			Period interval = new Period(0, 0, frequencySeconds, 0);
+				if (hasExistingDataForThisFile(inputHDF5File, stat)) {
+					log.warn("Dropping existing data for "+inputHDF5File.getName());
+					dropExistingDataForThisFile(inputHDF5File, stat);
+					log.warn("Existing data for "+inputHDF5File.getName()+" removed");
+				}
 			
-			consolidatedSrc = new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
+
+				for (String underlying : underlyingsList) {
+
+					String inputHDF5Filename = inputHDF5File.getAbsolutePath();
+					LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
+					LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
+
+					String instrName = underlying+"c0";
+					
+					try (
+							// raw data source
+							HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
+									underlying);
+							// 	filtered by expiry month
+							FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
+									originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
+							// filtered by trade type (Normal)
+							FilteredHistoricalDataSource<HkDerivativesTR> filteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
+									expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));) {
+
+						HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
+						LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 9,
+								30, 0);
+						LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 16,
+								15, 0);
+
+						// we consolidated by number of seconds.
+						Period interval = new Period(0, 0, frequencySeconds, 0);
+
+						TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = new TimeIntervalConsolidatedTRSource<>(
 								consolidator, filteredSource, start, end, interval);
+
+						// iterate through the data for this month
+						for (TimeConsolidatedTradeRecord data : consolidatedSrc.getData()) {
+
+							/*
+							 * CREATE TABLE price5min ( instrumentcode character
+							 * varying(10) NOT NULL, recordtimestamp timestamp
+							 * without time zone NOT NULL, open numeric NOT
+							 * NULL, high numeric NOT NULL, low numeric NOT
+							 * NULL, close numeric NOT NULL, average numeric NOT
+							 * NULL, tradedvolume numeric NOT NULL, datasource
+							 * character varying(50), CONSTRAINT price5min_pkey
+							 * PRIMARY KEY (instrumentcode, recordtimestamp) )
+							 */
+							
+							log.info("Inserting " + instrName + ", data object=" + data.toString());
+							
+							pstat.setString(1, instrName);
+							pstat.setTimestamp(2, new java.sql.Timestamp(data.getTimestamp().toDate().getTime()));
+							pstat.setDouble(3, data.getFirstTradedPrice());
+							pstat.setDouble(4, data.getMaxTradedPrice());
+							pstat.setDouble(5, data.getMinTradedPrice());
+							pstat.setDouble(6, data.getLastTradedPrice());
+							pstat.setDouble(7, data.getAveragedPrice());
+							pstat.setDouble(8, data.getTradedVolume());
+							pstat.setString(9, inputHDF5File.getName());
+							pstat.executeUpdate();
+							
+							log.info("Data Inserted");
+
+						}
+
+					}
+					// the input HDF5File should be closed by this point
+				}
+
+			}
+			
+		} finally {
+			if (stat!=null)
+				stat.close();
+			if (pstat!=null)
+				pstat.close();
+			if (conn!=null)
+				conn.close();
 		}
-		
-		return consolidatedSrc;
+
 	}
-		
-	
-	
-	
+
 	public static void main(String[] args) {
 		try {
 			String inputHDF5FolderName = args[0];
 			String dbConfPath = args[1];
-			
+			int intervalMinutes = Integer.valueOf(args[2]).intValue();
+
 			log.info("Input HDF5 files folder: " + inputHDF5FolderName);
-			log.info("configFilePath: "+dbConfPath);
-	
+			log.info("configFilePath: " + dbConfPath);
+			log.info("Consolidation interval: " + intervalMinutes + " minutes");
+
 			File inputFolder = new File(inputHDF5FolderName);
-	
+
 			if (!inputFolder.isDirectory())
 				throw new IllegalArgumentException("Input folder is not a directory");
 
@@ -141,20 +209,18 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 					String name = givenFile.getName().toLowerCase();
 					return name.endsWith(".hdf5") || name.endsWith(".h5");
 				}
-			});			
-			
-			
+			});
+
 			MasterDatabaseConnections conn = new MasterDatabaseConnections(dbConfPath);
-			
-			HkDerivativesTRHDF5Source2JDBC app = new HkDerivativesTRHDF5Source2JDBC(allHDF5Files, conn);
-			
-			
+
+			HkDerivativesTRHDF5Source2JDBC app = new HkDerivativesTRHDF5Source2JDBC(allHDF5Files, conn, intervalMinutes);
+			app.processAllHDF5Files();
+
 			log.info("all files processed");
-			
+
 		} catch (Exception e) {
 			log.fatal("Unable to connect to database", e);
 		}
-
 
 	}
 
