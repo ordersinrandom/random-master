@@ -62,7 +62,7 @@ public class HkDerivativesTRHDF5Source2JDBC {
 		int counter = -1;
 		try (ResultSet rs = stat.executeQuery("select count(*) from price5min where datasource='" + inputHDF5File.getName() + "'");) {
 			while (rs.next()) {
-				counter = rs.getInt(0);
+				counter = rs.getInt(1);
 			}
 		}
 		
@@ -117,6 +117,9 @@ public class HkDerivativesTRHDF5Source2JDBC {
 
 					String instrName = underlying+"c0";
 					
+					log.info("Inserting data for "+instrName+" from file "+inputHDF5Filename);
+					int rowsCount=0;
+					
 					try (
 							// raw data source
 							HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
@@ -154,7 +157,7 @@ public class HkDerivativesTRHDF5Source2JDBC {
 							 * PRIMARY KEY (instrumentcode, recordtimestamp) )
 							 */
 							
-							log.info("Inserting " + instrName + ", data object=" + data.toString());
+							//log.info("Inserting " + instrName + ", data object=" + data.toString());
 							
 							pstat.setString(1, instrName);
 							pstat.setTimestamp(2, new java.sql.Timestamp(data.getTimestamp().toDate().getTime()));
@@ -167,12 +170,14 @@ public class HkDerivativesTRHDF5Source2JDBC {
 							pstat.setString(9, inputHDF5File.getName());
 							pstat.executeUpdate();
 							
-							log.info("Data Inserted");
+							rowsCount++;
+							//log.info("Data Inserted");
 
 						}
 
 					}
 					// the input HDF5File should be closed by this point
+					log.info("Finished inserting data ("+rowsCount+") for "+instrName+" from file "+inputHDF5Filename);
 				}
 
 			}
