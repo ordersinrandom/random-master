@@ -36,10 +36,10 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 	public static void main(String[] args) {
 		try {
 			String inputZipFilesFolderName = args[0];
-			String configFilePath = args[1];
+			String dbConfPath = args[1];
 	
 			log.info("Input zip files folder: " + inputZipFilesFolderName);
-			log.info("configFilePath: "+configFilePath);
+			log.info("configFilePath: "+dbConfPath);
 			
 	
 			File inputFolder = new File(inputZipFilesFolderName);
@@ -48,7 +48,7 @@ public class HkDerivativesTRHDF5Source2JDBC  {
 				throw new IllegalArgumentException("Input folder is not a directory");
 	
 			
-			MasterDatabaseConnections conn = new MasterDatabaseConnections(configFilePath);
+			MasterDatabaseConnections conn = new MasterDatabaseConnections(dbConfPath);
 			
 			HkDerivativesTRHDF5Source2JDBC app = new HkDerivativesTRHDF5Source2JDBC(inputFolder,  conn);
 			
