@@ -27,5 +27,5 @@ set cp=%cp%;.\lib\postgresql-9.2-1003.jdbc4.jar
 set cp=%cp%;.\lib\commons-configuration-1.9.jar
 set cp=%cp%;.\lib\commons-lang-2.6.jar
 
-java -Xmx1300m -cp %cp%  com.jbp.randommaster.applications.hkex.trfile.HkDerivativesTRFile2JDBC ..\..\quant.trading.data\HkDerivativesTRFiles .\conf\jdbc.xml
+java -Xmx1300m -cp %cp%  com.jbp.randommaster.applications.hkex.trfile.HkDerivativesTRHDF5Source2JDBC ..\..\quant.trading.data\HkDerivativesTRHDF5 .\conf\jdbc.xml 5
 
