@@ -137,27 +137,27 @@ public class HkDerivativesTRHDF5Source2JDBC {
 					int rowsCount = 0;
 
 					try (
-					// raw data source
-					HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
-							underlying);
-					// filtered by expiry month
+							// raw data source
+							HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
+									underlying);
+							// filtered by expiry month
 							FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
 									originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
 							// filtered by trade type (Normal)
 							FilteredHistoricalDataSource<HkDerivativesTR> filteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
 									expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));) {
 
+						// we consolidated by 5 minutes
 						HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
 						LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 9,
 								30, 0);
 						LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 16,
 								15, 0);
 
-						// we consolidated by number of seconds.
-						Period interval = new Period(0, 0, frequencySeconds, 0);
+						Period consolidationInterval = new Period(0, 0, frequencySeconds, 0);
 
 						TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = new TimeIntervalConsolidatedTRSource<>(
-								consolidator, filteredSource, start, end, interval);
+								consolidator, filteredSource, start, end, consolidationInterval);
 
 						// iterate through the data for this month
 						for (TimeConsolidatedTradeRecord data : consolidatedSrc.getData()) {
