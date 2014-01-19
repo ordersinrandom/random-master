@@ -44,12 +44,23 @@ public class HkDerivativesTRHDF5Source2JDBC {
 	private MasterDatabaseConnections connectionSrc;
 	private File[] allHDF5Files;
 	private int intervalMinutes;
+	private String tableName;
 	private List<String> underlyingsList;
 
+	/**
+	 * Create a new instance of HkDerivativesTRHDF5Source2JDBC batch.
+	 * 
+	 * @param allHDF5Files
+	 *            All the HDF5 files to be added to master database.
+	 * @param connectionSrc
+	 *            The connection details
+	 * @param intervalMinutes
+	 */
 	public HkDerivativesTRHDF5Source2JDBC(File[] allHDF5Files, MasterDatabaseConnections connectionSrc, int intervalMinutes) {
 		this.connectionSrc = connectionSrc;
 		this.allHDF5Files = allHDF5Files;
 		this.intervalMinutes = intervalMinutes;
+		this.tableName = "price" + intervalMinutes + "min";
 
 		underlyingsList = new ArrayList<>();
 		underlyingsList.add("HSI");
@@ -57,24 +68,27 @@ public class HkDerivativesTRHDF5Source2JDBC {
 		underlyingsList.add("MHI");
 		underlyingsList.add("MCH");
 	}
-	
+
 	private boolean hasExistingDataForThisFile(File inputHDF5File, Statement stat) throws SQLException {
 		int counter = -1;
-		try (ResultSet rs = stat.executeQuery("select count(*) from price5min where datasource='" + inputHDF5File.getName() + "'");) {
+		try (ResultSet rs = stat.executeQuery("select count(*) from " + tableName + " where datasource='" + inputHDF5File.getName() + "'");) {
 			while (rs.next()) {
 				counter = rs.getInt(1);
 			}
 		}
-		
+
 		return counter > 0;
 	}
-	
+
 	private void dropExistingDataForThisFile(File inputHDF5File, Statement stat) throws SQLException {
-		stat.executeUpdate("delete from price5min where datasource='" + inputHDF5File.getName() + "'");
+		stat.executeUpdate("delete from " + tableName + " where datasource='" + inputHDF5File.getName() + "'");
 	}
-	
 
 	public void processAllHDF5Files() throws SQLException {
+
+		log.info("Adding HDF5 files to table " + tableName);
+		for (File f : allHDF5Files)
+			log.info("HDF5 file: " + f.getName());
 
 		// sort the input file by the month (using filename)
 		TreeMap<YearMonth, File> spotMonth2HDF5 = new TreeMap<>();
@@ -91,25 +105,25 @@ public class HkDerivativesTRHDF5Source2JDBC {
 		Connection conn = null;
 		Statement stat = null;
 		PreparedStatement pstat = null;
-		try  {
+		try {
 			conn = connectionSrc.getConnection();
 			conn.setAutoCommit(true);
 			stat = conn.createStatement();
-			pstat = conn.prepareStatement("insert into price5min values(?,?,?,?,?,?,?,?,?)");
-			
-			
+
+			pstat = conn.prepareStatement("insert into " + tableName
+					+ "(instrumentcode,recordtimestamp,open,high,low,close,average,tradedvolume,datasource)  values(?,?,?,?,?,?,?,?,?)");
+
 			for (Map.Entry<YearMonth, File> en : spotMonth2HDF5.entrySet()) {
 				YearMonth spotMonth = en.getKey();
 				File inputHDF5File = en.getValue();
-				
+
 				String dataSourceName = inputHDF5File.getName();
-				
+
 				if (hasExistingDataForThisFile(inputHDF5File, stat)) {
-					log.warn("Dropping existing data for "+dataSourceName);
+					log.warn("Dropping existing data for " + dataSourceName);
 					dropExistingDataForThisFile(inputHDF5File, stat);
-					log.warn("Existing data for "+dataSourceName+" removed");
+					log.warn("Existing data for " + dataSourceName + " removed");
 				}
-			
 
 				for (String underlying : underlyingsList) {
 
@@ -117,16 +131,16 @@ public class HkDerivativesTRHDF5Source2JDBC {
 					LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
 					LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
 
-					String instrName = underlying+"c0";
-					
-					log.info("Inserting data for "+instrName+" from "+dataSourceName);
-					int rowsCount=0;
-					
+					String instrName = underlying + "c0";
+
+					log.info("Inserting data for " + instrName + " from " + dataSourceName);
+					int rowsCount = 0;
+
 					try (
-							// raw data source
-							HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
-									underlying);
-							// 	filtered by expiry month
+					// raw data source
+					HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
+							underlying);
+					// filtered by expiry month
 							FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
 									originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
 							// filtered by trade type (Normal)
@@ -158,9 +172,10 @@ public class HkDerivativesTRHDF5Source2JDBC {
 							 * character varying(50), CONSTRAINT price5min_pkey
 							 * PRIMARY KEY (instrumentcode, recordtimestamp) )
 							 */
-							
-							//log.info("Inserting " + instrName + ", data object=" + data.toString());
-							
+
+							// log.info("Inserting " + instrName +
+							// ", data object=" + data.toString());
+
 							pstat.setString(1, instrName);
 							pstat.setTimestamp(2, new java.sql.Timestamp(data.getTimestamp().toDate().getTime()));
 							pstat.setDouble(3, data.getFirstTradedPrice());
@@ -171,25 +186,25 @@ public class HkDerivativesTRHDF5Source2JDBC {
 							pstat.setDouble(8, data.getTradedVolume());
 							pstat.setString(9, inputHDF5File.getName());
 							pstat.executeUpdate();
-							
+
 							rowsCount++;
-							//log.info("Data Inserted");
+							// log.info("Data Inserted");
 
 						}
 
 					}
 					// the input HDF5File should be closed by this point
-					log.info("Finished inserting data ("+rowsCount+") for "+instrName+" from "+dataSourceName);
+					log.info("Finished inserting data (" + rowsCount + ") for " + instrName + " from " + dataSourceName);
 				}
 
 			}
-			
+
 		} finally {
-			if (stat!=null)
+			if (stat != null)
 				stat.close();
-			if (pstat!=null)
+			if (pstat != null)
 				pstat.close();
-			if (conn!=null)
+			if (conn != null)
 				conn.close();
 		}
 
