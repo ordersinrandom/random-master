@@ -2,14 +2,16 @@ package com.jbp.randommaster.utils;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 /**
  * 
- * HolidaysList is an immutable object that handles the business days calculation.
- *
+ * HolidaysList is an immutable object that handles the business days
+ * calculation.
+ * 
  */
 public class HolidaysList {
 
@@ -29,8 +31,10 @@ public class HolidaysList {
 
 	public HolidaysList(String name, LocalDate[] list) {
 		holidays = new HashSet<>(300, 0.9f);
-		for (LocalDate d : list)
-			holidays.add(d);
+		if (list != null) {
+			for (LocalDate d : list)
+				holidays.add(d);
+		}
 		this.name = name;
 	}
 
@@ -60,6 +64,34 @@ public class HolidaysList {
 			}
 		}
 		return result;
+	}
+
+	public HolidaysList union(HolidaysList another) {
+		
+		if (another == null)
+			return this;
+		
+		// prepare the new holiday name
+		TreeSet<String> names = new TreeSet<>();
+		for (String n : this.name.split("|"))
+			names.add(n);
+		for (String n : another.name.split("|"))
+			names.add(n);
+
+		StringBuilder newName = new StringBuilder();
+		int nc = names.size();
+		int c = 0;
+		for (String n : names) {
+			newName.append(n);
+			if (c < nc - 1)
+				newName.append('|');
+		}
+
+		HolidaysList newList = new HolidaysList(newName.toString(), null);
+		newList.holidays.addAll(this.holidays);
+		newList.holidays.addAll(another.holidays);
+
+		return newList;
 	}
 
 }
