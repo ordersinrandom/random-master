@@ -51,5 +51,23 @@ public class HolidaysList {
 	}
 	
 	
+	public LocalDate addBusinessDays(LocalDate start, int daysCount) {
+		int c = daysCount;
+		LocalDate result = start;
+		if (c > 0) {
+			while (c > 0) {
+				result = result.plusDays(1);
+				if (isBusinessDay(result))
+					c--;
+			}
+		} else if (c < 0) {
+			while (c < 0) {
+				result = result.minusDays(1);
+				if (isBusinessDay(result))
+					c++;
+			}
+		}
+		return result;
+	}	
 	
 }
