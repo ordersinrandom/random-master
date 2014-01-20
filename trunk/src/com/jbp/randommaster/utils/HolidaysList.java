@@ -1,7 +1,7 @@
 package com.jbp.randommaster.utils;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -28,7 +28,7 @@ public class HolidaysList {
 	private String name;
 
 	public HolidaysList(String name, LocalDate[] list) {
-		holidays = new TreeSet<>();
+		holidays = new HashSet<>(300, 0.9f);
 		for (LocalDate d : list)
 			holidays.add(d);
 		this.name = name;
