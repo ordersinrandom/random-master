@@ -14,7 +14,7 @@ import com.jbp.randommaster.utils.HolidaysList;
  * 
  * HolidaysFilter filters given historical data record by given timestamp. If the data is not on a business day, or it is not within market open/close, it will be filtered.
  *
- * @param <T>
+ * @param <T> Any HistoricalData subclasses.
  */
 public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataFilter<T> {
 
