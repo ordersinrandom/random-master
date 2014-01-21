@@ -59,8 +59,7 @@ public class HolidaysList {
 	}
 
 	public boolean isBusinessDay(LocalDate d) {
-		int dow = d.getDayOfWeek();
-		return !weekendDays.contains(dow) && !holidays.contains(d);
+		return !weekendDays.contains(d.getDayOfWeek()) && !holidays.contains(d);
 	}
 
 	public LocalDate addBusinessDays(LocalDate start, int daysCount) {
