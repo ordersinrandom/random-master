@@ -7,7 +7,7 @@ import org.javatuples.Pair;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import com.jbp.randommaster.datasource.historical.DerivativesData;
+import com.jbp.randommaster.datasource.historical.HistoricalData;
 import com.jbp.randommaster.utils.HolidaysList;
 
 /**
@@ -16,7 +16,7 @@ import com.jbp.randommaster.utils.HolidaysList;
  *
  * @param <T>
  */
-public class HolidaysFilter<T extends DerivativesData> implements HistoricalDataFilter<T> {
+public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataFilter<T> {
 
 	
 	private HolidaysList holidaysList;
