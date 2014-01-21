@@ -33,5 +33,17 @@ public class HolidaysListTests extends TestCase {
 	}
 	
 
+	@Test
+	public void testIsBusinessDay() {
+		
+		HolidaysList list = HolidaysList.HongKong;
+		
+		Assert.assertEquals("2014-1-20 should be a business day", true, list.isBusinessDay(new LocalDate(2014, 1, 20)));
+		Assert.assertEquals("2014-1-25 should not be a business day", false, list.isBusinessDay(new LocalDate(2014, 1, 25)));
+		Assert.assertEquals("2014-1-30 should be a business day", true, list.isBusinessDay(new LocalDate(2014, 1, 30)));
+		Assert.assertEquals("2014-1-31 should not be a business day", false, list.isBusinessDay(new LocalDate(2014, 1, 31)));
+		
+	}
+	
 	
 }
