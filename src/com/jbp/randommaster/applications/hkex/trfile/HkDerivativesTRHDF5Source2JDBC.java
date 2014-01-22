@@ -87,6 +87,13 @@ public class HkDerivativesTRHDF5Source2JDBC {
 	private void dropExistingDataForThisFile(File inputHDF5File, Statement stat) throws SQLException {
 		stat.executeUpdate("delete from " + tableName + " where datasource='" + inputHDF5File.getName() + "'");
 	}
+	
+	private YearMonth getSpotMonthByHDF5FileName(File inputHDF5File) {
+		String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
+		YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+		return spotMonth;
+	}
+	
 
 	public void processAllHDF5Files() throws SQLException {
 
@@ -97,8 +104,10 @@ public class HkDerivativesTRHDF5Source2JDBC {
 		// sort the input file by the month (using filename)
 		TreeMap<YearMonth, File> spotMonth2HDF5 = new TreeMap<>();
 		for (File inputHDF5File : allHDF5Files) {
-			String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
-			YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+			//String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
+			//YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+
+			YearMonth spotMonth = getSpotMonthByHDF5FileName(inputHDF5File);
 			spotMonth2HDF5.put(spotMonth, inputHDF5File);
 		}
 
