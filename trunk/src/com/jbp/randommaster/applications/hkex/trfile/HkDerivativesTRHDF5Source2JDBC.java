@@ -30,6 +30,10 @@ import com.jbp.randommaster.datasource.historical.filters.ExpiryMonthFilter;
 import com.jbp.randommaster.datasource.historical.filters.FilteredHistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.filters.HkDerivativesTRTradeTypeFilter;
 import com.jbp.randommaster.datasource.historical.filters.HkDerivativesTRTradeTypeFilter.TradeType;
+import com.jbp.randommaster.datasource.historical.filters.HolidaysFilter;
+import com.jbp.randommaster.datasource.historical.filters.MarketHoursFilter;
+import com.jbp.randommaster.utils.HolidaysList;
+import com.jbp.randommaster.utils.MarketHours;
 
 /**
  * 
@@ -141,26 +145,38 @@ public class HkDerivativesTRHDF5Source2JDBC {
 							HkDerivativesTRHDF5Source originalSrc = new HkDerivativesTRHDF5Source(new String[] { inputHDF5Filename }, futuresOrOptions,
 									underlying);
 							// filtered by expiry month
-							FilteredHistoricalDataSource<HkDerivativesTR> expMonthFilteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
+							FilteredHistoricalDataSource<HkDerivativesTR> filteredSrc1 = new FilteredHistoricalDataSource<>(
 									originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(spotMonth));
 							// filtered by trade type (Normal)
-							FilteredHistoricalDataSource<HkDerivativesTR> filteredSource = new FilteredHistoricalDataSource<HkDerivativesTR>(
-									expMonthFilteredSource, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));) {
+							FilteredHistoricalDataSource<HkDerivativesTR> filteredSrc2 = new FilteredHistoricalDataSource<>(
+									filteredSrc1, new HkDerivativesTRTradeTypeFilter(TradeType.Normal));
+							) {
 
 						// we consolidated by 5 minutes
 						HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-						LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 9,
-								30, 0);
-						LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 16,
-								15, 0);
+						LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 0,
+								0, 0);
+						LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 23,
+								55, 0);
 
 						Period consolidationInterval = new Period(0, 0, frequencySeconds, 0);
 
+						// consolidated every 5 minute from 0000 to 2355 including holidays (so that data got extrapolated on both sides)
 						TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = new TimeIntervalConsolidatedTRSource<>(
-								consolidator, filteredSource, start, end, consolidationInterval);
+								consolidator, filteredSrc2, start, end, consolidationInterval);
+						
+						
+						// filter for holidays
+						HolidaysFilter<HkDerivativesConsolidatedData> holidaysFilter = new HolidaysFilter<>(HolidaysList.HongKong);
+						MarketHoursFilter<HkDerivativesConsolidatedData> marketHoursFilter = new MarketHoursFilter<>(MarketHours.HongKongDerivatives, true, false);
+						
+						// the consolidated source is now filtered by market hours and holidays.
+						FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc = new FilteredHistoricalDataSource<>(consolidatedSrc, holidaysFilter);
+						FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc2 = new FilteredHistoricalDataSource<>(filteredConsolidatedSrc, marketHoursFilter);
+						
 
 						// iterate through the data for this month
-						for (TimeConsolidatedTradeRecord data : consolidatedSrc.getData()) {
+						for (TimeConsolidatedTradeRecord data : filteredConsolidatedSrc2.getData()) {
 
 							/*
 							 * CREATE TABLE price5min ( instrumentcode character
