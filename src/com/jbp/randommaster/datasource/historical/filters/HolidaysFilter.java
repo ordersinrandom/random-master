@@ -1,18 +1,13 @@
 package com.jbp.randommaster.datasource.historical.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.javatuples.Pair;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 
 import com.jbp.randommaster.datasource.historical.HistoricalData;
 import com.jbp.randommaster.utils.HolidaysList;
 
 /**
  * 
- * HolidaysFilter filters given historical data record by given timestamp. If the data is not on a business day, or it is not within market open/close, it will be filtered.
+ * HolidaysFilter filters given historical data record by given timestamp. If the data is not on a business day it will be filtered.
  *
  * @param <T> Any HistoricalData subclasses.
  */
@@ -20,44 +15,18 @@ public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataF
 
 	
 	private HolidaysList holidaysList;
-	private List<Pair<LocalTime, LocalTime>> openCloseList;
-	private boolean closeExclusive;
 	
 	/**
 	 * Create a new instance of HolidaysFilter.
 	 * 
 	 * @param list The list of holidays
-	 * @param open Open time of each trading day
-	 * @param close Close time of each trading day
 	 */
-	public HolidaysFilter(HolidaysList list, boolean closeExclusive, LocalTime open, LocalTime close) {
-		this(list, closeExclusive);
-		addOpenCloseInterval(open, close);
-	}
-	
-	public HolidaysFilter(HolidaysList list, boolean closeExclusive) {
-		this.holidaysList = list;
-		this.closeExclusive = closeExclusive;
-		this.openCloseList = new ArrayList<>();
-	}
-	
 	public HolidaysFilter(HolidaysList list) {
-		this(list, true);
-	}	
-
-	/**
-	 * Add open/close time pair
-	 * 
-	 * @param open Open time of each trading day
-	 * @param close Close time of each trading day
-	 */
-	public void addOpenCloseInterval(LocalTime open, LocalTime close) {
-		openCloseList.add(new Pair<>(open, close));
+		this.holidaysList = list;
 	}
 	
-	
 	/**
-	 * Accept the data if its timestamp is not on a holiday, and not outside trading hours.
+	 * Accept the data if its timestamp is not on a holiday / weekend
 	 */
 	@Override
 	public boolean accept(T data) {
@@ -67,7 +36,9 @@ public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataF
 		if (holidaysList != null && !holidaysList.isBusinessDay(dt.toLocalDate())) {
 			return false;
 		}
-		
+		else return true;
+
+		/*
 		// open close checking
 		LocalTime t = dt.toLocalTime();
 		boolean passedTimeCheck = false;
@@ -81,7 +52,7 @@ public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataF
 			}
 		}
 		
-		return passedTimeCheck;
+		return passedTimeCheck;*/
 
 	}
 	
