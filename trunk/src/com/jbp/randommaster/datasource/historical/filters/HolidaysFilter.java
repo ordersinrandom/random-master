@@ -38,22 +38,6 @@ public class HolidaysFilter<T extends HistoricalData> implements HistoricalDataF
 		}
 		else return true;
 
-		/*
-		// open close checking
-		LocalTime t = dt.toLocalTime();
-		boolean passedTimeCheck = false;
-		for (Pair<LocalTime,LocalTime> p : openCloseList) {
-			LocalTime open = p.getValue0();
-			LocalTime close = p.getValue1();
-
-			if ((open.isEqual(t) || open.isBefore(t)) && ((!closeExclusive && close.isEqual(t)) || close.isAfter(t))) {
-				passedTimeCheck = true;
-				break;
-			}
-		}
-		
-		return passedTimeCheck;*/
-
 	}
 	
 }
