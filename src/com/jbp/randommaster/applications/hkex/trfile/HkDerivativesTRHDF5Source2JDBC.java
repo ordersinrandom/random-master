@@ -144,6 +144,7 @@ public class HkDerivativesTRHDF5Source2JDBC {
 					LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
 					LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
 
+					// HSIc0, HHIc0 etc etc (Reuter's convention)
 					String instrName = underlying + "c0";
 
 					log.info("Inserting data for " + instrName + " from " + dataSourceName);
