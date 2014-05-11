@@ -126,7 +126,7 @@ public class YahooCsvSourceTests extends TestCase {
 			count++;
 		}
 		
-		Assert.assertEquals("Not exactly 1304 items", 1304, count);
+		Assert.assertEquals("Not exactly 1305 items", 1305, count);
 		Assert.assertEquals("First item date mismatched", new LocalDateTime(2008,1,2,0,0,0), first.getTimestamp());
 		Assert.assertEquals("First item adj Close mismatched", 27560.52, first.getAdjustedClose(), 0.0000001);
 		Assert.assertEquals("Last item date mismatched", new LocalDateTime(2013,3,5,0,0,0), last.getTimestamp());
