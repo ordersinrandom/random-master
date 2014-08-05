@@ -104,6 +104,7 @@ public class YahooCsvSourceTests extends TestCase {
 				"http://ichart.finance.yahoo.com/table.csv?s=%5EHSI&d=0&e=5&f=2013&g=d&a=0&b=5&c=2012&ignore=.csv",
 				"http://ichart.finance.yahoo.com/table.csv?s=%5EHSI&d=2&e=5&f=2013&g=d&a=0&b=6&c=2013&ignore=.csv" };
 		
+		
 
 		for (int i=0;i<6;i++) {
 			Assert.assertEquals(
