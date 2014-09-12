@@ -29,7 +29,7 @@ public class TestJavaFx3 extends Application {
 
 		Random rand=new Random();
 		LinkedList<Person> allData = new LinkedList<>();
-		for (int i = 1; i <= 500000; i++)
+		for (int i = 1; i <= 5000; i++)
 			allData.add(new Person("First " + i, "Last " + i, "dummy" + i + "@abc.com", rand.nextDouble()));
 		ObservableList<Person> data = FXCollections.observableArrayList(allData);
 
