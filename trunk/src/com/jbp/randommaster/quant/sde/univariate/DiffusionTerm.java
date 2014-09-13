@@ -7,6 +7,7 @@ import com.jbp.randommaster.quant.sde.Filtration;
  * Implementation of sigma(t, Xt) concept, in a generic SDE of the form: dXt = mu(t,Xt) dt + sigma(t, Xt) dWt. 
  *
  */
+@FunctionalInterface
 public interface DiffusionTerm {
 
 	

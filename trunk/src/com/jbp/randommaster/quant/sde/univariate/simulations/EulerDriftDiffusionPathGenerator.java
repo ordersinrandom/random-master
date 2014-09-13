@@ -9,40 +9,40 @@ import com.jbp.randommaster.quant.sde.univariate.DriftTerm;
 
 /**
  * 
- * A generic implementation of the Euler simulation scheme on drift diffusion processes.
+ * A generic implementation of the Euler simulation scheme on drift diffusion
+ * processes.
  *
- * @param <T> Any DriftDiffusionProcess we want to simulate the paths.
+ * @param <T>
+ *            Any DriftDiffusionProcess we want to simulate the paths.
  */
 public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm>> extends AbstractPathGenerator<T> {
 
 	private NormalDistribution normDist;
-	
-	
+
 	public EulerDriftDiffusionPathGenerator(T driftDiffusionProcess, Filtration<Double> initFt, NormalDistribution normDist) {
-		
+
 		super(driftDiffusionProcess, initFt);
-		
-		this.normDist=normDist;
+
+		this.normDist = normDist;
 	}
-	
+
 	@Override
 	public double getNext(double dt) {
-		
-		Filtration<Double> ft=super.getFiltration();
-		
-		DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm> process=super.getProcess();
-		
+
+		Filtration<Double> ft = super.getFiltration();
+
+		DriftDiffusionProcess<? extends DriftTerm, ? extends DiffusionTerm> process = super.getProcess();
+
 		double dWt = normDist.sample() * Math.sqrt(dt);
-		
-		double dXt = process.getDrift().evaluate(ft) * dt 
-				+ process.getDiffusion().evaluate(ft) * dWt;
-		
-		double result = ft.getProcessValue()+dXt;
-		
+
+		double dXt = process.getDrift().evaluate(ft) * dt + process.getDiffusion().evaluate(ft) * dWt;
+
+		double result = ft.getProcessValue() + dXt;
+
 		ft.setProcessValue(result);
 		ft.incrementTime(dt);
-		
+
 		return result;
 	}
-	
+
 }

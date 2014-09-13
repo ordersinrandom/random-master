@@ -9,6 +9,7 @@ import com.jbp.randommaster.datasource.FinancialDataSource;
  *
  * @param <T> The actual collection of data object getting loaded.
  */
+@FunctionalInterface
 public interface HistoricalDataSource<T extends HistoricalData> extends FinancialDataSource {
 
 	/**

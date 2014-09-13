@@ -2,6 +2,7 @@ package com.jbp.randommaster.datasource.historical.filters;
 
 import com.jbp.randommaster.datasource.historical.HistoricalData;
 
+@FunctionalInterface
 public interface HistoricalDataFilter<T extends HistoricalData> {
 
 	/**
