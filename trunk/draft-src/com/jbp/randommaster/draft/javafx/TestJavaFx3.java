@@ -64,7 +64,7 @@ public class TestJavaFx3 extends Application {
 		table.setItems(data);
 
 		HBox topBox = new HBox();
-		Label label = new Label("Address Book");
+		Label label = new Label("Test Table");
 		label.setFont(new Font("Arial", 22));
 		topBox.setPadding(new Insets(3, 3, 3, 3));
 		topBox.setSpacing(5.0);
