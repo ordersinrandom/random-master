@@ -110,6 +110,8 @@ public class TestJavaFx3 extends Application {
 
 		primaryStage.show();
 
+		
+		
 	}
 
 	public static void main(String[] args) {
