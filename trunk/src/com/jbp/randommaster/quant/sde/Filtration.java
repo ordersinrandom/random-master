@@ -6,7 +6,7 @@ package com.jbp.randommaster.quant.sde;
  * This class represents filtration. All the information up to the current time t.
  *
  */
-public class Filtration<T> {
+public class Filtration<T> implements Cloneable {
 	
 	protected double time;
 	// this could be vector or a single Xt
@@ -44,6 +44,16 @@ public class Filtration<T> {
 	public void setProcessValue(T processValue) {
 		this.processValue = processValue;
 	}
+	
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e1) {
+			return null;
+		}
+	}
+	
 	
 	@Override
 	public String toString() {

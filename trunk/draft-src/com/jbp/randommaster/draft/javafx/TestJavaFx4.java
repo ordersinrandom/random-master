@@ -76,19 +76,19 @@ public class TestJavaFx4 extends Application {
 		GBMPathGenerator gen1=new GBMPathGenerator(gbm, 100, standardNormal);
 		
 		
-		Filtration<Double> initGbmFt=new Filtration<Double>();
+		Filtration<Double> initGbmFt=new Filtration<>();
 		initGbmFt.setProcessValue(100.0);
 		initGbmFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<GeometricBrownianMotion>(gbm, initGbmFt, standardNormal);
+		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<>(gbm, initGbmFt, standardNormal);
 
 		
 		OUProcess ou=new OUProcess(30, 100.0, 20.0);
 		OUProcessPathGenerator gen3 = new OUProcessPathGenerator(ou, 110.0, standardNormal);
 		
-		Filtration<Double> initOuFt=new Filtration<Double>();
+		Filtration<Double> initOuFt=new Filtration<>();
 		initOuFt.setProcessValue(110.0);
 		initOuFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<OUProcess>(ou, initOuFt, standardNormal);
+		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<>(ou, initOuFt, standardNormal);
 		
 
 			

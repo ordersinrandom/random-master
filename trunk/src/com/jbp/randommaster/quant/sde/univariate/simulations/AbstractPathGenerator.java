@@ -54,7 +54,11 @@ public abstract class AbstractPathGenerator<T extends UnivariateStochasticProces
 		
 		for (int i=0;i<count;i++) 
 			result.add(getNext(dt));
+	
 		
 		return result;
+		
 	}
+	
+	
 }
