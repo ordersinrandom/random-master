@@ -76,7 +76,7 @@ public class TestJavaFx4 extends Application {
 		
 		GBMPathGenerator gen=new GBMPathGenerator(gbm, 100, standardNormal);
 		
-		int seriesCount = 5;
+		int seriesCount = 10;
 		List<XYSeries> series=new LinkedList<>();
 		for (int i=0;i<seriesCount;i++)
 			series.add(new XYSeries("GBM"+i));
