@@ -16,9 +16,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
 import com.jbp.randommaster.quant.sde.univariate.OUProcess;
+import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.EulerDriftDiffusionPathGenerator;
 import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
 import com.jbp.randommaster.quant.sde.univariate.simulations.OUProcessPathGenerator;
+import com.jbp.randommaster.quant.sde.univariate.simulations.PathsFactory;
 
 public class SDEPathViewer {
 
@@ -54,27 +56,33 @@ public class SDEPathViewer {
 		XYSeries series2=new XYSeries("GBM Euler");
 		XYSeries series3=new XYSeries("OU Exact");
 		XYSeries series4=new XYSeries("OU Euler");
+		
+		PathsFactory<? extends UnivariateStochasticProcess> factory1 = new PathsFactory<>(gen1);
+		PathsFactory<? extends UnivariateStochasticProcess> factory2 = new PathsFactory<>(gen2);
+		PathsFactory<? extends UnivariateStochasticProcess> factory3 = new PathsFactory<>(gen3);
+		PathsFactory<? extends UnivariateStochasticProcess> factory4 = new PathsFactory<>(gen4);
+		
 
 		int simCount=252;
 		double dt = 1.0/252.0;
 		
 		int step=0;
-		for (double x : gen1.getNextSeries(dt, simCount, true)) {
+		for (double x : factory1.getNextSeries(dt, simCount, true)) {
 			series1.add((double) dt*(step++), x);
 		}
 		
 		step=0;
-		for (double x : gen2.getNextSeries(dt, simCount, true)) {
+		for (double x : factory2.getNextSeries(dt, simCount, true)) {
 			series2.add((double) dt*(step++), x);
 		}
 		
 		step=0;
-		for (double x : gen3.getNextSeries(dt, simCount, true)) {
+		for (double x : factory3.getNextSeries(dt, simCount, true)) {
 			series3.add((double) dt*(step++), x);
 		}
 		
 		step=0;
-		for (double x : gen4.getNextSeries(dt, simCount, true)) {
+		for (double x : factory4.getNextSeries(dt, simCount, true)) {
 			series4.add((double) dt*(step++), x);
 		}
 		

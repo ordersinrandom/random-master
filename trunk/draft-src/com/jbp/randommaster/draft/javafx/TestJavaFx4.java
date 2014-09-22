@@ -1,6 +1,9 @@
 package com.jbp.randommaster.draft.javafx;
 
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -9,12 +12,10 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
-import com.jbp.randommaster.quant.sde.univariate.OUProcess;
-import com.jbp.randommaster.quant.sde.univariate.simulations.EulerDriftDiffusionPathGenerator;
+import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
-import com.jbp.randommaster.quant.sde.univariate.simulations.OUProcessPathGenerator;
+import com.jbp.randommaster.quant.sde.univariate.simulations.PathsFactory;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
@@ -73,58 +74,31 @@ public class TestJavaFx4 extends Application {
 		
 		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.55);
 		
-		GBMPathGenerator gen1=new GBMPathGenerator(gbm, 100, standardNormal);
+		GBMPathGenerator gen=new GBMPathGenerator(gbm, 100, standardNormal);
 		
-		
-		Filtration<Double> initGbmFt=new Filtration<>();
-		initGbmFt.setProcessValue(100.0);
-		initGbmFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<>(gbm, initGbmFt, standardNormal);
+		int seriesCount = 5;
+		List<XYSeries> series=new LinkedList<>();
+		for (int i=0;i<seriesCount;i++)
+			series.add(new XYSeries("GBM"+i));
 
+		PathsFactory<? extends UnivariateStochasticProcess> factory1 = new PathsFactory<>(gen);
 		
-		OUProcess ou=new OUProcess(30, 100.0, 20.0);
-		OUProcessPathGenerator gen3 = new OUProcessPathGenerator(ou, 110.0, standardNormal);
-		
-		Filtration<Double> initOuFt=new Filtration<>();
-		initOuFt.setProcessValue(110.0);
-		initOuFt.setTime(0);
-		EulerDriftDiffusionPathGenerator<OUProcess> gen4 = new EulerDriftDiffusionPathGenerator<>(ou, initOuFt, standardNormal);
-		
-
-			
-		XYSeries series1=new XYSeries("GBM Exact");
-		XYSeries series2=new XYSeries("GBM Euler");
-		XYSeries series3=new XYSeries("OU Exact");
-		XYSeries series4=new XYSeries("OU Euler");
-
 		int simCount=252;
 		double dt = 1.0/252.0;
-		
+
 		int step=0;
-		for (double x : gen1.getNextSeries(dt, simCount, true)) {
-			series1.add((double) dt*(step++), x);
+		for (int i=0;i<series.size();i++) {
+			step=0;
+			XYSeries currentSeries = series.get(i);
+			for (double x : factory1.getNextSeries(dt, simCount, true)) {
+				currentSeries.add((double) dt*(step++), x);
+			}
 		}
 		
-		step=0;
-		for (double x : gen2.getNextSeries(dt, simCount, true)) {
-			series2.add((double) dt*(step++), x);
-		}
-		
-		step=0;
-		for (double x : gen3.getNextSeries(dt, simCount, true)) {
-			series3.add((double) dt*(step++), x);
-		}
-		
-		step=0;
-		for (double x : gen4.getNextSeries(dt, simCount, true)) {
-			series4.add((double) dt*(step++), x);
-		}
-		
+
 		XYSeriesCollection dataset=new XYSeriesCollection();
-		dataset.addSeries(series1);
-		dataset.addSeries(series2);
-		dataset.addSeries(series3);
-		dataset.addSeries(series4);
+		for (XYSeries s : series)
+			dataset.addSeries(s);
 		
 		JFreeChart chart=ChartFactory.createXYLineChart("Simulated Paths", "time", "value", dataset, PlotOrientation.VERTICAL, 
 				true, true, false);
