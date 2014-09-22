@@ -3,7 +3,7 @@ package com.jbp.randommaster.quant.sde.univariate.simulations;
 import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 
-public interface PathGenerator<T extends UnivariateStochasticProcess> {
+public interface PathGenerator<T extends UnivariateStochasticProcess> extends Cloneable {
 
 	/**
 	 * Given the next step size dt, get a new value.
@@ -13,27 +13,35 @@ public interface PathGenerator<T extends UnivariateStochasticProcess> {
 	public double getNext(double dt);
 	
 	/**
-	 * Get next many values by the given count and time step size.
-	 * 
-	 * @param dt The step size
-	 * @param count How many more items to be generated.
-	 * @param includeCurrentValue Determines whether include the current value in the result object.
-	 * @return An Iterable that contains the generated items.
-	 */
-	public Iterable<Double> getNextSeries(double dt, int count, boolean includeCurrentValue);
-	
-	/**
 	 * Get filtration up to current time
 	 * @return
 	 */
 	public Filtration<Double> getFiltration();
 	
+	/**
+	 * Set the filtration at current time.
+	 */
+	public void setFiltration(Filtration<Double> ft);
 	
 	/**
 	 * Get the process that generates the values.
 	 */
 	public T getProcess();
 	
-	
-	
+	/**
+	 * Perform shallow clone clone on the PathGenerator.
+	 */
+	public Object clone();
+
+	/**
+	 * Implementation of deep cloning.
+	 */
+	@SuppressWarnings("unchecked")
+	public default PathGenerator<T> deepClone() {
+		PathGenerator<T> p = (PathGenerator<T>) clone();
+		Filtration<Double> ft = getFiltration();
+		p.setFiltration((Filtration<Double>) ft.clone());
+		return p;
+		
+	}
 }
