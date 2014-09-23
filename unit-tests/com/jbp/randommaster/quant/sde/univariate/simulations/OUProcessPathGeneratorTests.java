@@ -32,7 +32,7 @@ public class OUProcessPathGeneratorTests extends TestCase {
 		
 		for (int i=0;i<pathCount;i++) {
 			OUProcessPathGenerator gen = new OUProcessPathGenerator(ou, x0, standardNormal);
-			finalX[i] = gen.getNext(dt);
+			finalX[i] = gen.nextStep(dt);
 		}
 		
 		double estimatedMean = StatUtils.mean(finalX);

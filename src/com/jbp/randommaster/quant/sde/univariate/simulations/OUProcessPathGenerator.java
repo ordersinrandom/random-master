@@ -29,7 +29,7 @@ public class OUProcessPathGenerator extends AbstractPathGenerator<OUProcess> {
 	}
 	
 	@Override
-	public double getNext(double dt) {
+	public double nextStep(double dt) {
 		
 		OUProcess ouProcess=super.getProcess();
 		Filtration<Double> ft=super.getFiltration();
@@ -45,8 +45,8 @@ public class OUProcessPathGenerator extends AbstractPathGenerator<OUProcess> {
 		double stepVol = Math.sqrt(sigma * sigma / (2.0 * theta) * (1.0 - Math.exp(-2.0 * theta * dt)));
 		double newX = stepMean + stepVol * normDist.sample();
 		
-		//ft.setProcessValue(newX);
-		//ft.incrementTime(dt);
+		ft.setProcessValue(newX);
+		ft.incrementTime(dt);
 		
 		return newX;
 	}
