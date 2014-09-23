@@ -36,11 +36,6 @@ public abstract class AbstractPathGenerator<T extends UnivariateStochasticProces
 	}
 	
 	@Override
-	public void setFiltration(Filtration<Double> ft) {
-		this.ft=ft;
-	}
-
-	@Override
 	public abstract double getNext(double dt);
 
 	@Override

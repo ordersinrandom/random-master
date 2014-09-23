@@ -39,8 +39,8 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 
 		double result = ft.getProcessValue() + dXt;
 
-		ft.setProcessValue(result);
-		ft.incrementTime(dt);
+		//ft.setProcessValue(result);
+		//ft.incrementTime(dt);
 
 		return result;
 	}

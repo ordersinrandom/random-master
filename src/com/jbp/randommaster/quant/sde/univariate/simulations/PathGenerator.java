@@ -1,9 +1,15 @@
 package com.jbp.randommaster.quant.sde.univariate.simulations;
 
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 
-public interface PathGenerator<T extends UnivariateStochasticProcess> extends Cloneable {
+public interface PathGenerator<T extends UnivariateStochasticProcess> {
 
 	/**
 	 * Given the next step size dt, get a new value.
@@ -19,23 +25,47 @@ public interface PathGenerator<T extends UnivariateStochasticProcess> extends Cl
 	public Filtration<Double> getFiltration();
 	
 	/**
-	 * Set the filtration at current time.
-	 */
-	public void setFiltration(Filtration<Double> ft);
-	
-	/**
 	 * Get the process that generates the values.
 	 */
 	public T getProcess();
+
 	
-	/**
-	 * Perform shallow clone clone on the PathGenerator.
-	 */
+	public default Stream<Filtration<Double>> stream(double dt) {
+		
+		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(
+													new Iterator<Filtration<Double>>() {
+														boolean started = false;
+														@Override
+														public boolean hasNext() {
+															return true;
+														}
+								
+														@SuppressWarnings("unchecked")
+														@Override
+														public Filtration<Double> next() {
+															if (!started) {
+																started=true;
+																Filtration<Double> initVal = getFiltration();
+																return (Filtration<Double>) initVal.clone(); // make a copy, filtration is stateful
+															}
+															else {
+																double nextVal = getNext(dt);
+																Filtration<Double> currentFt = getFiltration();
+																currentFt.setProcessValue(nextVal);
+																currentFt.incrementTime(dt);
+																return (Filtration<Double>) currentFt.clone(); // make a copy, filtration is stateful
+															}
+														}
+													}, Long.MAX_VALUE, Spliterator.IMMUTABLE);
+		
+		
+		return StreamSupport.stream(spliterator, false);
+	}
+	
+	
+	/*
 	public Object clone();
 
-	/**
-	 * Implementation of deep cloning.
-	 */
 	@SuppressWarnings("unchecked")
 	public default PathGenerator<T> deepClone() {
 		PathGenerator<T> p = (PathGenerator<T>) clone();
@@ -43,5 +73,5 @@ public interface PathGenerator<T extends UnivariateStochasticProcess> extends Cl
 		p.setFiltration((Filtration<Double>) ft.clone());
 		return p;
 		
-	}
+	}*/
 }

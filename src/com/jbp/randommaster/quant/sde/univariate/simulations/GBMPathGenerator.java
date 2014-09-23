@@ -34,8 +34,8 @@ public class GBMPathGenerator extends AbstractPathGenerator<GeometricBrownianMot
 		double result = xt * Math.exp( (mu - Math.pow(sigma, 2.0) / 2.0) * dt + sigma * dWt);
 		
 		// adjust the filtration.
-		ft.incrementTime(dt);
-		ft.setProcessValue(result);
+		//ft.incrementTime(dt);
+		//ft.setProcessValue(result);
 
 		return result;
 	}
