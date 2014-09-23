@@ -6,7 +6,7 @@ package com.jbp.randommaster.quant.sde;
  * This class represents filtration. All the information up to the current time t.
  *
  */
-public class Filtration<T> implements Cloneable {
+public class Filtration<T> implements Cloneable, Comparable<Filtration<T>> {
 	
 	protected double time;
 	// this could be vector or a single Xt
@@ -64,5 +64,30 @@ public class Filtration<T> implements Cloneable {
 		buf.append(getProcessValue());
 		return buf.toString();
 	}
+
+	@Override
+	public int compareTo(Filtration<T> f) {
+		if (this.time<f.time)
+			return -1;
+		else if (this.time>f.time)
+			return 1;
+		else return 0;
+	}
 	
+	@Override
+	public int hashCode() {
+		return new Double(time).hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		else if (obj instanceof Filtration) {
+			@SuppressWarnings("rawtypes")
+			Filtration f = (Filtration) obj;
+			return time==f.time;
+		}
+		else return false;
+	}
 }

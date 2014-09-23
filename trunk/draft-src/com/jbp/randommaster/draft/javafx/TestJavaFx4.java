@@ -71,17 +71,18 @@ public class TestJavaFx4 extends Application {
 		NormalDistribution standardNormal = new NormalDistribution(0,1);
 		standardNormal.reseedRandomGenerator(seed);
 		
-		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.24, 0.35);
+		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.1, 0.25);
 		
-		int seriesCount = 10;
+		int seriesCount = 6;
 		List<XYSeries> series=new LinkedList<>();
 		for (int i=0;i<seriesCount;i++)
 			series.add(new XYSeries("GBM"+i));
 		
 		double dt = 1.0/252.0;
+		double maxT = 1.5; // run for 1.5 years
 		for (int i=0;i<series.size();i++) {
 			XYSeries currentSeries = series.get(i);
-			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).streamUpToTime(dt, 2.0));
+			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).streamUpToTime(dt, maxT));
 		}
 		
 
