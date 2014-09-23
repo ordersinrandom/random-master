@@ -30,7 +30,7 @@ public class GBMPathGeneratorTests extends TestCase {
 		double dt=1.0/252.0;		
 		for (int i=0;i<pathCount;i++) {
 			GBMPathGenerator gen=new GBMPathGenerator(gbm, x0, standardNormal);
-			finalX[i] = gen.getNext(dt);
+			finalX[i] = gen.nextStep(dt);
 		}
 		
 		

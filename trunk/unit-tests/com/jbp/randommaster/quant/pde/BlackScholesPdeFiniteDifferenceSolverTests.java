@@ -226,7 +226,7 @@ public class BlackScholesPdeFiniteDifferenceSolverTests extends TestCase {
 		
 		for (int i=0;i<pathCount;i++) {
 			OUProcessPathGenerator gen = new OUProcessPathGenerator(ou, x0, standardNormal);
-			double finalX = gen.getNext(tmat);
+			double finalX = gen.nextStep(tmat);
 			finalPutPrice[i] = Math.max(0.0, strike - finalX); // just put, no discounting.
 		}
 		

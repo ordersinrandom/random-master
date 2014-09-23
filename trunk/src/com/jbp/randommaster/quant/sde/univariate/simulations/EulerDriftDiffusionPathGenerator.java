@@ -27,7 +27,7 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 	}
 
 	@Override
-	public double getNext(double dt) {
+	public double nextStep(double dt) {
 
 		Filtration<Double> ft = super.getFiltration();
 
@@ -39,8 +39,8 @@ public class EulerDriftDiffusionPathGenerator<T extends DriftDiffusionProcess<? 
 
 		double result = ft.getProcessValue() + dXt;
 
-		//ft.setProcessValue(result);
-		//ft.incrementTime(dt);
+		ft.setProcessValue(result);
+		ft.incrementTime(dt);
 
 		return result;
 	}

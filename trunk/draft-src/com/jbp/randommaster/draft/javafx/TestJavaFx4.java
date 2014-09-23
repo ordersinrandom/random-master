@@ -71,7 +71,7 @@ public class TestJavaFx4 extends Application {
 		NormalDistribution standardNormal = new NormalDistribution(0,1);
 		standardNormal.reseedRandomGenerator(seed);
 		
-		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.35);
+		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.24, 0.35);
 		
 		int seriesCount = 10;
 		List<XYSeries> series=new LinkedList<>();
@@ -81,7 +81,7 @@ public class TestJavaFx4 extends Application {
 		double dt = 1.0/252.0;
 		for (int i=0;i<series.size();i++) {
 			XYSeries currentSeries = series.get(i);
-			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).stream(dt*(i*2+1)));
+			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).streamUpToTime(dt, 2.0));
 		}
 		
 
@@ -100,14 +100,9 @@ public class TestJavaFx4 extends Application {
 	
 	private static void fillSeries(XYSeries series, Stream<Filtration<Double>> stream) {
 
-		double maxTime = 1.0;
-		
-		int step=0;
 		for (Iterator<Filtration<Double>> it=stream.iterator(); it.hasNext();) {
 			Filtration<Double> ft = it.next();
 			series.add(ft.getTime(), ft.getProcessValue());
-			if (ft.getTime()>=maxTime)
-				break;
 		}		
 	}	
 }

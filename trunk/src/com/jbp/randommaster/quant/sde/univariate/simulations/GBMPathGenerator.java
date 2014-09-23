@@ -22,7 +22,7 @@ public class GBMPathGenerator extends AbstractPathGenerator<GeometricBrownianMot
 	}
 	
 	@Override
-	public double getNext(double dt) {
+	public double nextStep(double dt) {
 		
 		GeometricBrownianMotion gbm=super.getProcess();
 		Filtration<Double> ft=super.getFiltration();
@@ -34,8 +34,8 @@ public class GBMPathGenerator extends AbstractPathGenerator<GeometricBrownianMot
 		double result = xt * Math.exp( (mu - Math.pow(sigma, 2.0) / 2.0) * dt + sigma * dWt);
 		
 		// adjust the filtration.
-		//ft.incrementTime(dt);
-		//ft.setProcessValue(result);
+		ft.incrementTime(dt);
+		ft.setProcessValue(result);
 
 		return result;
 	}
