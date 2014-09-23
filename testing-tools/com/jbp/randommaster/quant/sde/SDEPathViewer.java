@@ -2,6 +2,7 @@ package com.jbp.randommaster.quant.sde;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.util.Iterator;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -20,9 +21,22 @@ import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.EulerDriftDiffusionPathGenerator;
 import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
 import com.jbp.randommaster.quant.sde.univariate.simulations.OUProcessPathGenerator;
-import com.jbp.randommaster.quant.sde.univariate.simulations.PathsFactory;
+import com.jbp.randommaster.quant.sde.univariate.simulations.PathGenerator;
+
 
 public class SDEPathViewer {
+	
+	private static void fillSeries(XYSeries series, PathGenerator<? extends UnivariateStochasticProcess> generator) {
+		
+		int simCount=252;
+		double dt = 1.0/252.0;
+		
+		int step=0;
+		for (Iterator<Filtration<Double>> it=generator.stream(dt).iterator(); it.hasNext() && step<simCount;step++) {
+			Filtration<Double> ft = it.next();
+			series.add(ft.getTime(), ft.getProcessValue());
+		}		
+	}
 
 	public static void main(String[] args) throws Exception {
 		
@@ -57,35 +71,11 @@ public class SDEPathViewer {
 		XYSeries series3=new XYSeries("OU Exact");
 		XYSeries series4=new XYSeries("OU Euler");
 		
-		PathsFactory<? extends UnivariateStochasticProcess> factory1 = new PathsFactory<>(gen1);
-		PathsFactory<? extends UnivariateStochasticProcess> factory2 = new PathsFactory<>(gen2);
-		PathsFactory<? extends UnivariateStochasticProcess> factory3 = new PathsFactory<>(gen3);
-		PathsFactory<? extends UnivariateStochasticProcess> factory4 = new PathsFactory<>(gen4);
-		
+		fillSeries(series1, gen1);
+		fillSeries(series2, gen2);
+		fillSeries(series3, gen3);
+		fillSeries(series4, gen4);
 
-		int simCount=252;
-		double dt = 1.0/252.0;
-		
-		int step=0;
-		for (double x : factory1.getNextSeries(dt, simCount, true)) {
-			series1.add((double) dt*(step++), x);
-		}
-		
-		step=0;
-		for (double x : factory2.getNextSeries(dt, simCount, true)) {
-			series2.add((double) dt*(step++), x);
-		}
-		
-		step=0;
-		for (double x : factory3.getNextSeries(dt, simCount, true)) {
-			series3.add((double) dt*(step++), x);
-		}
-		
-		step=0;
-		for (double x : factory4.getNextSeries(dt, simCount, true)) {
-			series4.add((double) dt*(step++), x);
-		}
-		
 		XYSeriesCollection dataset=new XYSeriesCollection();
 		dataset.addSeries(series1);
 		dataset.addSeries(series2);
