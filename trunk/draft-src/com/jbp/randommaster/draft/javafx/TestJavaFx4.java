@@ -1,6 +1,7 @@
 package com.jbp.randommaster.draft.javafx;
 
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,10 +13,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
 import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
-import com.jbp.randommaster.quant.sde.univariate.simulations.PathsFactory;
+import com.jbp.randommaster.quant.sde.univariate.simulations.PathGenerator;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
@@ -28,8 +30,6 @@ import javafx.stage.Stage;
 
 public class TestJavaFx4 extends Application {
 
-	
-	
 	public static void main(String[] args) {
 
 		launch(args);
@@ -72,27 +72,17 @@ public class TestJavaFx4 extends Application {
 		NormalDistribution standardNormal = new NormalDistribution(0,1);
 		standardNormal.reseedRandomGenerator(seed);
 		
-		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.55);
+		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.35);
 		
-		GBMPathGenerator gen=new GBMPathGenerator(gbm, 100, standardNormal);
-		
-		int seriesCount = 10;
+		int seriesCount = 500;
 		List<XYSeries> series=new LinkedList<>();
 		for (int i=0;i<seriesCount;i++)
 			series.add(new XYSeries("GBM"+i));
-
-		PathsFactory<? extends UnivariateStochasticProcess> factory1 = new PathsFactory<>(gen);
 		
-		int simCount=252;
-		double dt = 1.0/252.0;
-
-		int step=0;
+		
 		for (int i=0;i<series.size();i++) {
-			step=0;
 			XYSeries currentSeries = series.get(i);
-			for (double x : factory1.getNextSeries(dt, simCount, true)) {
-				currentSeries.add((double) dt*(step++), x);
-			}
+			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal));
 		}
 		
 
@@ -101,12 +91,24 @@ public class TestJavaFx4 extends Application {
 			dataset.addSeries(s);
 		
 		JFreeChart chart=ChartFactory.createXYLineChart("Simulated Paths", "time", "value", dataset, PlotOrientation.VERTICAL, 
-				true, true, false);
+				false, true, false);
 		
 		chart.getPlot().setBackgroundPaint(new java.awt.GradientPaint(1, 1, java.awt.Color.yellow.darker().darker(), 
 				1500, 1500, java.awt.Color.darkGray));
 		
 		return chart;
 	}
+	
+	private static void fillSeries(XYSeries series, PathGenerator<? extends UnivariateStochasticProcess> generator) {
+		
+		int simCount=252;
+		double dt = 1.0/252.0;
+		
+		int step=0;
+		for (Iterator<Filtration<Double>> it=generator.stream(dt).iterator(); it.hasNext() && step<simCount;step++) {
+			Filtration<Double> ft = it.next();
+			series.add(ft.getTime(), ft.getProcessValue());
+		}		
+	}	
 }
 
