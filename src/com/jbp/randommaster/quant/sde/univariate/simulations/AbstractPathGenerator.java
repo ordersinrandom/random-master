@@ -53,7 +53,7 @@ public abstract class AbstractPathGenerator<T extends UnivariateStochasticProces
 	@Override
 	public Stream<Filtration<Double>> stream(double dt) {
 		
-		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, -1.0, -1L), Long.MAX_VALUE, Spliterator.IMMUTABLE);
+		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, -1.0, -1L), Long.MAX_VALUE, Spliterator.IMMUTABLE | Spliterator.SORTED);
 		
 		return StreamSupport.stream(spliterator, false);
 	}
@@ -69,7 +69,7 @@ public abstract class AbstractPathGenerator<T extends UnivariateStochasticProces
 	@Override
 	public Stream<Filtration<Double>> streamUpToTime(double dt, double maxT) {
 		
-		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, maxT, -1L), Long.MAX_VALUE, Spliterator.IMMUTABLE);
+		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, maxT, -1L), Long.MAX_VALUE, Spliterator.IMMUTABLE | Spliterator.SORTED);
 
 		return StreamSupport.stream(spliterator, false);		
 	}
@@ -82,7 +82,7 @@ public abstract class AbstractPathGenerator<T extends UnivariateStochasticProces
 	 */
 	@Override
 	public Stream<Filtration<Double>> streamSteps(double dt, long numberOfSteps) {	
-		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, -1.0, numberOfSteps), Long.MAX_VALUE, Spliterator.IMMUTABLE);
+		Spliterator<Filtration<Double>> spliterator = Spliterators.<Filtration<Double>>spliterator(new IteratorHelper(dt, -1.0, numberOfSteps), Long.MAX_VALUE, Spliterator.IMMUTABLE | Spliterator.SORTED);
 
 		return StreamSupport.stream(spliterator, false);		
 		
