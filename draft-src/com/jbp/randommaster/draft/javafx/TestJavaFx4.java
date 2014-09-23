@@ -4,6 +4,7 @@ package com.jbp.randommaster.draft.javafx;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jfree.chart.ChartFactory;
@@ -15,9 +16,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import com.jbp.randommaster.quant.sde.Filtration;
 import com.jbp.randommaster.quant.sde.univariate.GeometricBrownianMotion;
-import com.jbp.randommaster.quant.sde.univariate.UnivariateStochasticProcess;
 import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
-import com.jbp.randommaster.quant.sde.univariate.simulations.PathGenerator;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
@@ -74,15 +73,15 @@ public class TestJavaFx4 extends Application {
 		
 		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.7, 0.35);
 		
-		int seriesCount = 500;
+		int seriesCount = 10;
 		List<XYSeries> series=new LinkedList<>();
 		for (int i=0;i<seriesCount;i++)
 			series.add(new XYSeries("GBM"+i));
 		
-		
+		double dt = 1.0/252.0;
 		for (int i=0;i<series.size();i++) {
 			XYSeries currentSeries = series.get(i);
-			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal));
+			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).stream(dt*(i*2+1)));
 		}
 		
 
@@ -91,7 +90,7 @@ public class TestJavaFx4 extends Application {
 			dataset.addSeries(s);
 		
 		JFreeChart chart=ChartFactory.createXYLineChart("Simulated Paths", "time", "value", dataset, PlotOrientation.VERTICAL, 
-				false, true, false);
+				true, true, false);
 		
 		chart.getPlot().setBackgroundPaint(new java.awt.GradientPaint(1, 1, java.awt.Color.yellow.darker().darker(), 
 				1500, 1500, java.awt.Color.darkGray));
@@ -99,15 +98,16 @@ public class TestJavaFx4 extends Application {
 		return chart;
 	}
 	
-	private static void fillSeries(XYSeries series, PathGenerator<? extends UnivariateStochasticProcess> generator) {
-		
-		int simCount=252;
-		double dt = 1.0/252.0;
+	private static void fillSeries(XYSeries series, Stream<Filtration<Double>> stream) {
+
+		double maxTime = 1.0;
 		
 		int step=0;
-		for (Iterator<Filtration<Double>> it=generator.stream(dt).iterator(); it.hasNext() && step<simCount;step++) {
+		for (Iterator<Filtration<Double>> it=stream.iterator(); it.hasNext();) {
 			Filtration<Double> ft = it.next();
 			series.add(ft.getTime(), ft.getProcessValue());
+			if (ft.getTime()>=maxTime)
+				break;
 		}		
 	}	
 }
