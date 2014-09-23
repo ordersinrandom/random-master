@@ -26,6 +26,7 @@ public class PathsFactory<T extends UnivariateStochasticProcess> {
 	 * @return An Iterable that contains the generated items.
 	 */
 	public Iterable<Double> getNextSeries(double dt, int count, boolean includeCurrentValue) {
+		
 		return () -> new SingleSeriesIterator<T>(generator, dt, count, includeCurrentValue);
 	}
 	
