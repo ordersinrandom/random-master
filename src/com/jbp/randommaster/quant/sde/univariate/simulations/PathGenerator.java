@@ -62,7 +62,6 @@ public interface PathGenerator<T extends UnivariateStochasticProcess> {
 		return StreamSupport.stream(spliterator, false);
 	}
 	
-	
 	/*
 	public Object clone();
 
