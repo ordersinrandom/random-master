@@ -20,8 +20,14 @@ import com.jbp.randommaster.quant.sde.univariate.simulations.GBMPathGenerator;
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -36,41 +42,127 @@ public class TestJavaFx4 extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		SwingNode swingContent = new SwingNode();
-		swingContent.setContent(new ChartPanel(prepareJFreeChart()));
+		TabPane tabPane = new TabPane();
+		
+		Tab jfreeChartTab = new Tab("JFreeChart");
+		jfreeChartTab.setContent(getJFreeChartContent());
+		jfreeChartTab.setClosable(false);
+		
+		Tab javaFXChartTab = new Tab("JavaFXChart");
+		javaFXChartTab.setContent(getJavaFXChartContent());
+		javaFXChartTab.setClosable(false);
+		
+		tabPane.getTabs().add(jfreeChartTab);
+		tabPane.getTabs().add(javaFXChartTab);
 
-		Button regenerateBut = new Button("Regenerate Paths");
-
-		regenerateBut.setOnAction(ev -> {
-			swingContent.setContent(new ChartPanel(prepareJFreeChart()));
-		});
-
-		HBox bottomBox = new HBox();
-		bottomBox.setPadding(new Insets(4, 4, 4, 4));
-		bottomBox.setSpacing(4);
-		bottomBox.getChildren().add(regenerateBut);
-
-		BorderPane panel = new BorderPane();
-		panel.setCenter(swingContent);
-		panel.setBottom(bottomBox);
-
-		Scene scene = new Scene(panel);
+		Scene scene = new Scene(tabPane);
 		primaryStage.setScene(scene);
 		primaryStage.setWidth(800);
 		primaryStage.setHeight(700);
 		primaryStage.show();
 	}
+	
+	private Node getJavaFXChartContent() {
+		
+        
+		BorderPane javaFXChartPanel = new BorderPane();
+		javaFXChartPanel.setCenter(prepareJavaFXChart());
+		
+		
+		Button regeneratePathsBut = new Button("Regenerate Paths");
 
+		regeneratePathsBut.setOnAction(ev -> {
+			javaFXChartPanel.setCenter(prepareJavaFXChart());
+		});
+		
+		HBox bottomBox = new HBox();
+		bottomBox.setPadding(new Insets(4, 4, 4, 4));
+		bottomBox.setSpacing(4);
+		bottomBox.getChildren().addAll(regeneratePathsBut);
+		
+		javaFXChartPanel.setBottom(bottomBox);
+		
+        
+        return javaFXChartPanel;
+	}
+	
+
+	private LineChart<Number,Number> prepareJavaFXChart() {
+		long seed = new java.util.Date().getTime();
+		NormalDistribution standardNormal = new NormalDistribution(0, 1);
+		standardNormal.reseedRandomGenerator(seed);
+		double dt = 1.0 / 252.0;
+		double maxT = 1.5; // run for 1.5 years
+		
+		final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Time");
+        yAxis.setLabel("Value");
+        //creating the chart
+        final LineChart<Number,Number> lineChart = new LineChart<>(xAxis,yAxis);
+                
+        lineChart.setTitle("Simulated Paths");
+        lineChart.setCreateSymbols(false);
+        lineChart.setAnimated(false);
+        
+        
+        int seriesCount = 10;
+        for (int i=0;i<seriesCount;i++) {
+
+            //defining a series
+            XYChart.Series<Number,Number> series = new XYChart.Series<>();
+            
+            series.setName("GBM "+(i+1));
+            
+			Stream<Filtration<Double>> stream = generateSeries(standardNormal, dt, maxT);
+
+			for (Iterator<Filtration<Double>> it = stream.iterator(); it.hasNext();) {
+				Filtration<Double> ft = it.next();
+				series.getData().add(new XYChart.Data<Number,Number>(ft.getTime(), ft.getProcessValue()));
+			}            
+            
+            lineChart.getData().add(series);	        	
+        	
+        }		
+        
+        return lineChart;
+	}
+	
+	
+	
+	private Node getJFreeChartContent() {
+		BorderPane jfreeChartPanel = new BorderPane();
+		SwingNode swingContent = new SwingNode();
+		swingContent.setContent(new ChartPanel(prepareJFreeChart()));
+		jfreeChartPanel.setCenter(swingContent);
+		
+		Button regeneratePathsBut = new Button("Regenerate Paths");
+
+		regeneratePathsBut.setOnAction(ev -> {
+			swingContent.setContent(new ChartPanel(prepareJFreeChart()));
+		});
+		
+		HBox bottomBox = new HBox();
+		bottomBox.setPadding(new Insets(4, 4, 4, 4));
+		bottomBox.setSpacing(4);
+		bottomBox.getChildren().addAll(regeneratePathsBut);
+		
+		jfreeChartPanel.setBottom(bottomBox);
+		
+		return jfreeChartPanel;
+	}
+	
 	private JFreeChart prepareJFreeChart() {
 
 		long seed = new java.util.Date().getTime();
 		NormalDistribution standardNormal = new NormalDistribution(0, 1);
 		standardNormal.reseedRandomGenerator(seed);
 
-		int seriesCount = 6;
+		int seriesCount = 10;
 		List<XYSeries> series = new LinkedList<>();
-		for (int i = 0; i < seriesCount; i++)
+		for (int i = 0; i < seriesCount; i++) {
 			series.add(new XYSeries("GBM" + i));
+		}
 
 		double dt = 1.0 / 252.0;
 		double maxT = 1.5; // run for 1.5 years
