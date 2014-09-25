@@ -80,7 +80,7 @@ public class TestJavaFx4 extends Application {
 		bottomBox.setSpacing(4);
 		bottomBox.getChildren().addAll(regeneratePathsBut);
 		
-		javaFXChartPanel.setBottom(bottomBox);
+		javaFXChartPanel.setTop(bottomBox);
 		
         
         return javaFXChartPanel;
@@ -100,7 +100,8 @@ public class TestJavaFx4 extends Application {
         yAxis.setLabel("Value");
         //creating the chart
         final LineChart<Number,Number> lineChart = new LineChart<>(xAxis,yAxis);
-                
+        //lineChart.setStyle(".chart-series-line { -fx-stroke-width: 1px; -fx-effect: null; }");
+
         lineChart.setTitle("Simulated Paths");
         lineChart.setCreateSymbols(false);
         lineChart.setAnimated(false);
@@ -112,6 +113,7 @@ public class TestJavaFx4 extends Application {
             //defining a series
             XYChart.Series<Number,Number> series = new XYChart.Series<>();
             
+            
             series.setName("GBM "+(i+1));
             
 			Stream<Filtration<Double>> stream = generateSeries(standardNormal, dt, maxT);
@@ -122,8 +124,10 @@ public class TestJavaFx4 extends Application {
 			}            
             
             lineChart.getData().add(series);	        	
-        	
+
         }		
+        
+        //lineChart.setStyle("-fx-font-family: sample; -fx-font-size: 80;");
         
         return lineChart;
 	}
@@ -131,23 +135,32 @@ public class TestJavaFx4 extends Application {
 	
 	
 	private Node getJFreeChartContent() {
-		BorderPane jfreeChartPanel = new BorderPane();
-		SwingNode swingContent = new SwingNode();
-		swingContent.setContent(new ChartPanel(prepareJFreeChart()));
-		jfreeChartPanel.setCenter(swingContent);
-		
-		Button regeneratePathsBut = new Button("Regenerate Paths");
 
-		regeneratePathsBut.setOnAction(ev -> {
-			swingContent.setContent(new ChartPanel(prepareJFreeChart()));
-		});
+		BorderPane jfreeChartPanel = new BorderPane();
+
+		Button regeneratePathsBut = new Button("Regenerate Paths");
 		
 		HBox bottomBox = new HBox();
+		
 		bottomBox.setPadding(new Insets(4, 4, 4, 4));
 		bottomBox.setSpacing(4);
 		bottomBox.getChildren().addAll(regeneratePathsBut);
 		
-		jfreeChartPanel.setBottom(bottomBox);
+		jfreeChartPanel.setBottom(bottomBox);		
+		
+		SwingNode swingContent = new SwingNode();
+		ChartPanel cp = new ChartPanel(prepareJFreeChart());
+		swingContent.setContent(cp);
+		
+	     
+		jfreeChartPanel.setCenter(swingContent);
+
+		regeneratePathsBut.setOnAction(ev -> {
+			ChartPanel cp2 = new ChartPanel(prepareJFreeChart());
+			swingContent.setContent(cp2);
+		});
+		
+		
 		
 		return jfreeChartPanel;
 	}
