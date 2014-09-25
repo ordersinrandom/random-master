@@ -1,6 +1,5 @@
 package com.jbp.randommaster.draft.javafx;
 
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,78 +32,75 @@ public class TestJavaFx4 extends Application {
 
 		launch(args);
 	}
-	
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
-		SwingNode swingContent=new SwingNode();
-		swingContent.setContent(new ChartPanel(prepareChart(new java.util.Date().getTime())));
+
+		SwingNode swingContent = new SwingNode();
+		swingContent.setContent(new ChartPanel(prepareJFreeChart()));
 
 		Button regenerateBut = new Button("Regenerate Paths");
-		//regenerateBut.setEffect(getEffect());
-		
+
 		regenerateBut.setOnAction(ev -> {
-			swingContent.setContent(new ChartPanel(prepareChart(new java.util.Date().getTime())));
+			swingContent.setContent(new ChartPanel(prepareJFreeChart()));
 		});
-		
-		
-		HBox bottomBox=new HBox();
-		bottomBox.setPadding(new Insets(4,4,4,4));
+
+		HBox bottomBox = new HBox();
+		bottomBox.setPadding(new Insets(4, 4, 4, 4));
 		bottomBox.setSpacing(4);
 		bottomBox.getChildren().add(regenerateBut);
-		
-	
-		BorderPane panel=new BorderPane();
+
+		BorderPane panel = new BorderPane();
 		panel.setCenter(swingContent);
 		panel.setBottom(bottomBox);
-		
-		Scene scene=new Scene(panel);
+
+		Scene scene = new Scene(panel);
 		primaryStage.setScene(scene);
 		primaryStage.setWidth(800);
 		primaryStage.setHeight(700);
 		primaryStage.show();
 	}
 
-	
-	private JFreeChart prepareChart(long seed) {
-		NormalDistribution standardNormal = new NormalDistribution(0,1);
-		standardNormal.reseedRandomGenerator(seed);
-		
-		GeometricBrownianMotion gbm=new GeometricBrownianMotion(0.1, 0.25);
-		
-		int seriesCount = 6;
-		List<XYSeries> series=new LinkedList<>();
-		for (int i=0;i<seriesCount;i++)
-			series.add(new XYSeries("GBM"+i));
-		
-		double dt = 1.0/252.0;
-		double maxT = 1.5; // run for 1.5 years
-		for (int i=0;i<series.size();i++) {
-			XYSeries currentSeries = series.get(i);
-			fillSeries(currentSeries, new GBMPathGenerator(gbm, 100, standardNormal).streamUpToTime(dt, maxT));
-		}
-		
+	private JFreeChart prepareJFreeChart() {
 
-		XYSeriesCollection dataset=new XYSeriesCollection();
+		long seed = new java.util.Date().getTime();
+		NormalDistribution standardNormal = new NormalDistribution(0, 1);
+		standardNormal.reseedRandomGenerator(seed);
+
+		int seriesCount = 6;
+		List<XYSeries> series = new LinkedList<>();
+		for (int i = 0; i < seriesCount; i++)
+			series.add(new XYSeries("GBM" + i));
+
+		double dt = 1.0 / 252.0;
+		double maxT = 1.5; // run for 1.5 years
+		for (int i = 0; i < series.size(); i++) {
+			XYSeries currentSeries = series.get(i);
+
+			Stream<Filtration<Double>> stream = generateSeries(standardNormal, dt, maxT);
+
+			for (Iterator<Filtration<Double>> it = stream.iterator(); it.hasNext();) {
+				Filtration<Double> ft = it.next();
+				currentSeries.add(ft.getTime(), ft.getProcessValue());
+			}
+		}
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
 		for (XYSeries s : series)
 			dataset.addSeries(s);
-		
-		JFreeChart chart=ChartFactory.createXYLineChart("Simulated Paths", "time", "value", dataset, PlotOrientation.VERTICAL, 
-				true, true, false);
-		
-		chart.getPlot().setBackgroundPaint(new java.awt.GradientPaint(1, 1, java.awt.Color.yellow.darker().darker(), 
-				1500, 1500, java.awt.Color.darkGray));
-		
+
+		JFreeChart chart = ChartFactory.createXYLineChart("Simulated Paths", "time", "value", dataset, PlotOrientation.VERTICAL, true, true, false);
+
+		chart.getPlot().setBackgroundPaint(
+				new java.awt.GradientPaint(1, 1, java.awt.Color.yellow.darker().darker(), 1500, 1500, java.awt.Color.darkGray));
+
 		return chart;
 	}
-	
-	private static void fillSeries(XYSeries series, Stream<Filtration<Double>> stream) {
 
-		for (Iterator<Filtration<Double>> it=stream.iterator(); it.hasNext();) {
-			Filtration<Double> ft = it.next();
-			series.add(ft.getTime(), ft.getProcessValue());
-		}		
-	}	
+	private Stream<Filtration<Double>> generateSeries(NormalDistribution standardNormal, double dt, double maxT) {
+
+		GeometricBrownianMotion gbm = new GeometricBrownianMotion(0.1, 0.25);
+		return new GBMPathGenerator(gbm, 100, standardNormal).streamUpToTime(dt, maxT);
+	}
+
 }
-
