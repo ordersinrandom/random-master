@@ -148,12 +148,16 @@ public class TestJavaFx4 extends Application {
 		
 		jfreeChartPanel.setBottom(bottomBox);		
 		
+		
 		SwingNode swingContent = new SwingNode();
 		ChartPanel cp = new ChartPanel(prepareJFreeChart());
 		swingContent.setContent(cp);
 		
 	     
 		jfreeChartPanel.setCenter(swingContent);
+		
+		
+		
 
 		regeneratePathsBut.setOnAction(ev -> {
 			ChartPanel cp2 = new ChartPanel(prepareJFreeChart());
