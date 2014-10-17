@@ -58,9 +58,7 @@ public class TestFitBetaDist {
 		return new BetaDistribution(alpha, beta);
 	}
 	
-
-	public static void main(String[] args) {
-
+	private static double[] getSamples() {
 		// prepare samples
 		int sampleSize = 300;
 		RandomGenerator rand = new JDKRandomGenerator();
@@ -71,7 +69,14 @@ public class TestFitBetaDist {
 			s[i] = bdist.sample();
 		}
 
-		System.out.println(sampleSize+" samples prepared.");
+		return s;
+	}
+
+	public static void main(String[] args) {
+
+		double[] s = getSamples();
+
+		System.out.println(s.length+" samples prepared.");
 		
 		// try fitting a distribution from samples.
 		TestFitBetaDist t = new TestFitBetaDist(s);
