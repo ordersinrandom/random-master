@@ -60,7 +60,7 @@ public class TestFitBetaDist {
 	
 	private static double[] getSamples() {
 		// prepare samples
-		int sampleSize = 300;
+		int sampleSize = 90;
 		RandomGenerator rand = new JDKRandomGenerator();
 		rand.setSeed(28312984214531L);
 		double[] s = new double[sampleSize];
