@@ -2,6 +2,9 @@ package com.jbp.randommaster.draft.stat;
 
 import java.util.Arrays;
 
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -16,6 +19,15 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.HistogramDataset;
 
 public class TestFitBetaDist {
 
@@ -25,10 +37,10 @@ public class TestFitBetaDist {
 		this.samples = samples;
 	}
 
-	public BetaDistribution fit() {
+	public RealDistribution fit() {
 		// initial guess
 		InitialGuess startPt = new InitialGuess(new double[] { 15, 10 });
-		
+
 		MultivariateFunction likelihoodFunc = new MultivariateFunction() {
 			@Override
 			public double value(double[] param) {
@@ -36,28 +48,28 @@ public class TestFitBetaDist {
 				return Arrays.stream(samples).parallel().map(x -> Math.log(dist.density(x))).sum();
 			}
 		};
-		
-		MultivariateFunction unboundedFunc = new MultivariateFunctionPenaltyAdapter(likelihoodFunc, 
-				new double[] { 0.00000001, 0.00000001 }, new double[] { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY },  -100000000000.0, new double[] { 1.0, 1.0 } );
-		
+
+		MultivariateFunction unboundedFunc = new MultivariateFunctionPenaltyAdapter(likelihoodFunc, new double[] { 0.00000001, 0.00000001 },
+				new double[] { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY }, -100000000000.0, new double[] { 1.0, 1.0 });
+
 		ObjectiveFunction objectiveFunc = new ObjectiveFunction(unboundedFunc);
 
 		// simplex
 		NelderMeadSimplex simplex = new NelderMeadSimplex(startPt.getInitialGuess().length);
-		
+
 		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(-1.0, Double.MIN_VALUE));
-		
+
 		PointValuePair result = optimizer.optimize(new MaxEval(20000), GoalType.MAXIMIZE, startPt, objectiveFunc, simplex);
-		
+
 		double[] pt = result.getPoint();
 		double alpha = pt[0];
 		double beta = pt[1];
-		
-		System.out.println("estimated alpha = "+alpha+", beta = "+beta);
-		
+
+		System.out.println("estimated alpha = " + alpha + ", beta = " + beta);
+
 		return new BetaDistribution(alpha, beta);
 	}
-	
+
 	private static double[] getSamples() {
 		// prepare samples
 		int sampleSize = 90;
@@ -72,16 +84,46 @@ public class TestFitBetaDist {
 		return s;
 	}
 
+	private static JFreeChart prepareChart(double[] samples) {
+		HistogramDataset ds = new HistogramDataset();
+		int binsCount = 50;
+		ds.addSeries("Samples", samples, binsCount, 0.0, 1.0);
+
+		JFreeChart chart = ChartFactory.createHistogram("Test Fitting", "Bins", "Frequency", ds, PlotOrientation.VERTICAL, true, true, false);
+
+		XYPlot localXYPlot = (XYPlot) chart.getPlot();
+		localXYPlot.setDomainPannable(true);
+		localXYPlot.setRangePannable(true);
+		localXYPlot.setForegroundAlpha(0.85F);
+		NumberAxis localNumberAxis = (NumberAxis) localXYPlot.getRangeAxis();
+		localNumberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		XYBarRenderer localXYBarRenderer = (XYBarRenderer) localXYPlot.getRenderer();
+		localXYBarRenderer.setDrawBarOutline(false);
+		localXYBarRenderer.setBarPainter(new StandardXYBarPainter());
+		localXYBarRenderer.setShadowVisible(false);
+
+		return chart;
+	}
+
 	public static void main(String[] args) {
 
 		double[] s = getSamples();
 
-		System.out.println(s.length+" samples prepared.");
-		
+		System.out.println(s.length + " samples prepared.");
+
 		// try fitting a distribution from samples.
 		TestFitBetaDist t = new TestFitBetaDist(s);
 		t.fit();
+
+		JFreeChart chart = prepareChart(s);
+		ChartPanel cp = new ChartPanel(chart);
+		cp.setMouseWheelEnabled(true);
 		
+		JFrame frame = new JFrame("Test Fit");
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.getContentPane().add(cp);
+		frame.setSize(600,400);
+		frame.setVisible(true);
 	}
 
 }
