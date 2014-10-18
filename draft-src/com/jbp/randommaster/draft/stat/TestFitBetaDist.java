@@ -8,7 +8,9 @@ import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -40,13 +42,9 @@ import org.jfree.data.xy.XYDataset;
 
 public class TestFitBetaDist {
 
-	private double[] samples;
 
-	public TestFitBetaDist(double[] samples) {
-		this.samples = samples;
-	}
 
-	public BetaDistribution fit() {
+	private static BetaDistribution fit(double[] samples) {
 		// initial guess
 		InitialGuess startPt = new InitialGuess(new double[] { 15, 10 });
 
@@ -79,13 +77,12 @@ public class TestFitBetaDist {
 		return new BetaDistribution(alpha, beta);
 	}
 
-	private static double[] getSamples() {
+	private static double[] getSamples(int sampleSize, double initAlpha, double initBeta) {
 		// prepare samples
-		int sampleSize = 50;
 		RandomGenerator rand = new JDKRandomGenerator();
 		//rand.setSeed(28312984214531L);
 		double[] s = new double[sampleSize];
-		BetaDistribution bdist = new BetaDistribution(rand, 3, 10, BetaDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+		BetaDistribution bdist = new BetaDistribution(rand, initAlpha, initBeta, BetaDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
 		for (int i = 0; i < s.length; i++) {
 			s[i] = bdist.sample();
 		}
@@ -93,7 +90,7 @@ public class TestFitBetaDist {
 		return s;
 	}
 
-	private static JFreeChart prepareChart(double[] samples, BetaDistribution fittedDist) {
+	private static JFreeChart buildChart(double[] samples, BetaDistribution fittedDist) {
 		HistogramDataset ds = new HistogramDataset();
 		int binsCount = 50;
 		ds.addSeries("Samples", samples, binsCount, 0.0, 1.0);
@@ -101,7 +98,7 @@ public class TestFitBetaDist {
 		DecimalFormat fmt = new DecimalFormat("0.##");
 		String title = "Fitted Beta("+fmt.format(fittedDist.getAlpha())+", "+fmt.format(fittedDist.getBeta())+")";
 		
-		JFreeChart chart = ChartFactory.createHistogram(title, "Bins", "Frequency", ds, PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart chart = ChartFactory.createHistogram(title, "x", "Frequency", ds, PlotOrientation.VERTICAL, true, true, false);
 
 		XYPlot localXYPlot = (XYPlot) chart.getPlot();
 		localXYPlot.setDomainPannable(true);
@@ -126,44 +123,44 @@ public class TestFitBetaDist {
 		
 		return chart;
 	}
+
+	private static JFreeChart generateChart(int sampleCount, double initAlpha, double initBeta) {
+		double[] s = getSamples(sampleCount, initAlpha, initBeta);
+
+		System.out.println(s.length + " samples prepared.");
+		// try fitting a distribution from samples.
+		BetaDistribution dist = fit(s);
+
+		JFreeChart chart = buildChart(s, dist);
+		return chart;
+	}
+
 	
 	public static void main(String[] args) {
 
-		double[] s = getSamples();
+		int sampleCount = 200;
+		
+		double initAlpha = 2.0;
+		double initBeta = 8.0;
 
-		System.out.println(s.length + " samples prepared.");
-
-		// try fitting a distribution from samples.
-		TestFitBetaDist t = new TestFitBetaDist(s);
-		BetaDistribution dist = t.fit();
-
-		JFreeChart chart = prepareChart(s, dist);
-		ChartPanel chartPanel = new ChartPanel(chart);
+		ChartPanel chartPanel = new ChartPanel(generateChart(sampleCount, initAlpha, initBeta));
 		chartPanel.setMouseWheelEnabled(true);
 
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		mainPanel.add(chartPanel, BorderLayout.CENTER);
 		
 		JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JLabel sampleSizeLabel = new JLabel("Sample Size:");
+		JTextField sampleSizeField = new JTextField(""+sampleCount, 5);
 		JButton rerunBut = new JButton("Regenerate and Fit");
+		bottom.add(sampleSizeLabel);
+		bottom.add(sampleSizeField);
 		bottom.add(rerunBut);
 		mainPanel.add(bottom, BorderLayout.SOUTH);
-		rerunBut.addActionListener(
-				ev -> {
-					double[] s2 = getSamples();
-
-					System.out.println(s.length + " samples prepared.");
-
-					// try fitting a distribution from samples.
-					TestFitBetaDist t2 = new TestFitBetaDist(s2);
-					BetaDistribution dist2 = t2.fit();
-
-					JFreeChart chart2 = prepareChart(s2, dist2);
-					chartPanel.setChart(chart2);
-				});
+		rerunBut.addActionListener(ev -> chartPanel.setChart(generateChart(Integer.valueOf(sampleSizeField.getText()), initAlpha, initBeta)));
 		
 		
-		JFrame frame = new JFrame("Test Fit");
+		JFrame frame = new JFrame("Test Fit Beta Distribution with Nelder Mead Simplex");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.getContentPane().add(mainPanel);
 		frame.setSize(1000,600);
