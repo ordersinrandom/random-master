@@ -111,7 +111,7 @@ public class TestFitBetaDist {
 		localXYBarRenderer.setBarPainter(new StandardXYBarPainter());
 		localXYBarRenderer.setShadowVisible(false);
 		
-		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 500, "BetaDist PDF");
+		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 500, "Fitted Beta Dist PDF");
 
 		localXYPlot.setDataset(1, distDS);
 		localXYPlot.setRangeAxis(1, new NumberAxis("Beta Dist PDF(x)"));
@@ -140,8 +140,8 @@ public class TestFitBetaDist {
 
 		int sampleCount = 200;
 		
-		double initAlpha = 2.0;
-		double initBeta = 8.0;
+		double initAlpha = 7.0;
+		double initBeta = 3.0;
 
 		ChartPanel chartPanel = new ChartPanel(generateChart(sampleCount, initAlpha, initBeta));
 		chartPanel.setMouseWheelEnabled(true);
