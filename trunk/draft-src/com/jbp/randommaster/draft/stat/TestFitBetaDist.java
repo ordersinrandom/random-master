@@ -150,14 +150,26 @@ public class TestFitBetaDist {
 		mainPanel.add(chartPanel, BorderLayout.CENTER);
 		
 		JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JLabel initAlphaLabel = new JLabel("Init Alpha:");
+		JTextField alphaInputField = new JTextField(""+initAlpha, 5);
+		JLabel initBetaLabel = new JLabel("Init Beta:");
+		JTextField betaInputField = new JTextField(""+initBeta, 5);
 		JLabel sampleSizeLabel = new JLabel("Sample Size:");
 		JTextField sampleSizeField = new JTextField(""+sampleCount, 5);
 		JButton rerunBut = new JButton("Regenerate and Fit");
+		bottom.add(initAlphaLabel);
+		bottom.add(alphaInputField);
+		bottom.add(initBetaLabel);
+		bottom.add(betaInputField);
 		bottom.add(sampleSizeLabel);
 		bottom.add(sampleSizeField);
 		bottom.add(rerunBut);
 		mainPanel.add(bottom, BorderLayout.SOUTH);
-		rerunBut.addActionListener(ev -> chartPanel.setChart(generateChart(Integer.valueOf(sampleSizeField.getText()), initAlpha, initBeta)));
+		rerunBut.addActionListener(ev -> chartPanel.setChart(generateChart(
+					Integer.valueOf(sampleSizeField.getText()), 
+					Double.valueOf(alphaInputField.getText()), 
+					Double.valueOf(betaInputField.getText())
+				)));
 		
 		
 		JFrame frame = new JFrame("Test Fit Beta Distribution with Nelder Mead Simplex");
