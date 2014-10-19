@@ -2,6 +2,7 @@ package com.jbp.randommaster.draft.stat;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.GradientXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.general.DatasetUtilities;
@@ -91,33 +92,35 @@ public class TestFitBetaDist {
 	}
 
 	private static JFreeChart buildChart(double[] samples, BetaDistribution fittedDist) {
-		HistogramDataset ds = new HistogramDataset();
+		HistogramDataset histogramDS = new HistogramDataset();
 		int binsCount = 50;
-		ds.addSeries("Samples", samples, binsCount, 0.0, 1.0);
+		histogramDS.addSeries("Samples", samples, binsCount, 0.0, 1.0);
 
 		DecimalFormat fmt = new DecimalFormat("0.##");
 		String title = "Fitted Beta("+fmt.format(fittedDist.getAlpha())+", "+fmt.format(fittedDist.getBeta())+")";
 		
-		JFreeChart chart = ChartFactory.createHistogram(title, "x", "Frequency", ds, PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart chart = ChartFactory.createHistogram(title, "x", "Frequency", histogramDS, PlotOrientation.VERTICAL, true, true, false);
 
-		XYPlot localXYPlot = (XYPlot) chart.getPlot();
-		localXYPlot.setDomainPannable(true);
-		localXYPlot.setRangePannable(true);
-		localXYPlot.setForegroundAlpha(0.55f);
-		NumberAxis localNumberAxis = (NumberAxis) localXYPlot.getRangeAxis();
+		XYPlot xyPlot = (XYPlot) chart.getPlot();
+		xyPlot.setDomainPannable(true);
+		xyPlot.setRangePannable(true);
+		xyPlot.setForegroundAlpha(0.55f);
+		// plot histogram
+		NumberAxis localNumberAxis = (NumberAxis) xyPlot.getRangeAxis();
 		localNumberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		XYBarRenderer localXYBarRenderer = (XYBarRenderer) localXYPlot.getRenderer();
-		localXYBarRenderer.setDrawBarOutline(false);
-		localXYBarRenderer.setBarPainter(new StandardXYBarPainter());
-		localXYBarRenderer.setShadowVisible(false);
-		
-		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 500, "Fitted Beta Dist PDF");
+		XYBarRenderer barRenderer = (XYBarRenderer) xyPlot.getRenderer();
+		barRenderer.setDrawBarOutline(false);
+		barRenderer.setBarPainter(new GradientXYBarPainter(0.3, 0.5, 0.7));
+		barRenderer.setShadowVisible(false);
+		barRenderer.setSeriesPaint(0, Color.green);
 
-		localXYPlot.setDataset(1, distDS);
-		localXYPlot.setRangeAxis(1, new NumberAxis("Beta Dist PDF(x)"));
-		localXYPlot.mapDatasetToRangeAxis(1,1);
+		// add the fitted Beta Distribution function.
+		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 500, "Fitted Beta Dist PDF");
+		xyPlot.setDataset(1, distDS);
+		xyPlot.setRangeAxis(1, new NumberAxis("Beta Dist PDF(x)"));
+		xyPlot.mapDatasetToRangeAxis(1,1);
 		XYLineAndShapeRenderer funcRenderer = new XYLineAndShapeRenderer();
-		localXYPlot.setRenderer(1, funcRenderer);
+		xyPlot.setRenderer(1, funcRenderer);
 		funcRenderer.setSeriesShapesVisible(0, false);
 		funcRenderer.setSeriesStroke(0, new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,1.0f, new float[] {10.0f, 6.0f}, 0.0f));
 		
