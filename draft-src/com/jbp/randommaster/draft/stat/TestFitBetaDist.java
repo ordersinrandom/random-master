@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GradientPaint;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -91,7 +92,7 @@ public class TestFitBetaDist {
 		return s;
 	}
 
-	private static JFreeChart buildChart(double[] samples, BetaDistribution fittedDist) {
+	private static JFreeChart buildChart(double[] samples, BetaDistribution fittedDist, BetaDistribution theoreticalDist) {
 		HistogramDataset histogramDS = new HistogramDataset();
 		int binsCount = 50;
 		histogramDS.addSeries("Samples", samples, binsCount, 0.0, 1.0);
@@ -104,18 +105,18 @@ public class TestFitBetaDist {
 		XYPlot xyPlot = (XYPlot) chart.getPlot();
 		xyPlot.setDomainPannable(true);
 		xyPlot.setRangePannable(true);
-		xyPlot.setForegroundAlpha(0.55f);
+		xyPlot.setForegroundAlpha(0.6f);
 		// plot histogram
 		NumberAxis localNumberAxis = (NumberAxis) xyPlot.getRangeAxis();
 		localNumberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 		XYBarRenderer barRenderer = (XYBarRenderer) xyPlot.getRenderer();
-		barRenderer.setDrawBarOutline(false);
-		barRenderer.setBarPainter(new GradientXYBarPainter(0.3, 0.5, 0.7));
+		barRenderer.setDrawBarOutline(true);
+		//barRenderer.setBarPainter(new GradientXYBarPainter(0.3, 0.5, 0.7));
 		barRenderer.setShadowVisible(false);
-		barRenderer.setSeriesPaint(0, Color.green);
+		barRenderer.setSeriesPaint(0, Color.white);
 
 		// add the fitted Beta Distribution function.
-		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 500, "Fitted Beta Dist PDF");
+		XYDataset distDS = DatasetUtilities.sampleFunction2D(x -> fittedDist.density(x) , 0.0, 1.0, 1000, "Fitted Beta Dist PDF");
 		xyPlot.setDataset(1, distDS);
 		xyPlot.setRangeAxis(1, new NumberAxis("Beta Dist PDF(x)"));
 		xyPlot.mapDatasetToRangeAxis(1,1);
@@ -123,6 +124,21 @@ public class TestFitBetaDist {
 		xyPlot.setRenderer(1, funcRenderer);
 		funcRenderer.setSeriesShapesVisible(0, false);
 		funcRenderer.setSeriesStroke(0, new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,1.0f, new float[] {10.0f, 6.0f}, 0.0f));
+		
+		XYDataset theoreticalDS = DatasetUtilities.sampleFunction2D(x -> theoreticalDist.density(x) , 0.0, 1.0, 1000, "Theo. Beta Dist PDF");
+		xyPlot.setDataset(2, theoreticalDS);
+		xyPlot.mapDatasetToRangeAxis(2, 1);
+
+		XYLineAndShapeRenderer funcRenderer2 = new XYLineAndShapeRenderer();
+		xyPlot.setRenderer(2, funcRenderer2);
+		funcRenderer2.setSeriesShapesVisible(0, false);
+		funcRenderer2.setSeriesStroke(0, new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,1.0f, new float[] {10.0f, 6.0f}, 0.0f));
+		
+		
+		
+		
+		xyPlot.setBackgroundPaint(new GradientPaint(1, 1, Color.yellow.darker().darker(), 
+				1500, 1500, Color.darkGray));
 		
 		return chart;
 	}
@@ -132,9 +148,11 @@ public class TestFitBetaDist {
 
 		System.out.println(s.length + " samples prepared.");
 		// try fitting a distribution from samples.
-		BetaDistribution dist = fit(s);
+		BetaDistribution fittedDist = fit(s);
+		
+		BetaDistribution theoreticalDist = new BetaDistribution(initAlpha, initBeta);
 
-		JFreeChart chart = buildChart(s, dist);
+		JFreeChart chart = buildChart(s, fittedDist, theoreticalDist);
 		return chart;
 	}
 
