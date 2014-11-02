@@ -29,6 +29,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -96,8 +97,19 @@ public class TestFitBetaDist {
 		int binsCount = 50;
 		histogramDS.addSeries("Samples", samples, binsCount, 0.0, 1.0);
 
+		double alpha = fittedDist.getAlpha();
+		double beta = fittedDist.getBeta();
+		
+		double modelMean = alpha / (alpha + beta);
+		double modelVariance = (alpha * beta) / (Math.pow(alpha + beta, 2.0) * (alpha + beta + 1.0));
+		
+		DescriptiveStatistics descStat = new DescriptiveStatistics(samples);
+		double sampleMean = descStat.getMean();
+		double sampleVariance = descStat.getVariance();
+		
 		DecimalFormat fmt = new DecimalFormat("0.##");
-		String title = "Fitted Beta("+fmt.format(fittedDist.getAlpha())+", "+fmt.format(fittedDist.getBeta())+")";
+		String title = "Fitted Beta(" + fmt.format(alpha) + ", " + fmt.format(beta) + "), E[X] = " + fmt.format(modelMean) + ", var[X] = "
+				+ fmt.format(modelVariance) + ", sample mean = " + fmt.format(sampleMean) + ", sample variance = " + fmt.format(sampleVariance);
 		
 		JFreeChart chart = ChartFactory.createHistogram(title, "x", "Frequency", histogramDS, PlotOrientation.VERTICAL, true, true, false);
 
