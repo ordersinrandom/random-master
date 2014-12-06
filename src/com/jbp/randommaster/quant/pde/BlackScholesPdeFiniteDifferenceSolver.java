@@ -8,6 +8,8 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
+import com.jbp.randommaster.quant.common.ThomasAlgorithm;
+
 /**
  * 
  * Implement a Crank Nicolson scheme PDE solver for the PDE defined in <code>BlackScholesPde</code>.
