@@ -1,11 +1,11 @@
 package com.jbp.randommaster.utils;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 
 /**
  * 
@@ -15,30 +15,30 @@ import org.joda.time.LocalDate;
  */
 public class HolidaysList {
 
-	public static final HolidaysList HongKong = new HolidaysList("Hong Kong", new int[] { DateTimeConstants.SUNDAY, DateTimeConstants.SATURDAY },
-			new LocalDate[] { new LocalDate(2012, 1, 2), new LocalDate(2012, 1, 23), new LocalDate(2012, 1, 24), new LocalDate(2012, 1, 25),
-					new LocalDate(2012, 4, 4), new LocalDate(2012, 4, 6), new LocalDate(2012, 4, 7), new LocalDate(2012, 4, 9),
-					new LocalDate(2012, 4, 28), new LocalDate(2012, 5, 1), new LocalDate(2012, 6, 23), new LocalDate(2012, 7, 2),
-					new LocalDate(2012, 10, 1), new LocalDate(2012, 10, 2), new LocalDate(2012, 10, 23), new LocalDate(2012, 12, 25),
-					new LocalDate(2012, 12, 26), new LocalDate(2013, 1, 1), new LocalDate(2013, 2, 10), new LocalDate(2013, 2, 11),
-					new LocalDate(2013, 2, 12), new LocalDate(2013, 2, 13), new LocalDate(2013, 3, 29), new LocalDate(2013, 3, 30),
-					new LocalDate(2013, 3, 31), new LocalDate(2013, 4, 1), new LocalDate(2013, 4, 4), new LocalDate(2013, 5, 1),
-					new LocalDate(2013, 5, 17), new LocalDate(2013, 6, 12), new LocalDate(2013, 7, 1), new LocalDate(2013, 9, 20),
-					new LocalDate(2013, 10, 1), new LocalDate(2013, 10, 13), new LocalDate(2013, 10, 14), new LocalDate(2013, 12, 25),
-					new LocalDate(2013, 12, 26), new LocalDate(2014, 1, 1), new LocalDate(2014, 1, 31), new LocalDate(2014, 2, 1),
-					new LocalDate(2014, 2, 2), new LocalDate(2014, 2, 3), new LocalDate(2014, 4, 5), new LocalDate(2014, 4, 18),
-					new LocalDate(2014, 4, 19), new LocalDate(2014, 4, 20), new LocalDate(2014, 4, 21), new LocalDate(2014, 5, 1),
-					new LocalDate(2014, 5, 6), new LocalDate(2014, 6, 2), new LocalDate(2014, 7, 1), new LocalDate(2014, 9, 9),
-					new LocalDate(2014, 10, 1), new LocalDate(2014, 10, 2), new LocalDate(2014, 12, 25), new LocalDate(2014, 12, 26), });
+	public static final HolidaysList HongKong = new HolidaysList("Hong Kong", new DayOfWeek[] { DayOfWeek.SUNDAY, DayOfWeek.SATURDAY },
+			new LocalDate[] { LocalDate.of(2012, 1, 2), LocalDate.of(2012, 1, 23), LocalDate.of(2012, 1, 24), LocalDate.of(2012, 1, 25),
+					LocalDate.of(2012, 4, 4), LocalDate.of(2012, 4, 6), LocalDate.of(2012, 4, 7), LocalDate.of(2012, 4, 9),
+					LocalDate.of(2012, 4, 28), LocalDate.of(2012, 5, 1), LocalDate.of(2012, 6, 23), LocalDate.of(2012, 7, 2),
+					LocalDate.of(2012, 10, 1), LocalDate.of(2012, 10, 2), LocalDate.of(2012, 10, 23), LocalDate.of(2012, 12, 25),
+					LocalDate.of(2012, 12, 26), LocalDate.of(2013, 1, 1), LocalDate.of(2013, 2, 10), LocalDate.of(2013, 2, 11),
+					LocalDate.of(2013, 2, 12), LocalDate.of(2013, 2, 13), LocalDate.of(2013, 3, 29), LocalDate.of(2013, 3, 30),
+					LocalDate.of(2013, 3, 31), LocalDate.of(2013, 4, 1), LocalDate.of(2013, 4, 4), LocalDate.of(2013, 5, 1),
+					LocalDate.of(2013, 5, 17), LocalDate.of(2013, 6, 12), LocalDate.of(2013, 7, 1), LocalDate.of(2013, 9, 20),
+					LocalDate.of(2013, 10, 1), LocalDate.of(2013, 10, 13), LocalDate.of(2013, 10, 14), LocalDate.of(2013, 12, 25),
+					LocalDate.of(2013, 12, 26), LocalDate.of(2014, 1, 1), LocalDate.of(2014, 1, 31), LocalDate.of(2014, 2, 1),
+					LocalDate.of(2014, 2, 2), LocalDate.of(2014, 2, 3), LocalDate.of(2014, 4, 5), LocalDate.of(2014, 4, 18),
+					LocalDate.of(2014, 4, 19), LocalDate.of(2014, 4, 20), LocalDate.of(2014, 4, 21), LocalDate.of(2014, 5, 1),
+					LocalDate.of(2014, 5, 6), LocalDate.of(2014, 6, 2), LocalDate.of(2014, 7, 1), LocalDate.of(2014, 9, 9),
+					LocalDate.of(2014, 10, 1), LocalDate.of(2014, 10, 2), LocalDate.of(2014, 12, 25), LocalDate.of(2014, 12, 26) });
 
 	// the delimiter to be used to union multiple holidays list together.
 	private static final String namesDelimiter = "|";
 
 	private String name;
-	private Set<Integer> weekendDays;
+	private Set<DayOfWeek> weekendDays;
 	private Set<LocalDate> holidays;
 
-	public HolidaysList(String name, int[] weekend, LocalDate[] list) {
+	public HolidaysList(String name, DayOfWeek[] weekend, LocalDate[] list) {
 		holidays = new HashSet<>(300, 0.9f);
 		if (list != null) {
 			for (LocalDate d : list)
@@ -47,7 +47,7 @@ public class HolidaysList {
 
 		this.weekendDays = new HashSet<>();
 		if (weekend != null) {
-			for (int c : weekend)
+			for (DayOfWeek c : weekend)
 				weekendDays.add(c);
 		}
 

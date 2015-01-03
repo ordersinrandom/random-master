@@ -1,10 +1,11 @@
 package com.jbp.randommaster.datasource.historical.consolidation;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
 import org.junit.Test;
 
 public class GapAdjustedTradeRecordTests extends TestCase {
@@ -12,8 +13,8 @@ public class GapAdjustedTradeRecordTests extends TestCase {
 	@Test
 	public void testAdjustment() {
 
-		LocalDateTime timestamp = new LocalDateTime(2012, 10, 31, 16, 01, 0);
-		YearMonth expiry = new YearMonth(2012, 11);
+		LocalDateTime timestamp = LocalDateTime.of(2012, 10, 31, 16, 01, 0);
+		YearMonth expiry = YearMonth.of(2012, 11);
 		String underlying = "HSI";
 		double strike = 0;
 		String futuresOptions = "F";

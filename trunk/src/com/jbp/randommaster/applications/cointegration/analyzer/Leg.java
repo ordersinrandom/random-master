@@ -1,6 +1,7 @@
 package com.jbp.randommaster.applications.cointegration.analyzer;
 
-import org.joda.time.YearMonth;
+import java.time.YearMonth;
+
 
 public class Leg {
 

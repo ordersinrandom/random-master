@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,10 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.joda.time.LocalDate;
-import org.joda.time.YearMonth;
-
 
 public class AddLegDialog extends JDialog implements ActionListener {
 
@@ -85,7 +83,7 @@ public class AddLegDialog extends JDialog implements ActionListener {
 						GridBagConstraints.NONE, 
 						new Insets(1,1,1,10), 1, 1));
 		
-		LocalDate d=new LocalDate(new java.util.Date());
+		LocalDate d=LocalDate.now();
 		int currentYear = d.getYear();
 		yearBox = new JComboBox<String>(new String[] { 
 				Integer.valueOf(currentYear-2).toString(),
@@ -203,7 +201,7 @@ public class AddLegDialog extends JDialog implements ActionListener {
 		
 		String yearStr = yearBox.getItemAt(yearBox.getSelectedIndex());
 		String monthStr = monthBox.getItemAt(monthBox.getSelectedIndex());
-		YearMonth expiry = new YearMonth(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
+		YearMonth expiry = YearMonth.of(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
 		
 		String futuresOrOptions = futuresOptionsBox.getItemAt(futuresOptionsBox.getSelectedIndex());
 		

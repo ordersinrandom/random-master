@@ -1,8 +1,9 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.YahooHistoricalData;
@@ -15,7 +16,7 @@ public class YahooHistoricalDataTests extends TestCase {
 	@Test
 	public void testParameters() {
 		
-		LocalDateTime inputDateTime=new LocalDate(2011,1,1).toLocalDateTime(LocalTime.MIDNIGHT);
+		LocalDateTime inputDateTime=LocalDate.of(2011,1,1).atTime(LocalTime.MIDNIGHT);
 		double open=20000.0;
 		double high=20100.0;
 		double low=19900.0;
@@ -38,14 +39,14 @@ public class YahooHistoricalDataTests extends TestCase {
 	@Test
 	public void testToString() {
 
-		LocalDate inputDate=new LocalDate(2011,1,1);
+		LocalDate inputDate=LocalDate.of(2011,1,1);
 		double open=20000.0;
 		double high=20100.0;
 		double low=19900.0;
 		double close=20050.0;
 		double vol = 12345678.12;
 		double adjustedClose=20050.02;
-		YahooHistoricalData d=new YahooHistoricalData(inputDate.toLocalDateTime(LocalTime.MIDNIGHT), 
+		YahooHistoricalData d=new YahooHistoricalData(inputDate.atTime(LocalTime.MIDNIGHT), 
 				open, high, low, close, vol, adjustedClose);
 
 		Assert.assertEquals("toString() output mismatched", 

@@ -2,6 +2,10 @@ package com.jbp.randommaster.datasource.historical;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,11 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * 
@@ -50,16 +49,17 @@ public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData>
 		this.yahooSymbol = yahooSymbol;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.allUrls=new LinkedList<String>();
+		this.allUrls=new LinkedList<>();
 		
 		
-		LocalDateTime nextStartDate = startDate.toLocalDateTime(LocalTime.MIDNIGHT);
-		while (nextStartDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) <= 0) {
+		LocalDateTime nextStartDate = startDate.atTime(LocalTime.MIDNIGHT);
+		
+		while (nextStartDate.compareTo(endDate.atTime(LocalTime.MIDNIGHT)) <= 0) {
 
 			// hard coded one year per query.
 			LocalDateTime nextEndDate = nextStartDate.plusYears(1);
-			if (nextEndDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) > 0)
-				nextEndDate = endDate.toLocalDateTime(LocalTime.MIDNIGHT);
+			if (nextEndDate.compareTo(endDate.atTime(LocalTime.MIDNIGHT)) > 0)
+				nextEndDate = endDate.atTime(LocalTime.MIDNIGHT);
 
 			String escapedSymbol = yahooSymbol;
 			try {
@@ -67,14 +67,13 @@ public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData>
 			} catch (UnsupportedEncodingException e) {
 				throw new IllegalArgumentException("Unable to escape input symbol: "+yahooSymbol, e);
 			}
-
 			
 			String url = csvPattern.replace("{SYMBOL}", escapedSymbol)
 				.replace("{ENDYEAR}", Integer.valueOf(nextEndDate.getYear()).toString())
-				.replace("{ENDMONTH}", Integer.valueOf(nextEndDate.getMonthOfYear()-1).toString())
+				.replace("{ENDMONTH}", Integer.valueOf(nextEndDate.getMonthValue()-1).toString())
 				.replace("{ENDDAY}", Integer.valueOf(nextEndDate.getDayOfMonth()).toString())
 				.replace("{STARTYEAR}", Integer.valueOf(nextStartDate.getYear()).toString())
-				.replace("{STARTMONTH}", Integer.valueOf(nextStartDate.getMonthOfYear()-1).toString())
+				.replace("{STARTMONTH}", Integer.valueOf(nextStartDate.getMonthValue()-1).toString())
 				.replace("{STARTDAY}", Integer.valueOf(nextStartDate.getDayOfMonth()).toString());
 			
 			allUrls.add(url);
@@ -102,9 +101,9 @@ public class YahooCsvSource implements HistoricalDataSource<YahooHistoricalData>
 	}	
 	
 	public String toString() {
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return "YahooCsvSource { " + yahooSymbol + ", "
-				+ startDate.toString(fmt) + ", " + endDate.toString(fmt) + " }";
+				+ startDate.format(fmt) + ", " + endDate.format(fmt) + " }";
 	}
 		
 

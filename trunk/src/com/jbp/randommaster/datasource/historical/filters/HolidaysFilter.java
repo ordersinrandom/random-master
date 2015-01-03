@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical.filters;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import com.jbp.randommaster.datasource.historical.HistoricalData;
 import com.jbp.randommaster.utils.HolidaysList;

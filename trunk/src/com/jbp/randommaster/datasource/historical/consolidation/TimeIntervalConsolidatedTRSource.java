@@ -1,7 +1,8 @@
 package com.jbp.randommaster.datasource.historical.consolidation;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.TradeRecordData;
@@ -21,14 +22,14 @@ public class TimeIntervalConsolidatedTRSource<T1 extends TimeConsolidatedTradeRe
 	private HistoricalDataSource<T2> dataSource;
 	private LocalDateTime start;
 	private LocalDateTime end;
-	private Period interval;
+	private Duration interval;
 
 	/**
 	 * Create an instance of <code>TimeIntervalConsolidatedTRSource</code>
 	 * 
 	 */
 	public TimeIntervalConsolidatedTRSource(TimeBasedTRConsolidator<T1, T2> consolidator, HistoricalDataSource<T2> dataSource, LocalDateTime start,
-			LocalDateTime end, Period interval) {
+			LocalDateTime end, Duration interval) {
 
 		this.consolidator = consolidator;
 		this.dataSource = dataSource;

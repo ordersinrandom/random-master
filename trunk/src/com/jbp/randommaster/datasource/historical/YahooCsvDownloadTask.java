@@ -2,14 +2,17 @@ package com.jbp.randommaster.datasource.historical;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 
+
+
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
-import org.joda.time.LocalDateTime;
 import org.supercsv.cellprocessor.ParseDate;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -67,7 +70,7 @@ public class YahooCsvDownloadTask implements Callable<Iterable<YahooHistoricalDa
 			while ((row = beanReader.read(YahooCsvRow.class, propertyNames, processors)) != null) {
 
 				YahooHistoricalData d=new YahooHistoricalData(
-						new LocalDateTime(row.getDate()), 
+						LocalDateTime.ofInstant(row.getDate().toInstant(), ZoneId.systemDefault()), 
 						row.getOpen(), 
 						row.getHigh(), 
 						row.getLow(), 

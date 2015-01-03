@@ -1,11 +1,11 @@
 package com.jbp.randommaster.datasource.historical;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -19,7 +19,7 @@ public class YahooCsvSourceTests extends TestCase {
 		boolean gotException=false;
 		try {
 			new YahooCsvSource("0005.HK",
-					new LocalDate(2011, 1, 1), new LocalDate(2010, 2, 1));
+					LocalDate.of(2011, 1, 1), LocalDate.of(2010, 2, 1));
 		} catch (Exception e1) {
 			gotException=true;
 
@@ -37,7 +37,7 @@ public class YahooCsvSourceTests extends TestCase {
 	@Test
 	public void testWithinOneYear() {
 		YahooCsvSource t = new YahooCsvSource("0005.HK",
-				new LocalDate(2010, 1, 1), new LocalDate(2010, 2, 1));
+				LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1));
 
 		List<String> urls = t.getUrls();
 
@@ -56,7 +56,7 @@ public class YahooCsvSourceTests extends TestCase {
 	public void testStartEqualsEnd() {
 		
 		YahooCsvSource t = new YahooCsvSource("0005.HK",
-				new LocalDate(2010, 1, 11), new LocalDate(2010, 1, 11));
+				LocalDate.of(2010, 1, 11), LocalDate.of(2010, 1, 11));
 
 		List<String> urls = t.getUrls();
 
@@ -75,7 +75,7 @@ public class YahooCsvSourceTests extends TestCase {
 	public void testDownloadAcrossYears() {
 		
 		YahooCsvSource t = new YahooCsvSource("^HSI",
-				new LocalDate(2012, 1, 1), new LocalDate(2013, 3, 5));
+				LocalDate.of(2012, 1, 1), LocalDate.of(2013, 3, 5));
 
 		Collection<YahooHistoricalData> data=new LinkedList<YahooHistoricalData>();
 		for (YahooHistoricalData d : t.getData()) 
@@ -88,8 +88,8 @@ public class YahooCsvSourceTests extends TestCase {
 	@Test
 	public void testAcrossYears() {
 		YahooCsvSource t = new YahooCsvSource("^HSI",
-				new LocalDate(2008, 1, 1), 
-				new LocalDate(2013, 3, 5));
+				LocalDate.of(2008, 1, 1), 
+				LocalDate.of(2013, 3, 5));
 
 		List<String> urls = t.getUrls();
 		
@@ -128,9 +128,9 @@ public class YahooCsvSourceTests extends TestCase {
 		}
 		
 		Assert.assertEquals("Not exactly 1305 items", 1305, count);
-		Assert.assertEquals("First item date mismatched", new LocalDateTime(2008,1,2,0,0,0), first.getTimestamp());
+		Assert.assertEquals("First item date mismatched", LocalDateTime.of(2008,1,2,0,0,0), first.getTimestamp());
 		Assert.assertEquals("First item adj Close mismatched", 27560.52, first.getAdjustedClose(), 0.0000001);
-		Assert.assertEquals("Last item date mismatched", new LocalDateTime(2013,3,5,0,0,0), last.getTimestamp());
+		Assert.assertEquals("Last item date mismatched", LocalDateTime.of(2013,3,5,0,0,0), last.getTimestamp());
 		Assert.assertEquals("Last item adj Close mismatched", 22560.5, last.getAdjustedClose(), 0.00000001);
 		
 

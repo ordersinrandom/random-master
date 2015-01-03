@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import com.jbp.randommaster.database.MasterDatabaseConnections;
 
@@ -22,8 +22,8 @@ public class MasterDatabasePriceSource extends AutoCloseableHistoricalDataSource
 	public MasterDatabasePriceSource(MasterDatabaseConnections conn, String instrumentCode, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		this.connections = conn;
 		this.instrumentCode = instrumentCode;
-		this.startTime = new Timestamp(startDateTime.toDate().getTime());
-		this.endTime = new Timestamp(endDateTime.toDate().getTime());
+		this.startTime = Timestamp.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+		this.endTime = Timestamp.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class MasterDatabasePriceSource extends AutoCloseableHistoricalDataSource
 				double tradedVol = resultSet.getDouble(8);
 				
 				MasterDBConsolidatedTradeRecord record = new MasterDBConsolidatedTradeRecord(
-						LocalDateTime.fromDateFields(recordTimestamp), open, close, tradedVol, high, low, average);
+						LocalDateTime.ofInstant(recordTimestamp.toInstant(), ZoneId.systemDefault()), open, close, tradedVol, high, low, average);
 				
 				currentCursorRecordDone=true;
 				

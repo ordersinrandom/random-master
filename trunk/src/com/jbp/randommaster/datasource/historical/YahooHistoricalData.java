@@ -1,8 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;
 
@@ -25,7 +24,6 @@ public class YahooHistoricalData implements TimeConsolidatedTradeRecord {
 	
 	public YahooHistoricalData(LocalDateTime date, double open, double high, double low, double close, double volume, double adjustedClose) {
 		this.date=date;
-		
 		this.open=open;
 		this.high=high;
 		this.low=low;
@@ -94,11 +92,9 @@ public class YahooHistoricalData implements TimeConsolidatedTradeRecord {
 	}
 	
 	public String toString() {
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-		
 		StringBuilder buf=new StringBuilder();
 		buf.append("YahooHistoricalData { date=");
-		buf.append(getTimestamp().toString(fmt));
+		buf.append(getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 		buf.append(", open=");
 		buf.append(open);
 		buf.append(", high=");
@@ -116,10 +112,6 @@ public class YahooHistoricalData implements TimeConsolidatedTradeRecord {
 		return buf.toString();
 		
 	}
-
-
-
-
 
 	public double getOpen() {
 		return open;

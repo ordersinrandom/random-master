@@ -1,8 +1,13 @@
 package com.jbp.randommaster.draft.joda;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
+
 
 public class TestDateTime1 {
 
@@ -11,21 +16,29 @@ public class TestDateTime1 {
 	 */
 	public static void main(String[] args) {
 		
-		LocalDateTime d1=LocalDateTime.now();
+		LocalDate d = LocalDate.now();
+		
+		Date d2 = Date.from(d.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		
+		LocalDateTime d3= LocalDateTime.now();
+		Date d4 = Date.from(d3.atZone(ZoneId.systemDefault()).toInstant());
+		
+		LocalDateTime d5 = LocalDateTime.ofInstant(d4.toInstant(), ZoneId.systemDefault());
 		
 		
-		long instant = d1.toDate().getTime();
+		LocalDate d6 = LocalDate.parse("2014-05-05", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		LocalDateTime d7 = d6.atTime(LocalTime.MIDNIGHT);
 		
-		DateTimeFormatter df=ISODateTimeFormat.dateTime();
 		
-		System.out.println(d1.toString(df));
-		
-		System.out.println(d1.toLocalDate().toString(df));
-		
-		System.out.println(LocalDateTime.fromDateFields(d1.toDate()).toString(df));
-		
-		System.out.println((new LocalDateTime(instant)).toString(df));
-
+		System.out.println(d);
+		System.out.println(d.atTime(LocalTime.MIDNIGHT));
+		System.out.println(d2);
+		System.out.println(d3);
+		System.out.println(d4);
+		System.out.println(d5);
+		System.out.println(d5.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
+		System.out.println(d6);
+		System.out.println(d7);		
 	}
 
 }

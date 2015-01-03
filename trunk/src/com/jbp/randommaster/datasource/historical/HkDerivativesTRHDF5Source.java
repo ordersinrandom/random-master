@@ -1,5 +1,10 @@
 package com.jbp.randommaster.datasource.historical;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,9 +19,6 @@ import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 
 import org.apache.log4j.Logger;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
 
 import com.jbp.randommaster.hdf5builders.HkDerivativesTRHDF5Builder;
 
@@ -127,7 +129,7 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 									+ h5ReadOnlyFile.getAbsolutePath());
 					} else {
 						allDatasetsPaths = new LinkedList<>();
-						allDatasetsPaths.add(instrumentType + "/" + underlyingName + "/" + tradeDate.toString("yyyy/MM/dd") + "/"
+						allDatasetsPaths.add(instrumentType + "/" + underlyingName + "/" + tradeDate.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")) + "/"
 								+ HkDerivativesTRHDF5Builder.DEFAULT_DATASET_NAME);
 					}
 
@@ -329,10 +331,11 @@ public class HkDerivativesTRHDF5Source extends AutoCloseableHistoricalDataSource
 			if (!check)
 				return null;
 			else {
-				LocalDateTime expiryMonthDateTime = new LocalDateTime(expiryMonth[currentDatasetRow]);
-				YearMonth expiryMonthObj = new YearMonth(expiryMonthDateTime.getYear(), expiryMonthDateTime.getMonthOfYear());
+				LocalDateTime expiryMonthDateTime = LocalDateTime.ofInstant(new java.util.Date(expiryMonth[currentDatasetRow]).toInstant(), ZoneId.systemDefault());
+				
+				YearMonth expiryMonthObj = YearMonth.of(expiryMonthDateTime.getYear(), expiryMonthDateTime.getMonthValue());
 
-				LocalDateTime tradeDateTime = new LocalDateTime(timestamp[currentDatasetRow]);
+				LocalDateTime tradeDateTime = LocalDateTime.ofInstant(new java.util.Date(timestamp[currentDatasetRow]).toInstant(), ZoneId.systemDefault());
 
 				HkDerivativesTR tuple = new HkDerivativesTR(classCode[currentDatasetRow], futuresOrOptions[currentDatasetRow], expiryMonthObj,
 						strikePrice[currentDatasetRow], callPut[currentDatasetRow], tradeDateTime, price[currentDatasetRow],

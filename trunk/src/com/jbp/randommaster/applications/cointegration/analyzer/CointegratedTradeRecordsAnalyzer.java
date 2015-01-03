@@ -9,6 +9,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,11 +48,6 @@ import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.YearMonth;
-import org.joda.time.format.DateTimeFormat;
 
 import com.jbp.randommaster.datasource.historical.CointegratedTRSource;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
@@ -215,16 +217,14 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		
 		int frequencySeconds = Integer.valueOf(frequencyField.getText()).intValue();
 		// we consolidated by number of seconds.
-		Period interval = new Period(0, 0, frequencySeconds, 0);
+		Duration interval = Duration.ofSeconds(frequencySeconds);
 		
+		LocalDate tradeDate = LocalDateTime.ofInstant(tradingDateChooser.getDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
 		
-		LocalDate tradeDate = LocalDate.fromDateFields(tradingDateChooser.getDate());
-		LocalDateTime start = new LocalDateTime(
-				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 9, 15, 0);
-		LocalDateTime end = new LocalDateTime(
-				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 16, 15, 0);
-		
-		
+		LocalDateTime start = LocalDateTime.of(
+				tradeDate.getYear(),tradeDate.getMonthValue(),tradeDate.getDayOfMonth(), 9, 15, 0);
+		LocalDateTime end = LocalDateTime.of(
+				tradeDate.getYear(),tradeDate.getMonthValue(),tradeDate.getDayOfMonth(), 16, 15, 0);
 		
 		CointegratedTRSource<HkDerivativesConsolidatedData> cointegratedSrc = new HkDerivativesTRCointegratedSource();
 		
@@ -279,7 +279,9 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 		for (HkDerivativesConsolidatedData data: cointegratedSrc.getData()) {
 			
 			plotSeries.add(
-					RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+					RegularTimePeriod.createInstance(Second.class, 
+							Date.from(data.getTimestamp().atZone(ZoneId.systemDefault()).toInstant()), 
+							TimeZone.getDefault()),
 					data.getFirstTradedPrice(),
 					data.getMaxTradedPrice(),
 					data.getMinTradedPrice(),
@@ -365,7 +367,7 @@ public class CointegratedTradeRecordsAnalyzer extends JFrame implements ActionLi
 				case 1:
 					return leg.getUnderlying();
 				case 2:
-					return leg.getExpiry().toString(DateTimeFormat.forPattern("yyyy-MM"));
+					return leg.getExpiry().format(DateTimeFormatter.ofPattern("yyyy-MM"));
 				case 3:
 					return leg.getFuturesOrOptions();
 				default:

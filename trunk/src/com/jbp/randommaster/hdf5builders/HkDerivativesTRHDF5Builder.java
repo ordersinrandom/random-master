@@ -1,5 +1,8 @@
 package com.jbp.randommaster.hdf5builders;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +17,6 @@ import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 
 import org.apache.log4j.Logger;
-import org.joda.time.LocalDate;
 
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 
@@ -218,7 +220,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 			else if (d.isOptions())
 				futuresOrOptions[i]="O";
 			// expiry
-			expiryMonth[i]=d.getExpiryMonth().toLocalDate(1).toDateMidnight().getMillis();
+			expiryMonth[i]=java.util.Date.from(d.getExpiryMonth().atDay(1).atTime(LocalTime.MIDNIGHT).atZone(ZoneId.systemDefault()).toInstant()).getTime();
 			// strike
 			strike[i]=d.getStrikePrice();
 			// call or put
@@ -227,7 +229,7 @@ public class HkDerivativesTRHDF5Builder extends HDF5Builder {
 			else if (d.isPut())
 				callPut[i]="P";
 			else callPut[i]="";
-			timestamp[i]=d.getTimestamp().toDateTime().getMillis();
+			timestamp[i]=java.util.Date.from(d.getTimestamp().atZone(ZoneId.systemDefault()).toInstant()).getTime();
 			price[i]=d.getPrice();
 			quantity[i]=d.getQuantity();
 			tradeType[i]=d.getTradeType();

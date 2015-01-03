@@ -6,6 +6,10 @@ import java.awt.FlowLayout;
 import java.awt.GradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.JButton;
@@ -27,9 +31,6 @@ import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 
 import com.jbp.randommaster.database.MasterDatabaseConnections;
 import com.jbp.randommaster.datasource.historical.MasterDatabasePriceSource;
@@ -150,8 +151,8 @@ public class HkDerivativesMasterDBPriceViewer extends JFrame implements ActionLi
 	
 	private JFreeChart loadAndPlot() {
 		
-		LocalDate startDate=LocalDate.fromDateFields(startDateChooser.getDate());
-		LocalDate endDate=LocalDate.fromDateFields(endDateChooser.getDate());
+		LocalDate startDate=LocalDateTime.ofInstant(startDateChooser.getDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
+		LocalDate endDate=LocalDateTime.ofInstant(endDateChooser.getDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
 		String underlying = instrumentCodeComboBox.getItemAt(instrumentCodeComboBox.getSelectedIndex());
 		
 		String chartTitle = "Master DB "+underlying+" Current Month Price Records";
@@ -169,7 +170,8 @@ public class HkDerivativesMasterDBPriceViewer extends JFrame implements ActionLi
 				// data.getTimestamp().getMinuteOfHour();
 				// double val = data.getLastTradedPrice();
 				// plotSeries.add(t, val);
-				plotSeries.add(RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+				plotSeries.add(RegularTimePeriod.createInstance(Second.class, Date.from(data.getTimestamp().atZone(ZoneId.systemDefault()).toInstant()), 
+						TimeZone.getDefault()),
 						data.getFirstTradedPrice(), data.getMaxTradedPrice(), data.getMinTradedPrice(), data.getLastTradedPrice());
 
 			}
@@ -213,8 +215,8 @@ public class HkDerivativesMasterDBPriceViewer extends JFrame implements ActionLi
 	 */
 	private MasterDatabasePriceSource getDataSource(String instrumentCode, LocalDate startDate, LocalDate endDate) {
 
-		LocalDateTime startDateTime = startDate.toLocalDateTime(new LocalTime(0,0));
-		LocalDateTime endDateTime = endDate.toLocalDateTime(new LocalTime(23,59));
+		LocalDateTime startDateTime = startDate.atTime(0,0);
+		LocalDateTime endDateTime = endDate.atTime(23,59);
 		
 		return new MasterDatabasePriceSource(conn, instrumentCode, startDateTime, endDateTime);
 	}

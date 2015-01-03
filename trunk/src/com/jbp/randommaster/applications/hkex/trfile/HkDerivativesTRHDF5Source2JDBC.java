@@ -7,17 +7,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.YearMonth;
-import org.joda.time.format.DateTimeFormat;
 
 import com.jbp.randommaster.database.MasterDatabaseConnections;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
@@ -90,7 +91,8 @@ public class HkDerivativesTRHDF5Source2JDBC {
 	
 	private YearMonth getSpotMonthByHDF5FileName(File inputHDF5File) {
 		String inputFilenamePrefix = inputHDF5File.getName().substring(0, 6);
-		YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+		//YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormat.forPattern("yyyyMM"));
+		YearMonth spotMonth = YearMonth.parse(inputFilenamePrefix, DateTimeFormatter.ofPattern("yyyyMM"));
 		return spotMonth;
 	}
 	
@@ -141,8 +143,8 @@ public class HkDerivativesTRHDF5Source2JDBC {
 				for (String underlying : underlyingsList) {
 
 					String inputHDF5Filename = inputHDF5File.getAbsolutePath();
-					LocalDate firstDayOfMonth = spotMonth.toLocalDate(1);
-					LocalDate lastDayOfMonth = spotMonth.plusMonths(1).toLocalDate(1).minusDays(1);
+					LocalDate firstDayOfMonth = spotMonth.atDay(1);
+					LocalDate lastDayOfMonth = spotMonth.plusMonths(1).atDay(1).minusDays(1);
 
 					// HSIc0, HHIc0 etc etc (Reuter's convention)
 					String instrName = underlying + "c0";
@@ -164,60 +166,61 @@ public class HkDerivativesTRHDF5Source2JDBC {
 
 						// we consolidated by 5 minutes
 						HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-						LocalDateTime start = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), firstDayOfMonth.getDayOfMonth(), 0,
+						LocalDateTime start = LocalDateTime.of(spotMonth.getYear(), spotMonth.getMonthValue(), firstDayOfMonth.getDayOfMonth(), 0,
 								0, 0);
-						LocalDateTime end = new LocalDateTime(spotMonth.getYear(), spotMonth.getMonthOfYear(), lastDayOfMonth.getDayOfMonth(), 23,
+						LocalDateTime end = LocalDateTime.of(spotMonth.getYear(), spotMonth.getMonthValue(), lastDayOfMonth.getDayOfMonth(), 23,
 								55, 0);
 
-						Period consolidationInterval = new Period(0, 0, frequencySeconds, 0);
+						Duration consolidationInterval = Duration.ofSeconds(frequencySeconds);
 
 						// consolidated every 5 minute from 0000 to 2355 including holidays (so that data got extrapolated on both sides)
 						TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR> consolidatedSrc = new TimeIntervalConsolidatedTRSource<>(
 								consolidator, filteredSrc2, start, end, consolidationInterval);
 						
-						
 						// filter for holidays
 						HolidaysFilter<HkDerivativesConsolidatedData> holidaysFilter = new HolidaysFilter<>(HolidaysList.HongKong);
 						MarketHoursFilter<HkDerivativesConsolidatedData> marketHoursFilter = new MarketHoursFilter<>(MarketHours.HongKongDerivatives, true, false);
 						
-						// the consolidated source is now filtered by market hours and holidays.
-						FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc = new FilteredHistoricalDataSource<>(consolidatedSrc, holidaysFilter);
-						FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc2 = new FilteredHistoricalDataSource<>(filteredConsolidatedSrc, marketHoursFilter);
-						
-
-						// iterate through the data for this month
-						for (TimeConsolidatedTradeRecord data : filteredConsolidatedSrc2.getData()) {
-
-							/*
-							 * CREATE TABLE price5min ( instrumentcode character
-							 * varying(10) NOT NULL, recordtimestamp timestamp
-							 * without time zone NOT NULL, open numeric NOT
-							 * NULL, high numeric NOT NULL, low numeric NOT
-							 * NULL, close numeric NOT NULL, average numeric NOT
-							 * NULL, tradedvolume numeric NOT NULL, datasource
-							 * character varying(50), CONSTRAINT price5min_pkey
-							 * PRIMARY KEY (instrumentcode, recordtimestamp) )
-							 */
-
-							// log.info("Inserting " + instrName +
-							// ", data object=" + data.toString());
-
-							pstat.setString(1, instrName);
-							pstat.setTimestamp(2, new java.sql.Timestamp(data.getTimestamp().toDate().getTime()));
-							pstat.setDouble(3, data.getFirstTradedPrice());
-							pstat.setDouble(4, data.getMaxTradedPrice());
-							pstat.setDouble(5, data.getMinTradedPrice());
-							pstat.setDouble(6, data.getLastTradedPrice());
-							pstat.setDouble(7, data.getAveragedPrice());
-							pstat.setDouble(8, data.getTradedVolume());
-							pstat.setString(9, inputHDF5File.getName());
-							pstat.executeUpdate();
-
-							rowsCount++;
-							// log.info("Data Inserted");
+						try (
+							// the consolidated source is now filtered by market hours and holidays.
+							FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc = new FilteredHistoricalDataSource<>(consolidatedSrc, holidaysFilter);
+							FilteredHistoricalDataSource<HkDerivativesConsolidatedData> filteredConsolidatedSrc2 = new FilteredHistoricalDataSource<>(filteredConsolidatedSrc, marketHoursFilter);
+						) {
+	
+							// iterate through the data for this month
+							for (TimeConsolidatedTradeRecord data : filteredConsolidatedSrc2.getData()) {
+	
+								/*
+								 * CREATE TABLE price5min ( instrumentcode character
+								 * varying(10) NOT NULL, recordtimestamp timestamp
+								 * without time zone NOT NULL, open numeric NOT
+								 * NULL, high numeric NOT NULL, low numeric NOT
+								 * NULL, close numeric NOT NULL, average numeric NOT
+								 * NULL, tradedvolume numeric NOT NULL, datasource
+								 * character varying(50), CONSTRAINT price5min_pkey
+								 * PRIMARY KEY (instrumentcode, recordtimestamp) )
+								 */
+	
+								// log.info("Inserting " + instrName +
+								// ", data object=" + data.toString());
+	
+								pstat.setString(1, instrName);
+								pstat.setTimestamp(2, java.sql.Timestamp.from(data.getTimestamp().atZone(ZoneId.systemDefault()).toInstant()));
+								pstat.setDouble(3, data.getFirstTradedPrice());
+								pstat.setDouble(4, data.getMaxTradedPrice());
+								pstat.setDouble(5, data.getMinTradedPrice());
+								pstat.setDouble(6, data.getLastTradedPrice());
+								pstat.setDouble(7, data.getAveragedPrice());
+								pstat.setDouble(8, data.getTradedVolume());
+								pstat.setString(9, inputHDF5File.getName());
+								pstat.executeUpdate();
+	
+								rowsCount++;
+								// log.info("Data Inserted");
+	
+							}
 
 						}
-
 					}
 					// the input HDF5File should be closed by this point
 					log.info("Finished inserting data (" + rowsCount + ") for " + instrName + " from " + dataSourceName);

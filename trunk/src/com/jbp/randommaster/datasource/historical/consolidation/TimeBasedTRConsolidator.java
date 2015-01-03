@@ -1,10 +1,9 @@
 package com.jbp.randommaster.datasource.historical.consolidation;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
 
 import com.jbp.randommaster.datasource.historical.TradeRecordData;
 
@@ -36,7 +35,7 @@ public abstract class TimeBasedTRConsolidator<T1 extends TimeConsolidatedTradeRe
 	 * @return An iterable of ConsolidatedTradeRecordsData splitted by time
 	 *         interval.
 	 */
-	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Period interval, Iterable<T2> inputData) {
+	public Iterable<T1> consolidateByTimeIntervals(LocalDateTime start, LocalDateTime end, Duration interval, Iterable<T2> inputData) {
 
 		LinkedList<T1> result = new LinkedList<T1>();
 

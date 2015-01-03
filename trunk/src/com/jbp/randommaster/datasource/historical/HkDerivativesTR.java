@@ -1,7 +1,8 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+
 
 /**
  * Encapsulate the data of a single row in the HKEX TR File.
@@ -100,7 +101,7 @@ public class HkDerivativesTR implements VanillaDerivativesData, FuturesData, Tra
 				yearStr="19"+yearStr;
 			else yearStr="20"+yearStr;
 			
-			expiryMonth=new YearMonth(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
+			expiryMonth = YearMonth.of(Integer.valueOf(yearStr).intValue(), Integer.valueOf(monthStr).intValue());
 		} catch (Exception e1) {
 			throw new IllegalArgumentException("unable to interpret expiry month: "+expiryMonthString);
 		}
@@ -122,7 +123,7 @@ public class HkDerivativesTR implements VanillaDerivativesData, FuturesData, Tra
 			int minuteOfHour = Integer.valueOf(tradeTimeString.substring(2, 4)).intValue();
 			int secondOfMinute = Integer.valueOf(tradeTimeString.substring(4, 6)).intValue();
 			
-			tradeTimestamp=new LocalDateTime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute);
+			tradeTimestamp = LocalDateTime.of(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute);
 			
 		} catch (Exception e3) {
 			throw new IllegalArgumentException("unable to interpret the trade timestamp: "+tradeDateString+", "+tradeTimeString);

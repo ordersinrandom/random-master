@@ -3,12 +3,12 @@ package com.jbp.randommaster.datasource.historical;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Iterator;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.YearMonth;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.consolidation.HkDerivativesConsolidatedData;
@@ -59,14 +59,14 @@ public class CointegratedTRSourceTests extends TestCase {
 
 		int frequencySeconds = 180;
 		// we consolidated by number of seconds.
-		Period interval = new Period(0, 0, frequencySeconds, 0);
+		Duration interval = Duration.ofSeconds(frequencySeconds);
 		
 		
-		LocalDate tradeDate = new LocalDate(2012, 10, 31);
-		LocalDateTime start = new LocalDateTime(
-				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 15, 34, 0);
-		LocalDateTime end = new LocalDateTime(
-				tradeDate.getYear(),tradeDate.getMonthOfYear(),tradeDate.getDayOfMonth(), 16, 01, 0);
+		LocalDate tradeDate = LocalDate.of(2012, 10, 31);
+		LocalDateTime start = LocalDateTime.of(
+				tradeDate.getYear(),tradeDate.getMonthValue(),tradeDate.getDayOfMonth(), 15, 34, 0);
+		LocalDateTime end = LocalDateTime.of(
+				tradeDate.getYear(),tradeDate.getMonthValue(),tradeDate.getDayOfMonth(), 16, 01, 0);
 				
 
 		CointegratedTRSource<HkDerivativesConsolidatedData> cointegratedSrc = new HkDerivativesTRCointegratedSource();
@@ -77,7 +77,7 @@ public class CointegratedTRSourceTests extends TestCase {
 		
 		for (int i=0;i<weight.length;i++) {
 			
-			YearMonth expiryMonth = new YearMonth(2012,11);
+			YearMonth expiryMonth = YearMonth.of(2012,11);
 			
 			try (
 					HkDerivativesTRFileSource originalSrc = new HkDerivativesTRFileSource(tempFilename);
@@ -119,40 +119,40 @@ public class CointegratedTRSourceTests extends TestCase {
 		String expectedUnderlying = "1.0*MHI -2.0*MCH";
 		
 		HkDerivativesConsolidatedData[] expected = new HkDerivativesConsolidatedData[] {
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,37,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,37,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1208.0, 1208.0, 1208.0, 1208.0, 
 						1208.0, -1.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,40,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,40,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1208.0, 1208.0, 1208.0, 1208.0, 
 						1208.0, 0.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,43,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,43,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1236.0, 1236.0, 1236.0, 1236.0, 
 						1236.0, 1.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,46,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,46,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1240.0, 1240.0, 1240.0, 1240.0, 
 						1240.0, -1.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,49,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,49,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1240.0, 1240.0, 1240.0, 1240.0, 
 						1240.0, 0.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,52,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,52,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1242.0, 1242.0, 1242.0, 1242.0, 
 						1242.0, 1.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,55,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,55,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1268.0, 1256.0, 1268.0, 1256.0, 
 						1265.0, 2.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,15,58,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,15,58,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1270.0, 1240.0, 1270.0, 1240.0, 
 						1262.5, 4.0),
-				new HkDerivativesConsolidatedData(new LocalDateTime(2012,10,31,16,01,0), 
-						new YearMonth(2012,11), expectedUnderlying, 0.0, "F", "",
+				new HkDerivativesConsolidatedData(LocalDateTime.of(2012,10,31,16,01,0), 
+						YearMonth.of(2012,11), expectedUnderlying, 0.0, "F", "",
 						1264.0, 1291.0, 1291.0, 1264.0, 
 						1286.5, 4.0)						
 				

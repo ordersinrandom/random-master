@@ -1,8 +1,8 @@
 package com.jbp.randommaster.datasource.historical;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.YahooYQLSource;
@@ -18,7 +18,7 @@ public class YahooYQLSourceTests extends TestCase {
 		boolean gotException=false;
 		try {
 			new YahooYQLSource("0005.HK",
-					new LocalDate(2011, 1, 1), new LocalDate(2010, 2, 1));
+					LocalDate.of(2011, 1, 1), LocalDate.of(2010, 2, 1));
 		} catch (Exception e1) {
 			gotException=true;
 
@@ -38,7 +38,7 @@ public class YahooYQLSourceTests extends TestCase {
 	@Test
 	public void testWithinOneYear() {
 		YahooYQLSource t = new YahooYQLSource("0005.HK",
-				new LocalDate(2010, 1, 1), new LocalDate(2010, 2, 1));
+				LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1));
 
 		List<String> yqls = t.getYqls();
 
@@ -56,7 +56,7 @@ public class YahooYQLSourceTests extends TestCase {
 	public void testStartEqualsEnd() {
 		
 		YahooYQLSource t = new YahooYQLSource("0005.HK",
-				new LocalDate(2010, 1, 11), new LocalDate(2010, 1, 11));
+				LocalDate.of(2010, 1, 11), LocalDate.of(2010, 1, 11));
 
 		List<String> yqls = t.getYqls();
 
@@ -87,8 +87,8 @@ public class YahooYQLSourceTests extends TestCase {
 	@Test
 	public void testAcrossYears() {
 		YahooYQLSource t = new YahooYQLSource("^HSI",
-				new LocalDate(2008, 1, 1), 
-				new LocalDate(2013, 3, 5));
+				LocalDate.of(2008, 1, 1), 
+				LocalDate.of(2013, 3, 5));
 
 		List<String> yqls = t.getYqls();
 		

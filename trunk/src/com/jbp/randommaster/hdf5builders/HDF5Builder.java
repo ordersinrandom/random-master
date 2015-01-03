@@ -1,10 +1,10 @@
 package com.jbp.randommaster.hdf5builders;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.log4j.Logger;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
@@ -125,9 +125,9 @@ public class HDF5Builder {
 		if (h5File==null || !h5File.canWrite())
 			throw new IllegalStateException("Unable to createInstrumentAndDateGroups(). The file is null or read-only");
 
-		String yearStr=date.toString(DateTimeFormat.forPattern("yyyy"));
-		String monthStr=date.toString(DateTimeFormat.forPattern("MM"));
-		String dayStr=date.toString(DateTimeFormat.forPattern("dd"));
+		String yearStr=date.format(DateTimeFormatter.ofPattern("yyyy"));
+		String monthStr=date.format(DateTimeFormatter.ofPattern("MM"));
+		String dayStr=date.format(DateTimeFormatter.ofPattern("dd"));
 		
 		try {
 			String path = "/" + instrumentType + "/" + underlying + "/" + yearStr + "/" + monthStr + "/" + dayStr;

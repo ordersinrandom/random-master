@@ -1,6 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
+
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -30,9 +31,9 @@ public class YahooCsvDownloadTaskTests extends TestCase {
 			
 
 			Assert.assertEquals("Not exactly 113 items", 113, count);
-			Assert.assertEquals("First item date mismatched", new LocalDateTime(2012,12,31,0,0,0), first.getTimestamp());
+			Assert.assertEquals("First item date mismatched", LocalDateTime.of(2012,12,31,0,0,0), first.getTimestamp());
 			Assert.assertEquals("First item adjClose mismatched", 22656.92, first.getAdjustedClose(), 0.0000001);
-			Assert.assertEquals("Last item date mismatched", new LocalDateTime(2013,6,7,0,0,0), last.getTimestamp());
+			Assert.assertEquals("Last item date mismatched", LocalDateTime.of(2013,6,7,0,0,0), last.getTimestamp());
 			Assert.assertEquals("Last item adjClose  mismatched", 21575.26, last.getAdjustedClose(), 0.0000001);
 			
 			

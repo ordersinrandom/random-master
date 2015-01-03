@@ -9,11 +9,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
 
 public class TestDB1 {
 
@@ -53,12 +54,12 @@ public class TestDB1 {
   tradetype character varying(4),		
  */
 		
-		YearMonth ex=new YearMonth(2012,5);
+		YearMonth ex=YearMonth.of(2012,5);
 		//String expiryStr = ex.toString("yyyyMM");
 		//System.out.println(expiryStr);
 		
 		
-		LocalDateTime tradeTime = new LocalDateTime();
+		LocalDateTime tradeTime = LocalDateTime.now();
 		//String tradeTimeStr=tradeTime.toString("yyyyMMddHHmmss");
 		//System.out.println(tradeTimeStr);
 		
@@ -83,11 +84,11 @@ public class TestDB1 {
 			st.setString(1, key);
 			st.setString(2, "HSI");
 			st.setString(3,  "F");
-			st.setTimestamp(4, new Timestamp(ex.toLocalDate(1).toDate().getTime()));
+			st.setTimestamp(4, Timestamp.from(ex.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 			//st.setDouble(5, 123.4);
 			st.setBigDecimal(5, new BigDecimal("123.4"));
 			st.setString(6, "C");
-			st.setTimestamp(7, new Timestamp(tradeTime.toDate().getTime()));
+			st.setTimestamp(7, Timestamp.from(tradeTime.atZone(ZoneId.systemDefault()).toInstant()));
 			//st.setDouble(8, 333.88);
 			st.setBigDecimal(8, new BigDecimal("334.81"));
 			//st.setDouble(9, 20);

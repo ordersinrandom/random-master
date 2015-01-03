@@ -1,8 +1,7 @@
 package com.jbp.randommaster.datasource.historical;
 
 import java.io.Serializable;
-
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 public interface HistoricalData extends Comparable<HistoricalData>, Serializable, Cloneable {
 

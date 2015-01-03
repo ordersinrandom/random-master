@@ -1,6 +1,6 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.YearMonth;
+import java.time.YearMonth;
 
 public interface DerivativesData extends HistoricalData {
 
