@@ -1,6 +1,9 @@
 package com.jbp.randommaster.datasource.historical;
 
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
@@ -11,9 +14,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -64,7 +64,7 @@ public class YqlHistoricalDownloadTask implements Callable<Iterable<YahooHistori
 	    TreeSet<YahooHistoricalData> result=new TreeSet<YahooHistoricalData>();
 	    
 	    
-	    DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+	    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	    
 	    for (int i=0;i<quoteNodes.getLength();i++) {
@@ -77,9 +77,8 @@ public class YqlHistoricalDownloadTask implements Callable<Iterable<YahooHistori
 	    	String volumeStr=xPath.evaluate("./Volume/text()", quoteNode);
 	    	String adjCloseStr=xPath.evaluate("./Adj_Close/text()", quoteNode);
 	    	
-	    	
 			YahooHistoricalData d = new YahooHistoricalData(
-					fmt.parseLocalDate(dateStr).toLocalDateTime(LocalTime.MIDNIGHT), 
+					LocalDate.parse(dateStr, fmt).atTime(LocalTime.MIDNIGHT), 
 					Double.valueOf(openStr).doubleValue(), 
 					Double.valueOf(highStr).doubleValue(), 
 					Double.valueOf(lowStr).doubleValue(), 

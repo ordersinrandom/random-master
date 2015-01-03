@@ -1,6 +1,7 @@
 package com.jbp.randommaster.datasource.historical.filters;
 
-import org.joda.time.YearMonth;
+
+import java.time.YearMonth;
 
 import com.jbp.randommaster.datasource.historical.DerivativesData;
 

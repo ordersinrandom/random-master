@@ -1,18 +1,16 @@
 package com.jbp.randommaster.utils;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.joda.time.LocalTime;
 
 public class MarketHours {
 
 	public static final MarketHours HongKongDerivatives = new MarketHours(
 			new Session[] {
-				new Session(new LocalTime(9,15), new LocalTime(12,0)),
-				new Session(new LocalTime(13,0), new LocalTime(16,15)),
+				new Session(LocalTime.of(9,15), LocalTime.of(12,0)),
+				new Session(LocalTime.of(13,0), LocalTime.of(16,15)),
 			});
-	
 	
 	private List<Session> sessionsList;
 	
@@ -30,7 +28,6 @@ public class MarketHours {
 			sessionsList.add(p);
 	}
 	
-	
 	public void addSession(LocalTime open, LocalTime close) {
 		sessionsList.add(new Session(open, close));		
 	}
@@ -42,7 +39,7 @@ public class MarketHours {
 			LocalTime open = p.getOpen();
 			LocalTime close = p.getClose();
 
-			if (((!openExclusive && open.isEqual(t)) || open.isBefore(t)) && ((!closeExclusive && close.isEqual(t)) || close.isAfter(t))) {
+			if (((!openExclusive && open.equals(t)) || open.isBefore(t)) && ((!closeExclusive && close.equals(t)) || close.isAfter(t))) {
 				passedTimeCheck = true;
 				break;
 			}

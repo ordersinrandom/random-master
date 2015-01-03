@@ -3,9 +3,9 @@ package com.jbp.randommaster.datasource.historical;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
-import org.joda.time.LocalDate;
-import org.joda.time.YearMonth;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.filters.ExpiryMonthFilter;
@@ -24,8 +24,8 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 		
 		
 		// try full looping
-		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, new LocalDate(2012,10,9), "Futures", "HSI");
-				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
+		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, LocalDate.of(2012,10,9), "Futures", "HSI");
+				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(YearMonth.of(2012,10)));
 				) {
 			int rowCount = 0;
 			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
@@ -44,8 +44,8 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 		// try breaking loop
 		HkDerivativesTRHDF5Source s1=null;
 		FilteredHistoricalDataSource<HkDerivativesTR> s2=null;
-		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, new LocalDate(2012,10,9), "Futures", "HSI");
-				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(new YearMonth(2012,10)));
+		try (HkDerivativesTRHDF5Source originalSrc=new HkDerivativesTRHDF5Source(inputHDF5Filename, LocalDate.of(2012,10,9), "Futures", "HSI");
+				FilteredHistoricalDataSource<HkDerivativesTR> src = new FilteredHistoricalDataSource<HkDerivativesTR>(originalSrc, new ExpiryMonthFilter<HkDerivativesTR>(YearMonth.of(2012,10)));
 				) {
 			// save down the final testing pointer.
 			s1=originalSrc;
@@ -82,7 +82,7 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 
 		
 		// try normal looping
-		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,new LocalDate(2012,10,9), "Futures", "HSI")) {
+		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,LocalDate.of(2012,10,9), "Futures", "HSI")) {
 			int rowCount = 0;
 			for (@SuppressWarnings("unused") HkDerivativesTR data : src.getData()) {
 				if (rowCount>0 && rowCount%10000==0) {
@@ -95,7 +95,7 @@ public class AutoCloseableHistoricalDataSourceTests extends TestCase {
 
 		// try breaking 
 		HkDerivativesTRHDF5Source s1=null;
-		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,new LocalDate(2012,10,9), "Futures", "HSI")) {
+		try (HkDerivativesTRHDF5Source src=new HkDerivativesTRHDF5Source(inputHDF5Filename,LocalDate.of(2012,10,9), "Futures", "HSI")) {
 			int rowCount = 0;
 			s1=src;
 			

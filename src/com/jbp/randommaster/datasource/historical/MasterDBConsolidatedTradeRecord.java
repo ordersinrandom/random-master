@@ -1,8 +1,8 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.jbp.randommaster.datasource.historical.consolidation.TimeConsolidatedTradeRecord;
 
@@ -112,10 +112,9 @@ public class MasterDBConsolidatedTradeRecord implements TimeConsolidatedTradeRec
 	}	
 	
 	public String toString() {
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 		StringBuilder buf = new StringBuilder();
 		buf.append("MasterDBConsolidatedTradeRecord { timestamp = ");
-		buf.append(timestamp.toString(fmt));
+		buf.append(timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 		buf.append(", firstTradedPrice = ");
 		buf.append(firstTradedPrice);
 		buf.append(", lastTradedPrice = ");

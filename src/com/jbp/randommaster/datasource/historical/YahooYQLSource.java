@@ -2,6 +2,10 @@ package com.jbp.randommaster.datasource.historical;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,12 +13,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * 
@@ -54,15 +52,15 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 
 		String queryPattern = "select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22{SYMBOL}%22%20and%20startDate%20%3D%20%22{STARTDATE}%22%20and%20endDate%20%3D%20%22{ENDDATE}%22";
 
-		LocalDateTime nextStartDate = startDate.toLocalDateTime(LocalTime.MIDNIGHT);
-		while (nextStartDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) <= 0) {
+		LocalDateTime nextStartDate = startDate.atTime(LocalTime.MIDNIGHT);
+		while (nextStartDate.compareTo(endDate.atTime(LocalTime.MIDNIGHT)) <= 0) {
 
 			// hard coded one year per query.
 			LocalDateTime nextEndDate = nextStartDate.plusYears(1);
-			if (nextEndDate.compareTo(endDate.toLocalDateTime(LocalTime.MIDNIGHT)) > 0)
-				nextEndDate = endDate.toLocalDateTime(LocalTime.MIDNIGHT);
+			if (nextEndDate.compareTo(endDate.atTime(LocalTime.MIDNIGHT)) > 0)
+				nextEndDate = endDate.atTime(LocalTime.MIDNIGHT);
 
-			DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			
 			String escapedSymbol = yahooSymbol;
 			try {
@@ -72,8 +70,8 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 			}
 
 			String query = queryPattern.replace("{SYMBOL}", escapedSymbol)
-					.replace("{STARTDATE}", nextStartDate.toString(fmt))
-					.replace("{ENDDATE}", nextEndDate.toString(fmt));
+					.replace("{STARTDATE}", nextStartDate.format(fmt))
+					.replace("{ENDDATE}", nextEndDate.format(fmt));
 
 			yqls.add(yqlPattern.replace("{YQL}", query));
 
@@ -99,9 +97,9 @@ public class YahooYQLSource implements HistoricalDataSource<YahooHistoricalData>
 	}
 
 	public String toString() {
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return "YahooHistoricalDataSource { " + yahooSymbol + ", "
-				+ startDate.toString(fmt) + ", " + endDate.toString(fmt) + " }";
+				+ startDate.format(fmt) + ", " + endDate.format(fmt) + " }";
 	}
 	
 	/**

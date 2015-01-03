@@ -1,12 +1,12 @@
 package com.jbp.randommaster.datasource.historical;
 
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import com.jbp.randommaster.datasource.historical.YahooHistoricalData;
@@ -53,9 +53,9 @@ public class YqlHistoricalDownloadTaskTests extends TestCase {
 			
 			
 			YahooHistoricalData[] expected = new YahooHistoricalData[] {
-				new YahooHistoricalData(new LocalDate(2010,1,1).toLocalDateTime(LocalTime.MIDNIGHT), 89.4, 89.4, 89.4, 89.4, 0.0, 87.73),
-				new YahooHistoricalData(new LocalDate(2010,1,4).toLocalDateTime(LocalTime.MIDNIGHT), 89.4, 89.9, 88.8, 89.25, 1.03817E7, 87.58),
-				new YahooHistoricalData(new LocalDate(2010,1,5).toLocalDateTime(LocalTime.MIDNIGHT), 90.2, 90.65, 90.1, 90.45, 1.69141E7, 88.76)
+				new YahooHistoricalData(LocalDate.of(2010,1,1).atTime(LocalTime.MIDNIGHT), 89.4, 89.4, 89.4, 89.4, 0.0, 87.73),
+				new YahooHistoricalData(LocalDate.of(2010,1,4).atTime(LocalTime.MIDNIGHT), 89.4, 89.9, 88.8, 89.25, 1.03817E7, 87.58),
+				new YahooHistoricalData(LocalDate.of(2010,1,5).atTime(LocalTime.MIDNIGHT), 90.2, 90.65, 90.1, 90.45, 1.69141E7, 88.76)
 			};
 			
 			int i=0;

@@ -1,7 +1,7 @@
 package com.jbp.randommaster.datasource.historical.filters;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.jbp.randommaster.datasource.historical.HistoricalData;
 import com.jbp.randommaster.utils.MarketHours;

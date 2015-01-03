@@ -1,7 +1,8 @@
 package com.jbp.randommaster.datasource.historical;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -17,10 +18,10 @@ public class HkDerivativesTRTests extends TestCase {
 
 		Assert.assertEquals("Class code doesn't match", "HSI", t.getUnderlying());
 		Assert.assertEquals("Futures/Options flag doesn't match", "O", t.getFuturesOrOptions());
-		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 12), t.getExpiryMonth());
+		Assert.assertEquals("Expiry Month doesn't match", YearMonth.of(2012, 12), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 25000.0, t.getStrikePrice(), 0.000001);
 		Assert.assertEquals("Call/Put flag doesn't match", "C", t.getCallPut());
-		Assert.assertEquals("trade timestamp doesn't match", new LocalDateTime(2012,10,3, 9, 15, 24), t.getTradeTimestamp());
+		Assert.assertEquals("trade timestamp doesn't match", LocalDateTime.of(2012,10,3, 9, 15, 24), t.getTradeTimestamp());
 		Assert.assertEquals("Price doesn't match", 7.0, t.getPrice(), 0.000001);
 		Assert.assertEquals("Quantity doesn't match", 20.0, t.getQuantity(), 0.000001);
 		Assert.assertEquals("Trade type doesn't match", "001", t.getTradeType());
@@ -33,10 +34,10 @@ public class HkDerivativesTRTests extends TestCase {
 
 		Assert.assertEquals("Class code doesn't match", "MHI", t.getUnderlying());
 		Assert.assertEquals("Futures/Options flag doesn't match", "F", t.getFuturesOrOptions());
-		Assert.assertEquals("Expiry Month doesn't match", new YearMonth(2012, 11), t.getExpiryMonth());
+		Assert.assertEquals("Expiry Month doesn't match", YearMonth.of(2012, 11), t.getExpiryMonth());
 		Assert.assertEquals("Strike doesn't match", 0.0, t.getStrikePrice(), 0.000001);
 		Assert.assertEquals("Call/Put flag doesn't match", "", t.getCallPut());
-		Assert.assertEquals("trade timestamp doesn't match", new LocalDateTime(2012,10,31, 16, 14, 59), t.getTradeTimestamp());
+		Assert.assertEquals("trade timestamp doesn't match", LocalDateTime.of(2012,10,31, 16, 14, 59), t.getTradeTimestamp());
 		Assert.assertEquals("Price doesn't match", 21662.0, t.getPrice(), 0.000001);
 		Assert.assertEquals("Quantity doesn't match", 1.0, t.getQuantity(), 0.000001);
 		Assert.assertEquals("Trade type doesn't match", "001", t.getTradeType());

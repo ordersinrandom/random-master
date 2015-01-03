@@ -6,6 +6,11 @@ import java.awt.FlowLayout;
 import java.awt.GradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.TimeZone;
 
 import javax.swing.JButton;
@@ -29,10 +34,6 @@ import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.YearMonth;
 
 import com.jbp.randommaster.datasource.historical.HistoricalDataSource;
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
@@ -202,11 +203,12 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 	private JFreeChart loadAndPlot() {
 		
 		String inputHDF5Filename = chosenFilePathField.getText();
-		LocalDate tradingDate=LocalDate.fromDateFields(tradingDateChooser.getDate());
+		LocalDate tradingDate=LocalDateTime.ofInstant(tradingDateChooser.getDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
+		
 		String futuresOrOptions = futuresOrOptionsComboBox.getItemAt(futuresOrOptionsComboBox.getSelectedIndex());
 		String underlying = underlyingComboBox.getItemAt(underlyingComboBox.getSelectedIndex());
 		
-		YearMonth expiryMonth = new YearMonth(
+		YearMonth expiryMonth = YearMonth.of(
 					Integer.valueOf(expiryYearComboBox.getItemAt(expiryYearComboBox.getSelectedIndex())).intValue(),
 					Integer.valueOf(expiryMonthComboBox.getItemAt(expiryMonthComboBox.getSelectedIndex())).intValue()
 				);
@@ -229,7 +231,9 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 			//double val = data.getLastTradedPrice();
 			//plotSeries.add(t, val);
 			plotSeries.add(
-					RegularTimePeriod.createInstance(Second.class, data.getTimestamp().toDate(), TimeZone.getDefault()),
+					RegularTimePeriod.createInstance(Second.class, 
+							java.util.Date.from(data.getTimestamp().atZone(ZoneId.systemDefault()).toInstant()), 
+							TimeZone.getDefault()),
 					data.getFirstTradedPrice(),
 					data.getMaxTradedPrice(),
 					data.getMinTradedPrice(),
@@ -294,13 +298,13 @@ public class HkDerivativesTRConsolidatedViewer extends JFrame implements ActionL
 		) {
 		
 			HkDerivativesTRConsolidator consolidator = new HkDerivativesTRConsolidator();
-			LocalDateTime start = new LocalDateTime(
-					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 9, 30, 0);
-			LocalDateTime end = new LocalDateTime(
-					tradingDate.getYear(),tradingDate.getMonthOfYear(),tradingDate.getDayOfMonth(), 16, 15, 0);
+			LocalDateTime start = LocalDateTime.of(
+					tradingDate.getYear(),tradingDate.getMonthValue(),tradingDate.getDayOfMonth(), 9, 30, 0);
+			LocalDateTime end = LocalDateTime.of(
+					tradingDate.getYear(),tradingDate.getMonthValue(),tradingDate.getDayOfMonth(), 16, 15, 0);
 	
 			// we consolidated by number of seconds.
-			Period interval = new Period(0, 0, frequencySeconds, 0);
+			Duration interval = Duration.ofSeconds(frequencySeconds);
 			
 			consolidatedSrc = new TimeIntervalConsolidatedTRSource<HkDerivativesConsolidatedData, HkDerivativesTR>(
 								consolidator, filteredSource, start, end, interval);

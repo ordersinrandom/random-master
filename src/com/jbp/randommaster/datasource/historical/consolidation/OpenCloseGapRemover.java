@@ -1,15 +1,15 @@
 package com.jbp.randommaster.datasource.historical.consolidation;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.javatuples.Pair;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 
 /**
  * 
@@ -147,8 +147,8 @@ public class OpenCloseGapRemover<T extends TimeConsolidatedTradeRecord> {
 	}
 
 	private boolean isWeekend(LocalDateTime t) {
-		int dayOfWeek = t.getDayOfWeek();
-		return dayOfWeek == DateTimeConstants.SUNDAY || dayOfWeek == DateTimeConstants.SATURDAY;
+		DayOfWeek dayOfWeek = t.getDayOfWeek();
+		return dayOfWeek == DayOfWeek.SUNDAY || dayOfWeek == DayOfWeek.SATURDAY;
 	}
 
 	private boolean isHoliday(LocalDateTime t) {

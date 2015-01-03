@@ -1,7 +1,7 @@
 package com.jbp.randommaster.datasource.historical.consolidation;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.YearMonth;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 import com.jbp.randommaster.datasource.historical.HkDerivativesTR;
 

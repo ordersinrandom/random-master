@@ -1,10 +1,11 @@
 package com.jbp.randommaster.hdf5builders;
 
 
+import java.time.LocalDate;
+
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,10 +46,8 @@ public class HDF5BuilderTests extends TestCase {
 			Assert.fail("Unable to execute createOrOpen() the 2nd time, target file = "+filename);
 		}
 		
+		H5Group g1=b.createOrGetInstrumentAndDateGroup("Futures", "MyBday", LocalDate.of(2013, 05, 04));
 		
-		H5Group g1=b.createOrGetInstrumentAndDateGroup("Futures", "MyBday", new LocalDate(2013, 05, 04));
-		
-		//System.out.println("fullname: "+g1.getFullName());
 		
 		Assert.assertEquals("The group name doesn't match", "/Futures/MyBday/2013/05/04", g1.getFullName());
 
@@ -57,14 +56,7 @@ public class HDF5BuilderTests extends TestCase {
 		} catch (Exception e1) {
 			Assert.fail("Unable to close the file after use, target file = "+filename);
 		}
-		
-		/*
-		File f=new File(filename);
-		if (f.exists()) {
-			boolean ok=f.delete();
-			if (!ok) 
-				Assert.fail("unable to delete the file: "+filename);
-		}*/
+
 		
 	}
 	
