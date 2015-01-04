@@ -13,10 +13,7 @@ import org.supercsv.prefs.CsvPreference;
 
 public class TestCsv1 {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		StringBuilder buf = new StringBuilder(1000);
 
@@ -27,9 +24,7 @@ public class TestCsv1 {
 		buf.append("2013-06-06,21908.45,21949.81,21799.25,21838.43,1711966400,21838.43\n");
 		buf.append("2013-06-05,22141.67,22174.69,21933.92,22069.24,1516765700,22069.24");
 
-		CsvBeanReader beanReader = null;
-		try {
-			beanReader = new CsvBeanReader(new StringReader(buf.toString()), CsvPreference.EXCEL_PREFERENCE);
+		try (CsvBeanReader beanReader = new CsvBeanReader(new StringReader(buf.toString()), CsvPreference.EXCEL_PREFERENCE);){
 			beanReader.getHeader(true);
 			CellProcessor[] processors = new CellProcessor[] { 
 					new ParseDate("yyyy-MM-dd"), new ParseDouble(), new ParseDouble(), new ParseDouble(),
@@ -42,18 +37,7 @@ public class TestCsv1 {
 
 				System.out.println(obj);
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} finally {
-			if (beanReader != null) {
-				try {
-					beanReader.close();
-				} catch (IOException e2) {
-					e2.printStackTrace();
-				}
-			}
-		}
-
+		} 
 	}
 
 	public static class RowObject {
