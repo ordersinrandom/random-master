@@ -3,14 +3,18 @@
   <groupId>random-master</groupId>
   <artifactId>random-master</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
   <build>
+  
+  	<!-- 
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>unit-tests</testSourceDirectory>
     <resources>
       <resource>
       	<directory>draft-src</directory>
       </resource>
-    </resources>
+    </resources>  -->
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -24,7 +28,7 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.4</version>
         <configuration>
-          <descriptor>assembly/dep.xml</descriptor>
+          <descriptor>src/assembly/dep.xml</descriptor>
         </configuration>
       </plugin>
     </plugins>
