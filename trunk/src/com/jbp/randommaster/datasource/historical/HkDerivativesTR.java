@@ -30,11 +30,11 @@ public class HkDerivativesTR implements VanillaDerivativesData, FuturesData, Tra
 	private double price;
 	private double quantity;
 	/**
-	 * 000 ¡V 002 : Normal trade
-	 * 003 ¡V 006 : Block trade
+	 * 000 - 002 : Normal trade
+	 * 003 - 006 : Block trade
 	 * 007 : Standard combination - order matching
 	 * 020 : Delta Hedge (Trade in pre-market opening)
-	 * 032 ¡V 035 : Bulletin board trade
+	 * 032 - 035 : Bulletin board trade
 	 * 037 : Non-standard combination 
 	 * 134 : Standard combo trade 
 	 */

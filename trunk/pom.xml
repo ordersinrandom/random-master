@@ -8,9 +8,6 @@
     <testSourceDirectory>unit-tests</testSourceDirectory>
     <resources>
       <resource>
-        <directory>gui-lib-src</directory>
-      </resource>
-      <resource>
       	<directory>draft-src</directory>
       </resource>
     </resources>
@@ -124,4 +121,7 @@
 	
   </dependencies>  
   
+  <properties>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>
