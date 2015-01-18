@@ -30,6 +30,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -44,6 +46,7 @@ import org.jfree.data.xy.XYDataset;
 
 public class TestFitBetaDist {
 
+	private static final Logger log = LogManager.getLogger(TestFitBetaDist.class);
 
 
 	private static BetaDistribution fit(double[] samples) {
@@ -74,11 +77,13 @@ public class TestFitBetaDist {
 		double alpha = pt[0];
 		double beta = pt[1];
 
-		System.out.println("estimated alpha = " + alpha + ", beta = " + beta);
+		log.info("estimated alpha = " + alpha + ", beta = " + beta);
 
 		return new BetaDistribution(alpha, beta);
 	}
 
+
+	
 	private static double[] getSamples(int sampleSize, double initAlpha, double initBeta) {
 		// prepare samples
 		RandomGenerator rand = new JDKRandomGenerator();
@@ -156,8 +161,9 @@ public class TestFitBetaDist {
 
 	private static JFreeChart generateChart(int sampleCount, double initAlpha, double initBeta) {
 		double[] s = getSamples(sampleCount, initAlpha, initBeta);
+		
 
-		System.out.println(s.length + " samples prepared.");
+		log.info(sampleCount + " samples prepared.");
 		// try fitting a distribution from samples.
 		BetaDistribution fittedDist = fit(s);
 		
