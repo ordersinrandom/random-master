@@ -33,12 +33,9 @@ public class SDEOptionsViewer extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 4848153128469539706L;
 	
-	
 	private JTextField ouThetaField, ouMuField, ouSigmaField, ouStrikeField, ouTmatField;
 	
 	public SDEOptionsViewer() {
-		
-		
 		super("Put options on SDE");
 		
 		ouThetaField=new JTextField(8);
@@ -127,13 +124,9 @@ public class SDEOptionsViewer extends JFrame implements ActionListener {
 	
 	
 	public Solution computeOUProcessEuropeanPut(final double theta, final double mu, final double sigma, final double strike, final double tmat) {
-
 		
 		OUProcess ou=new OUProcess(theta, mu, sigma);
-		
 		FeynmanKacFormula pde=new FeynmanKacFormula(ou);
-		
-		
 		
 		MultivariateFunction boundaryConditionAtT = new MultivariateFunction() {
 			@Override
@@ -145,7 +138,6 @@ public class SDEOptionsViewer extends JFrame implements ActionListener {
 			}
 		};
 		
-		
 		MultivariateFunction boundaryConditionAtMinX = new MultivariateFunction() {
 			@Override
 			public double value(double[] input) {
@@ -154,14 +146,11 @@ public class SDEOptionsViewer extends JFrame implements ActionListener {
 			}
 		};
 		
-		
-		
 		MultivariateFunction boundaryConditionAtMaxX = new MultivariateFunction() {
 			public double value(double[] input) {
 				return 0.0;
 			}
 		};		
-		
 		
 		BlackScholesPdeFiniteDifferenceSolver solver= new BlackScholesPdeFiniteDifferenceSolver(
 				pde, boundaryConditionAtT, boundaryConditionAtMaxX, boundaryConditionAtMinX, 800, 600);
