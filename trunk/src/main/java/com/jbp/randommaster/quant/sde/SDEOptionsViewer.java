@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -28,45 +29,48 @@ import com.jbp.randommaster.quant.pde.FeynmanKacFormula;
 import com.jbp.randommaster.quant.pde.BlackScholesPdeFiniteDifferenceSolver.Solution;
 import com.jbp.randommaster.quant.sde.univariate.OUProcess;
 
-public class OUProcessOptionViewer extends JFrame implements ActionListener {
+public class SDEOptionsViewer extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 4848153128469539706L;
 	
 	
-	private JTextField thetaField, muField, sigmaField, strikeField, tmatField;
+	private JTextField ouThetaField, ouMuField, ouSigmaField, ouStrikeField, ouTmatField;
 	
-	public OUProcessOptionViewer() {
+	public SDEOptionsViewer() {
 		
 		
-		super("Put option on OUProcess");
+		super("Put options on SDE");
 		
-		thetaField=new JTextField(8);
-		muField=new JTextField(8);
-		sigmaField=new JTextField(8);
-		strikeField=new JTextField(8);
-		tmatField=new JTextField(8);
+		ouThetaField=new JTextField(8);
+		ouMuField=new JTextField(8);
+		ouSigmaField=new JTextField(8);
+		ouStrikeField=new JTextField(8);
+		ouTmatField=new JTextField(8);
 		
+		JTabbedPane tabbedPane = new JTabbedPane();
 		
-		JPanel inputPanel=new JPanel();
-		inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel ouPanel=new JPanel();
+		ouPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		inputPanel.add(new JLabel("Theta:"));
-		inputPanel.add(thetaField);
-		inputPanel.add(new JLabel("Mu:"));
-		inputPanel.add(muField);
-		inputPanel.add(new JLabel("Sigma:"));
-		inputPanel.add(sigmaField);
-		inputPanel.add(new JLabel("Strike:"));
-		inputPanel.add(strikeField);
-		inputPanel.add(new JLabel("Tmat:"));
-		inputPanel.add(tmatField);
+		ouPanel.add(new JLabel("Theta:"));
+		ouPanel.add(ouThetaField);
+		ouPanel.add(new JLabel("Mu:"));
+		ouPanel.add(ouMuField);
+		ouPanel.add(new JLabel("Sigma:"));
+		ouPanel.add(ouSigmaField);
+		ouPanel.add(new JLabel("Strike:"));
+		ouPanel.add(ouStrikeField);
+		ouPanel.add(new JLabel("Tmat:"));
+		ouPanel.add(ouTmatField);
 
 		
 		JButton computeBut=new JButton("Compute");
-		inputPanel.add(computeBut);
+		computeBut.setActionCommand("Compute OU");
+		ouPanel.add(computeBut);
 		computeBut.addActionListener(this);
+		tabbedPane.addTab("OU Process", ouPanel);
 		
-		getContentPane().add(inputPanel, BorderLayout.NORTH);
+		getContentPane().add(tabbedPane, BorderLayout.NORTH);
 
 		
 	}
@@ -74,48 +78,51 @@ public class OUProcessOptionViewer extends JFrame implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		double theta = Double.valueOf(thetaField.getText()).doubleValue();
-		double mu = Double.valueOf(muField.getText()).doubleValue();
-		double sigma = Double.valueOf(sigmaField.getText()).doubleValue();
-		double strike = Double.valueOf(strikeField.getText()).doubleValue();
-		double tmat = Double.valueOf(tmatField.getText()).doubleValue();
-		//double x0 = Double.valueOf(x0Field.getText()).doubleValue();
-		
-		Solution sol = computeOUProcessEuropeanPut(theta, mu, sigma, strike, tmat);
-		
-		
-		double[] solutionValue=sol.getPdeGrid().get(sol.getPdeGrid().size()-1);
-		
-		XYSeries putPriceSeries=new XYSeries("OU Process European Put");
+		if (e.getActionCommand().equals("Compute OU")) {
+			double theta = Double.valueOf(ouThetaField.getText()).doubleValue();
+			double mu = Double.valueOf(ouMuField.getText()).doubleValue();
+			double sigma = Double.valueOf(ouSigmaField.getText()).doubleValue();
+			double strike = Double.valueOf(ouStrikeField.getText())
+					.doubleValue();
+			double tmat = Double.valueOf(ouTmatField.getText()).doubleValue();
+			// double x0 = Double.valueOf(x0Field.getText()).doubleValue();
 
-		double x=sol.getxMin();
-		int i=0;
-		while (i<solutionValue.length) {
-			putPriceSeries.add(x, solutionValue[i]);
-			
-			//System.out.println("X: "+x+", sol="+solutionValue[i]);			
-			x+=sol.getDx();
-			i++;
+			Solution sol = computeOUProcessEuropeanPut(theta, mu, sigma,
+					strike, tmat);
+
+			double[] solutionValue = sol.getPdeGrid().get(
+					sol.getPdeGrid().size() - 1);
+
+			XYSeries putPriceSeries = new XYSeries("OU Process European Put");
+
+			double x = sol.getxMin();
+			int i = 0;
+			while (i < solutionValue.length) {
+				putPriceSeries.add(x, solutionValue[i]);
+
+				// System.out.println("X: "+x+", sol="+solutionValue[i]);
+				x += sol.getDx();
+				i++;
+			}
+
+			XYSeriesCollection dataset = new XYSeriesCollection();
+			dataset.addSeries(putPriceSeries);
+
+			JFreeChart chart = ChartFactory.createXYLineChart(
+					"OU Process Put Price", "X", "Price", dataset,
+					PlotOrientation.VERTICAL, true, true, false);
+
+			chart.getPlot().setBackgroundPaint(
+					new GradientPaint(1, 1, Color.yellow.darker().darker(),
+							1500, 1500, Color.darkGray));
+
+			getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
+
+			super.invalidate();
+			super.validate();
 		}
-		
-		XYSeriesCollection dataset=new XYSeriesCollection();
-		dataset.addSeries(putPriceSeries);
-		
-		JFreeChart chart=ChartFactory.createXYLineChart("OU Process Put Price", "X", "Price", dataset, PlotOrientation.VERTICAL, 
-				true, true, false);
-		
-		chart.getPlot().setBackgroundPaint(new GradientPaint(1, 1, Color.yellow.darker().darker(), 
-				1500, 1500, Color.darkGray));		
-		
-		getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
 
-		
-		super.invalidate();
-		super.validate();
-		
 	}
-	
 	
 	
 	
@@ -172,10 +179,10 @@ public class OUProcessOptionViewer extends JFrame implements ActionListener {
 		
 		UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		
-		OUProcessOptionViewer viewer=new OUProcessOptionViewer();
+		SDEOptionsViewer viewer=new SDEOptionsViewer();
 		viewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		viewer.setSize(800, 600);
+		viewer.setSize(1000, 600);
 		viewer.setVisible(true);
 	}
 	
