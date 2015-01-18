@@ -6,15 +6,6 @@
   <packaging>jar</packaging>
   <build>
   
-  	<!-- 
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>unit-tests</testSourceDirectory>
-    <resources>
-      <resource>
-      	<directory>draft-src</directory>
-      </resource>
-    </resources>  -->
-    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

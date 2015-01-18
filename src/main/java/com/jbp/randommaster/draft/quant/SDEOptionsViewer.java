@@ -1,4 +1,4 @@
-package com.jbp.randommaster.quant.sde;
+package com.jbp.randommaster.draft.quant;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
