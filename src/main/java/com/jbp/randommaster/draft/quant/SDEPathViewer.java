@@ -2,7 +2,6 @@ package com.jbp.randommaster.draft.quant;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
-import java.util.Iterator;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -29,14 +28,9 @@ public class SDEPathViewer {
 	
 	private static void fillSeries(XYSeries series, PathGenerator<? extends UnivariateStochasticProcess> generator) {
 		
-		int simCount=252;
 		double dt = 1.0/252.0;
-		
-		int step=0;
-		for (Iterator<Filtration<Double>> it=generator.stream(dt).iterator(); it.hasNext() && step<simCount;step++) {
-			Filtration<Double> ft = it.next();
-			series.add(ft.getTime(), ft.getProcessValue());
-		}		
+		double maxT = 1.0;
+		generator.streamUpToTime(dt, maxT).forEach(ft -> series.add(ft.getTime(), ft.getProcessValue()));					
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -57,7 +51,7 @@ public class SDEPathViewer {
 		EulerDriftDiffusionPathGenerator<GeometricBrownianMotion> gen2=new EulerDriftDiffusionPathGenerator<GeometricBrownianMotion>(gbm, initGbmFt, standardNormal);
 
 		
-		OUProcess ou=new OUProcess(30, 100.0, 20.0);
+		OUProcess ou=new OUProcess(30, 100.0, 28.0);
 		OUProcessPathGenerator gen3 = new OUProcessPathGenerator(ou, 110.0, standardNormal);
 		
 		Filtration<Double> initOuFt=new Filtration<Double>();
